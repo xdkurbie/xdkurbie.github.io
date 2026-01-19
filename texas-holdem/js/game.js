@@ -70,8 +70,9 @@ class Game {
             else p.resetForHand();
         });
 
-        if (this.players.filter(p => p.status !== 'out').length < 2) {
-            this.ui.showGameOver("Tournament Ended!");
+        const activeCount = this.players.filter(p => p.status !== 'out').length;
+        if (activeCount < 2) {
+            this.ui.showGameOver("Tournament Ended! You are the last one standing.");
             return;
         }
 
@@ -79,14 +80,15 @@ class Game {
         this.phaseIndex = 0; // PRE-FLOP
         this.pot = 0;
         this.communityCards = [];
-        this.deck.reset();
+        
+        // Re-initialize deck to ensure full 52 cards
+        this.deck = new Deck();
         this.deck.shuffle();
+        
         this.currentBet = this.bigBlind;
 
         // Move Dealer Button
         this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
-        
-        // Ensure Dealer is active (simple skip)
         while (this.players[this.dealerIndex].status === 'out') {
             this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
         }
@@ -99,8 +101,12 @@ class Game {
         this.ui.updatePot(this.pot);
         this.ui.updateCommunityCards(this.communityCards);
         
-        console.log("Hand Started. Dealer:", this.dealerIndex);
-        this.nextTurn();
+        console.log(`[GAME] Hand Started. Dealer: ${this.dealerIndex}, Active: ${activeCount}`);
+        
+        // Delay first turn to allow deal animation
+        setTimeout(() => {
+            this.nextTurn();
+        }, 2000);
     }
 
     postBlinds() {
@@ -251,26 +257,42 @@ class Game {
         const activePlayers = this.players.filter(p => p.status === 'active');
         if (activePlayers.length === 0) return true; 
 
+        // Debugging Round State
         const allMatched = activePlayers.every(p => p.currentBet === this.currentBet);
         const allActed = activePlayers.every(p => p.hasActedThisRound);
         
-        return allMatched && allActed;
+        if (!allMatched || !allActed) {
+            // console.log(`[ROUND] Incomplete. Matched: ${allMatched}, Acted: ${allActed}`);
+            return false;
+        }
+        
+        console.log(`[ROUND] Complete. Pot: ${this.pot}`);
+        return true;
     }
     
     nextPhase() {
         this.phaseIndex++;
+        if (this.phaseIndex >= PHASES.length) {
+            this.handleShowdown(); // Should usually catch in previous logic, but fallback
+            return;
+        }
+
         const phase = PHASES[this.phaseIndex];
-        console.log("Starting Phase:", phase);
+        console.log(`[PHASE] Starting ${phase}`);
         
-        // Reset Betting
+        // Reset Betting for new round
         this.players.forEach(p => {
             p.currentBet = 0;
             p.hasActedThisRound = false;
         });
         this.currentBet = 0;
         
-        // Start left of dealer
-        this.currentPlayerIndex = (this.dealerIndex + 1) % this.players.length;
+        // Start left of dealer (SB position)
+        let startIndex = (this.dealerIndex + 1) % this.players.length;
+        while (this.players[startIndex].status === 'out' || this.players[startIndex].status === 'folded') {
+            startIndex = (startIndex + 1) % this.players.length;
+        }
+        this.currentPlayerIndex = startIndex;
 
         this.ui.updatePot(this.pot);
 
@@ -289,15 +311,23 @@ class Game {
             return;
         }
 
+        // Validate Community Cards
+        if (this.communityCards.some(c => !c)) {
+            console.error("[ERROR] Deck ran out of cards!");
+            // Attempt to restore/fix? For now just log.
+        }
+
         this.ui.updateCommunityCards(this.communityCards);
         this.updateUserHandStrength();
         
-        // Check if only 1 active player remains (others all-in) -> Auto-run to Showdown
+        // Auto-progress if only 1 active player (rest all-in)
         const active = this.players.filter(p => p.status === 'active');
         if (active.length < 2) {
+            console.log("[GAME] Auto-running to Showdown (All-ins)");
             setTimeout(() => this.nextPhase(), 2000);
         } else {
-            this.nextTurn();
+            // Delay next turn slightly for visual pacing
+            setTimeout(() => this.nextTurn(), 1000);
         }
     }
 
