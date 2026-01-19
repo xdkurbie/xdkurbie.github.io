@@ -18,6 +18,7 @@ class Player {
         // Customization
         this.hat = null;
         this.gloves = null;
+        this.hasActedThisRound = false;
     }
 
     resetForHand() {
@@ -25,6 +26,7 @@ class Player {
         this.status = this.chips > 0 ? 'active' : 'out';
         this.currentBet = 0;
         this.totalBetThisHand = 0;
+        this.hasActedThisRound = false;
     }
 }
 
@@ -43,6 +45,8 @@ class Game {
         this.bigBlind = 20;
         this.smallBlind = 10;
         this.gameActive = false;
+        this.turnTimer = null;
+        this.timeLeft = 0;
         
         // AI Controller
         this.ai = new AI(this);
@@ -63,7 +67,13 @@ class Game {
     }
 
     startHand() {
-        if (this.players.filter(p => p.chips > 0).length < 2) {
+        // Reset flags for everyone
+        this.players.forEach(p => {
+            if (p.chips <= 0) p.status = 'out';
+            else p.resetForHand();
+        });
+
+        if (this.players.filter(p => p.status !== 'out').length < 2) {
             this.ui.showGameOver("Tournament Ended!");
             return;
         }
@@ -75,9 +85,6 @@ class Game {
         this.deck.reset();
         this.deck.shuffle();
         this.currentBet = this.bigBlind;
-
-        // Reset players
-        this.players.forEach(p => p.resetForHand());
 
         // Move Dealer Button
         this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
@@ -103,7 +110,10 @@ class Game {
         const bbIndex = (this.dealerIndex + 2) % this.players.length;
 
         this.placeBet(this.players[sbIndex], this.smallBlind);
+        this.players[sbIndex].hasActedThisRound = false; // Blinds haven't "acted" in terms of matching a raise
+        
         this.placeBet(this.players[bbIndex], this.bigBlind);
+        this.players[bbIndex].hasActedThisRound = false;
 
         this.currentPlayerIndex = (bbIndex + 1) % this.players.length;
     }
@@ -153,7 +163,31 @@ class Game {
         }
     }
 
+    startTimer() {
+        if (this.turnTimer) clearInterval(this.turnTimer);
+        this.timeLeft = 15; // 15 seconds per turn
+        this.ui.updateTimer(this.timeLeft, 15);
+        
+        this.turnTimer = setInterval(() => {
+            this.timeLeft--;
+            this.ui.updateTimer(this.timeLeft, 15);
+            
+            if (this.timeLeft <= 0) {
+                clearInterval(this.turnTimer);
+                this.handlePlayerAction('fold'); // Auto-fold on timeout
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.turnTimer) clearInterval(this.turnTimer);
+        this.ui.hideTimer();
+    }
+
     async nextTurn() {
+        // Stop previous timer
+        this.stopTimer();
+
         // Check if round should end
         if (this.isRoundComplete()) {
             this.nextPhase();
@@ -173,6 +207,9 @@ class Game {
         const player = this.players[this.currentPlayerIndex];
         this.ui.highlightPlayer(this.currentPlayerIndex);
 
+        // Start timer for current player
+        this.startTimer();
+
         if (player.isBot) {
             await this.ai.makeMove(player);
         } else {
@@ -181,7 +218,9 @@ class Game {
     }
 
     async handlePlayerAction(action, amount = 0) {
+        this.stopTimer();
         const player = this.players[this.currentPlayerIndex];
+        player.hasActedThisRound = true;
         
         switch(action) {
             case 'fold':
@@ -208,30 +247,14 @@ class Game {
 
     isRoundComplete() {
         // Check if all active players have matched the current bet
-        // And everyone has acted at least once (unless pre-flop big blind option)
+        // And everyone has acted at least once
         const activePlayers = this.players.filter(p => p.status === 'active');
         if (activePlayers.length === 0) return true; // Everyone all-in or folded
 
         const allMatched = activePlayers.every(p => p.currentBet === this.currentBet);
+        const allActed = activePlayers.every(p => p.hasActedThisRound);
         
-        // Hacky check: ensure we don't end round immediately on pre-flop big blind
-        // Real logic is more complex, but for this engine:
-        // If currentBet > 0 and all matched, proceed.
-        // Special case: Big blind pre-flop gets to act.
-        
-        // Simplification: We track "actors left" in a robust engine. 
-        // Here: if everyone acted and bets match.
-        // For MVP: assume complete if all matched and it's not the start of a betting round where no one acted.
-        // We'll rely on the turn loop to ensure everyone gets a chance.
-        // Actually, let's just cycle until the betting stabilizes.
-        
-        // We need a flag if any action occurred this round.
-        // For now, let's assume if we cycle back to the aggressor (or BB), it's done.
-        
-        return allMatched && this.lastAggressorIndex === this.currentPlayerIndex; 
-        // This is tricky. Let's simplify: 
-        // Round ends when everyone matches the highest bet.
-        // We need to ensure everyone had a chance.
+        return allMatched && allActed;
     }
     
     // Simplified round management
@@ -245,6 +268,7 @@ class Game {
         // Reset bets for new round
         this.players.forEach(p => {
             p.currentBet = 0;
+            p.hasActedThisRound = false;
             if (p.status === 'active' || p.status === 'all-in') {
                 // Keep status
             }
@@ -328,8 +352,20 @@ class Game {
 window.addEventListener('DOMContentLoaded', () => {
     const ui = new UI();
     const game = new Game(ui);
-    ui.setGame(game);
     
-    // Initial Render
+    // Check if Firebase is loaded
+    if (typeof firebase !== 'undefined') {
+        const mp = new Multiplayer(game, ui);
+        
+        // Override for Client Mode
+        // If we are NOT host, UI actions should send to network
+        // But we don't know if we are host yet (async)
+        // We'll let Multiplayer class handle the override when it joins
+        
+        // Allow Multiplayer to access Game
+        game.multiplayer = mp;
+    }
+    
+    ui.setGame(game);
     ui.updatePlayers(game.players);
 });

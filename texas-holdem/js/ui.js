@@ -131,6 +131,23 @@ class UI {
             location.reload();
         };
 
+        // Withdraw Button
+        const withdrawBtn = document.getElementById('withdraw-match-btn');
+        if (withdrawBtn) {
+            withdrawBtn.onclick = () => {
+                if (confirm("Are you sure you want to withdraw? You will lose your seat.")) {
+                    window.location.href = "../index.html";
+                }
+            };
+        }
+
+        // Winnings Modal Next Round
+        document.getElementById('btn-next-round').onclick = () => {
+            document.getElementById('winnings-modal').classList.remove('active');
+            // Check if we need to manually trigger next round or if it's automatic
+            // Game loop handles it, this just closes modal
+        };
+
         // Shop Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.onclick = (e) => {
@@ -295,16 +312,72 @@ class UI {
     }
 
     announceWinner(winner, amount) {
-        const status = document.getElementById('game-status');
-        status.textContent = `${winner.name} WINS $${amount}!`;
-        status.style.fontSize = '2rem';
-        status.style.color = 'var(--color-primary)';
+        // Show Modal
+        const modal = document.getElementById('winnings-modal');
+        document.getElementById('winner-name').textContent = winner.name;
+        document.getElementById('winner-amount').textContent = '$' + amount;
+        
+        // Show avatar/hat
+        const avatarEl = document.getElementById('winner-avatar');
+        avatarEl.innerHTML = '👤'; // Default
+        // If customization exists (logic needed to pull hat from player object)
+        if (winner.hat && winner.hat !== 'hat_none') {
+            const hatItem = this.shopItems.hats.find(i => i.id === winner.hat);
+            if (hatItem) {
+                const hatEl = document.createElement('div');
+                hatEl.className = 'avatar-hat';
+                hatEl.style.position = 'relative';
+                hatEl.style.top = '-60px';
+                hatEl.textContent = hatItem.icon;
+                avatarEl.appendChild(hatEl);
+            }
+        }
+
+        // Show Hand
+        const handContainer = document.getElementById('winning-hand');
+        handContainer.innerHTML = '';
+        
+        // Use best hand cards if available, else just hole cards?
+        // Ideally we show the 5 best cards.
+        // For now, show hole cards + community cards? No, just hole cards + text description
+        // Or if I have access to the winning hand combination...
+        // Evaluator returns the rank but not the specific cards in the combination currently.
+        // I'll just show the hole cards for now.
+        winner.hand.forEach(card => {
+            const el = document.createElement('div');
+            this.renderCardFace(el, card);
+            handContainer.appendChild(el);
+        });
+
+        // Determine hand name (re-evaluate to get name string)
+        const commCards = this.game.communityCards;
+        const evalResult = Evaluator.evaluate([...winner.hand, ...commCards]);
+        document.getElementById('winner-hand-name').textContent = evalResult.name;
+
+        modal.classList.add('active');
         this.playSound('win');
         
+        // Auto-close after 4s to match game loop delay
         setTimeout(() => {
-            status.textContent = '';
-            status.style.fontSize = '1rem';
-        }, 3000);
+            if (modal.classList.contains('active')) modal.classList.remove('active');
+        }, 3500);
+    }
+
+    updateTimer(timeLeft, maxTime) {
+        const bar = document.getElementById('turn-timer-bar');
+        const fill = document.getElementById('timer-fill');
+        
+        bar.style.display = 'block';
+        const pct = (timeLeft / maxTime) * 100;
+        fill.style.width = pct + '%';
+        
+        if (pct < 30) fill.style.backgroundColor = '#ff3366'; // Red warning
+        else fill.style.backgroundColor = 'var(--color-primary)';
+    }
+
+    hideTimer() {
+        const bar = document.getElementById('turn-timer-bar');
+        bar.style.display = 'none';
     }
 
     showGameOver(msg) {

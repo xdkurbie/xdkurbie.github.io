@@ -1,0 +1,62 @@
+/* Additions to css/styles.css */
+
+/* Timer Bar */
+.turn-timer-bar {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 6px;
+    background: rgba(0,0,0,0.5);
+    display: none;
+}
+
+.timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--color-primary);
+    transition: width 1s linear;
+}
+
+/* Winnings Modal */
+.winner-avatar {
+    font-size: 4rem;
+    margin: 10px auto;
+    text-align: center;
+}
+
+.winner-name {
+    text-align: center;
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+.winner-amount {
+    text-align: center;
+    color: var(--color-primary);
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.winning-hand {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.hand-name {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+}
+
+/* Small adjustments */
+.controls-area {
+    overflow: hidden; /* For timer bar */
+}
