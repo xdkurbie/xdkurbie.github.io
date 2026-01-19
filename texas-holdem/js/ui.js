@@ -167,12 +167,77 @@ class UI {
 
     updatePlayerChips(player) {
         const el = document.querySelector(`#seat-${player.id} .player-chips`);
-        if (el) el.textContent = '$' + player.chips;
-        
-        if (player.id === 0) { // User
-            // Update shop balance if visible? For now, user uses game chips for shop (Governor style)
-            // Or maybe a separate bankroll? Let's use game chips for simplicity.
+        if (el) {
+            el.innerHTML = '';
+            // Text Amount
+            const textSpan = document.createElement('span');
+            textSpan.textContent = '$' + player.chips;
+            el.appendChild(textSpan);
+            
+            // Chip Visuals
+            const chipContainer = document.createElement('div');
+            chipContainer.className = 'chip-container';
+            
+            let amount = player.chips;
+            // Simplified stack logic: 1 chip per denomination unit roughly
+            // Gold(5000), Black(1000), Red(500), Blue(100), Green(25)
+            
+            const addChip = (color, count) => {
+                for(let i=0; i<Math.min(count, 5); i++) { // Cap visual stack at 5 per color
+                    const chip = document.createElement('div');
+                    chip.className = `poker-chip ${color}`;
+                    chip.style.marginTop = i > 0 ? '-14px' : '0';
+                    chipContainer.appendChild(chip);
+                }
+            };
+            
+            const golds = Math.floor(amount / 5000); amount %= 5000;
+            const blacks = Math.floor(amount / 1000); amount %= 1000;
+            const reds = Math.floor(amount / 500); amount %= 500;
+            const blues = Math.floor(amount / 100); amount %= 100;
+            
+            if (golds > 0) addChip('gold', golds);
+            if (blacks > 0) addChip('black', blacks);
+            if (reds > 0) addChip('red', reds);
+            if (blues > 0) addChip('blue', blues);
+            
+            el.appendChild(chipContainer);
         }
+        
+        if (player.id === 0) {
+            const max = player.chips;
+            const slider = document.getElementById('bet-slider');
+            if (slider) slider.max = max;
+        }
+    }
+
+    animateAvatar(playerId, action) {
+        const avatar = document.querySelector(`#seat-${playerId} .player-avatar`);
+        if (!avatar) return;
+        
+        // Remove old classes
+        avatar.classList.remove('avatar-anim-fold', 'avatar-anim-raise', 'avatar-anim-win', 'avatar-anim-think');
+        
+        if (action === 'fold') avatar.classList.add('avatar-anim-fold');
+        if (action === 'raise' || action === 'all-in') avatar.classList.add('avatar-anim-raise');
+        if (action === 'win') avatar.classList.add('avatar-anim-win');
+    }
+
+    setPlayerStatus(playerId, text) {
+        const info = document.querySelector(`#seat-${playerId} .player-info`);
+        if (!info) return;
+        
+        let statusEl = info.querySelector('.status-text');
+        if (!statusEl) {
+            statusEl = document.createElement('div');
+            statusEl.className = 'status-text';
+            info.appendChild(statusEl);
+        }
+        
+        statusEl.textContent = text;
+        const avatar = document.querySelector(`#seat-${playerId} .player-avatar`);
+        if (text) avatar.classList.add('avatar-anim-think');
+        else avatar.classList.remove('avatar-anim-think');
     }
 
     updateDealer(dealerIndex) {

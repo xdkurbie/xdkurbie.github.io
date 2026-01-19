@@ -1,0 +1,73 @@
+/* Additions for Visual Chips & Animations */
+
+/* Chip Visuals */
+.chip-container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 5px;
+    height: 20px;
+    align-items: flex-end;
+}
+
+.poker-chip {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px dashed #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.poker-chip.red { background: #d00; border-color: #ffcccc; }
+.poker-chip.blue { background: #00d; border-color: #ccccff; }
+.poker-chip.green { background: #0d0; border-color: #ccffcc; }
+.poker-chip.black { background: #111; border-color: #666; }
+.poker-chip.gold { background: #fd0; border-color: #fff; box-shadow: 0 0 5px #fd0; }
+
+.chip-stack {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-top: -12px; /* Overlap for stack effect */
+}
+
+/* Avatar Animations */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px) rotate(-5deg); }
+    75% { transform: translateX(5px) rotate(5deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes spin-win {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes pulse-think {
+    0% { box-shadow: 0 0 0 0 rgba(210, 255, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(210, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(210, 255, 0, 0); }
+}
+
+.avatar-anim-fold { animation: shake 0.5s ease; filter: grayscale(1); opacity: 0.7; }
+.avatar-anim-raise { animation: bounce 0.5s ease; }
+.avatar-anim-win { animation: spin-win 1s ease; border-color: #fd0 !important; }
+.avatar-anim-think { animation: pulse-think 1s infinite; }
+
+/* Status Text Overlay */
+.status-text {
+    position: absolute;
+    top: -20px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--color-primary);
+    text-shadow: 0 1px 2px #000;
+    pointer-events: none;
+}

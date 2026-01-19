@@ -1,5 +1,6 @@
 /**
- * Texas Hold'em Game Engine
+ * Professional Texas Hold'em Game Engine
+ * "Super Smart Dealer"
  */
 
 const PHASES = ['PRE-FLOP', 'FLOP', 'TURN', 'RIVER', 'SHOWDOWN'];
@@ -11,14 +12,14 @@ class Player {
         this.isBot = isBot;
         this.chips = chips;
         this.hand = [];
-        this.status = 'active'; // active, folded, all-in
+        this.status = 'active'; 
         this.currentBet = 0;
         this.totalBetThisHand = 0;
+        this.hasActedThisRound = false;
         
         // Customization
         this.hat = null;
         this.gloves = null;
-        this.hasActedThisRound = false;
     }
 
     resetForHand() {
@@ -40,7 +41,7 @@ class Game {
         this.dealerIndex = 0;
         this.currentPlayerIndex = 0;
         this.phaseIndex = 0;
-        this.currentBet = 0; // Highest bet in current round
+        this.currentBet = 0;
         this.minRaise = 20;
         this.bigBlind = 20;
         this.smallBlind = 10;
@@ -48,16 +49,12 @@ class Game {
         this.turnTimer = null;
         this.timeLeft = 0;
         
-        // AI Controller
         this.ai = new AI(this);
-
         this.initPlayers();
     }
 
     initPlayers() {
-        // User
         this.players.push(new Player(0, 'You', false, 10000));
-        // Bots
         this.players.push(new Player(1, 'Bot Alpha', true, 10000));
         this.players.push(new Player(2, 'Bot Beta', true, 10000));
         this.players.push(new Player(3, 'Bot Gamma', true, 10000));
@@ -67,7 +64,7 @@ class Game {
     }
 
     startHand() {
-        // Reset flags for everyone
+        // Reset flags
         this.players.forEach(p => {
             if (p.chips <= 0) p.status = 'out';
             else p.resetForHand();
@@ -88,12 +85,13 @@ class Game {
 
         // Move Dealer Button
         this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
-        // Skip eliminated players for dealer button if necessary, but simple rotation is fine for now
+        
+        // Ensure Dealer is active (simple skip)
+        while (this.players[this.dealerIndex].status === 'out') {
+            this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
+        }
 
-        // Post Blinds
         this.postBlinds();
-
-        // Deal Cards
         this.dealHoleCards();
 
         this.ui.resetTable();
@@ -101,28 +99,32 @@ class Game {
         this.ui.updatePot(this.pot);
         this.ui.updateCommunityCards(this.communityCards);
         
-        // Start Betting
+        console.log("Hand Started. Dealer:", this.dealerIndex);
         this.nextTurn();
     }
 
     postBlinds() {
-        const sbIndex = (this.dealerIndex + 1) % this.players.length;
-        const bbIndex = (this.dealerIndex + 2) % this.players.length;
+        let sbIndex = (this.dealerIndex + 1) % this.players.length;
+        while (this.players[sbIndex].status === 'out') sbIndex = (sbIndex + 1) % this.players.length;
+        
+        let bbIndex = (sbIndex + 1) % this.players.length;
+        while (this.players[bbIndex].status === 'out') bbIndex = (bbIndex + 1) % this.players.length;
 
         this.placeBet(this.players[sbIndex], this.smallBlind);
-        this.players[sbIndex].hasActedThisRound = false; // Blinds haven't "acted" in terms of matching a raise
+        this.players[sbIndex].hasActedThisRound = false; 
         
         this.placeBet(this.players[bbIndex], this.bigBlind);
         this.players[bbIndex].hasActedThisRound = false;
 
+        // Start UTG (Under The Gun)
         this.currentPlayerIndex = (bbIndex + 1) % this.players.length;
     }
 
     placeBet(player, amount) {
-        if (amount > player.chips) amount = player.chips; // All-in
+        if (amount > player.chips + player.currentBet) amount = player.chips + player.currentBet; // Cap at max possible
         
-        const contribution = amount - player.currentBet; // Additional amount needed
-        if (contribution < 0) return; // Should not happen
+        const contribution = amount - player.currentBet;
+        if (contribution < 0) return;
 
         player.chips -= contribution;
         player.currentBet = amount;
@@ -132,16 +134,17 @@ class Game {
         if (player.chips === 0) player.status = 'all-in';
         if (amount > this.currentBet) {
             this.currentBet = amount;
-            this.minRaise = amount * 2; // Simple double raise rule
+            this.minRaise = amount * 2; 
         }
 
         this.ui.updatePlayerChips(player);
         this.ui.updatePot(this.pot);
-        this.ui.showAction(player, amount === 0 ? 'Check' : (amount === this.currentBet ? 'Call' : 'Raise'));
+        
+        const actionText = amount === 0 ? 'Check' : (amount === this.currentBet ? 'Call' : 'Raise');
+        this.ui.showAction(player, actionText);
     }
 
     dealHoleCards() {
-        // Deal 2 cards to each active player
         for (let i = 0; i < 2; i++) {
             this.players.forEach(p => {
                 if (p.status !== 'out') {
@@ -150,8 +153,6 @@ class Game {
             });
         }
         this.ui.dealCards(this.players);
-        
-        // Calculate user hand strength immediately for UI
         this.updateUserHandStrength();
     }
 
@@ -165,7 +166,7 @@ class Game {
 
     startTimer() {
         if (this.turnTimer) clearInterval(this.turnTimer);
-        this.timeLeft = 15; // 15 seconds per turn
+        this.timeLeft = 15; 
         this.ui.updateTimer(this.timeLeft, 15);
         
         this.turnTimer = setInterval(() => {
@@ -174,7 +175,7 @@ class Game {
             
             if (this.timeLeft <= 0) {
                 clearInterval(this.turnTimer);
-                this.handlePlayerAction('fold'); // Auto-fold on timeout
+                this.handlePlayerAction('fold'); 
             }
         }, 1000);
     }
@@ -185,29 +186,25 @@ class Game {
     }
 
     async nextTurn() {
-        // Stop previous timer
         this.stopTimer();
 
-        // Check if round should end
         if (this.isRoundComplete()) {
             this.nextPhase();
             return;
         }
 
-        // Skip folded/all-in players (unless everyone is all-in, handled in isRoundComplete)
+        // Find next active player
         let loopCount = 0;
         while ((this.players[this.currentPlayerIndex].status !== 'active') && loopCount < this.players.length) {
             this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
             loopCount++;
         }
 
-        // If everyone folded but one, they win immediately
+        // Everyone folded/all-in except one?
         if (this.checkWinByDefault()) return;
 
         const player = this.players[this.currentPlayerIndex];
         this.ui.highlightPlayer(this.currentPlayerIndex);
-
-        // Start timer for current player
         this.startTimer();
 
         if (player.isBot) {
@@ -222,6 +219,9 @@ class Game {
         const player = this.players[this.currentPlayerIndex];
         player.hasActedThisRound = true;
         
+        // Animation
+        this.ui.animateAvatar(player.id, action);
+
         switch(action) {
             case 'fold':
                 player.status = 'folded';
@@ -242,14 +242,14 @@ class Game {
         }
 
         this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
-        setTimeout(() => this.nextTurn(), 500); // Small delay for pacing
+        
+        // Pace the game
+        setTimeout(() => this.nextTurn(), 600);
     }
 
     isRoundComplete() {
-        // Check if all active players have matched the current bet
-        // And everyone has acted at least once
         const activePlayers = this.players.filter(p => p.status === 'active');
-        if (activePlayers.length === 0) return true; // Everyone all-in or folded
+        if (activePlayers.length === 0) return true; 
 
         const allMatched = activePlayers.every(p => p.currentBet === this.currentBet);
         const allActed = activePlayers.every(p => p.hasActedThisRound);
@@ -257,27 +257,24 @@ class Game {
         return allMatched && allActed;
     }
     
-    // Simplified round management
-    // We will just let the loop run. If we reach a player who has already matched the highest bet AND no one has raised since their last turn...
-    // Let's implement a 'actedThisRound' set.
-    
     nextPhase() {
         this.phaseIndex++;
         const phase = PHASES[this.phaseIndex];
+        console.log("Starting Phase:", phase);
         
-        // Reset bets for new round
+        // Reset Betting
         this.players.forEach(p => {
             p.currentBet = 0;
             p.hasActedThisRound = false;
-            if (p.status === 'active' || p.status === 'all-in') {
-                // Keep status
-            }
         });
         this.currentBet = 0;
-        this.currentPlayerIndex = (this.dealerIndex + 1) % this.players.length; // Start left of dealer
+        
+        // Start left of dealer
+        this.currentPlayerIndex = (this.dealerIndex + 1) % this.players.length;
 
         this.ui.updatePot(this.pot);
 
+        // Deal Community Cards
         if (phase === 'FLOP') {
             this.deck.deal(); // Burn
             this.communityCards.push(this.deck.deal(), this.deck.deal(), this.deck.deal());
@@ -295,10 +292,10 @@ class Game {
         this.ui.updateCommunityCards(this.communityCards);
         this.updateUserHandStrength();
         
-        // Auto-progress if everyone is all-in
+        // Check if only 1 active player remains (others all-in) -> Auto-run to Showdown
         const active = this.players.filter(p => p.status === 'active');
         if (active.length < 2) {
-            setTimeout(() => this.nextPhase(), 1000);
+            setTimeout(() => this.nextPhase(), 2000);
         } else {
             this.nextTurn();
         }
@@ -307,23 +304,19 @@ class Game {
     handleShowdown() {
         const activePlayers = this.players.filter(p => p.status !== 'folded' && p.status !== 'out');
         
-        // Evaluate all hands
         const results = activePlayers.map(p => {
             const evalResult = Evaluator.evaluate([...p.hand, ...this.communityCards]);
             return { player: p, result: evalResult };
         });
 
-        // Sort by score desc
         results.sort((a, b) => b.result.score - a.result.score);
-
         const winner = results[0];
-        // Handle ties (split pot) - simplified: first player wins
         
-        this.ui.showShowdown(results); // Reveal all cards
+        this.ui.showShowdown(results); 
         
         setTimeout(() => {
             this.distributeWinnings(winner.player);
-        }, 2000);
+        }, 3000);
     }
 
     checkWinByDefault() {
@@ -344,7 +337,7 @@ class Game {
         
         setTimeout(() => {
             this.startHand();
-        }, 4000);
+        }, 5000);
     }
 }
 
@@ -356,13 +349,6 @@ window.addEventListener('DOMContentLoaded', () => {
     // Check if Firebase is loaded
     if (typeof firebase !== 'undefined') {
         const mp = new Multiplayer(game, ui);
-        
-        // Override for Client Mode
-        // If we are NOT host, UI actions should send to network
-        // But we don't know if we are host yet (async)
-        // We'll let Multiplayer class handle the override when it joins
-        
-        // Allow Multiplayer to access Game
         game.multiplayer = mp;
     }
     

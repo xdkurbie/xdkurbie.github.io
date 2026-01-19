@@ -1,5 +1,6 @@
 /**
- * Poker AI Logic
+ * Advanced Poker AI Logic
+ * "Super Smart Dealer Poker Understanding"
  */
 
 class AI {
@@ -8,82 +9,115 @@ class AI {
     }
 
     async makeMove(player) {
-        // Simulate thinking time
-        await new Promise(r => setTimeout(r, 1000 + Math.random() * 2000));
+        // Simulate human thinking time (variable)
+        const thinkingTime = 1000 + Math.random() * 2000;
+        this.game.ui.setPlayerStatus(player.id, 'Thinking...');
+        await new Promise(r => setTimeout(r, thinkingTime));
+        this.game.ui.setPlayerStatus(player.id, '');
 
-        const hand = [...player.hand, ...this.game.communityCards];
-        const evalResult = Evaluator.evaluate(hand);
-        const score = evalResult.score;
+        const phase = this.game.phaseIndex; // 0=Pre, 1=Flop, 2=Turn, 3=River
+        const holeCards = player.hand;
+        const community = this.game.communityCards;
         const currentBet = this.game.currentBet;
         const toCall = currentBet - player.currentBet;
+        const pot = this.game.pot;
         
-        // Game Phase Logic
-        const phase = this.game.phaseIndex; // 0=Pre, 1=Flop, 2=Turn, 3=River
-
-        // Strength 0-10 scale (approx)
-        // High card ~1, Pair ~2, Two Pair ~3...
-        const strength = score / 1000000;
-
         let action = 'fold';
         let amount = 0;
 
-        // Basic Decision Tree
-        if (phase === 0) { // Pre-flop
-            const c1 = player.hand[0];
-            const c2 = player.hand[1];
-            const isPair = c1.rank === c2.rank;
-            const highCards = c1.value > 10 || c2.value > 10;
-            
-            if (isPair || highCards) {
-                if (Math.random() > 0.3) action = 'raise';
-                else action = 'call';
-            } else if (c1.value > 8 && c2.value > 8) {
-                action = 'call';
-            } else {
-                // Low cards
-                if (toCall === 0) action = 'check';
-                else action = Math.random() > 0.8 ? 'call' : 'fold'; // 20% bluff/loose
-            }
+        if (phase === 0) {
+            action = this.decidePreFlop(player, holeCards, toCall, currentBet);
         } else {
-            // Post-flop
-            if (strength >= 2) { // Pair or better
-                if (strength >= 3) { // Two Pair+
-                    action = 'raise';
-                } else {
-                    action = 'call';
-                }
-            } else {
-                // High card / weak
-                if (toCall === 0) action = 'check';
-                else {
-                    // Bluff chance
-                    if (Math.random() > 0.85) action = 'raise'; // 15% bluff
-                    else if (Math.random() > 0.6) action = 'call'; // Floating
-                    else action = 'fold';
-                }
-            }
+            action = this.decidePostFlop(player, holeCards, community, toCall, pot);
         }
 
-        // Validate Action against chips
+        // Execution Logic
+        if (action === 'check' && toCall > 0) action = 'fold'; // Safety
+        if (action === 'call' && toCall === 0) action = 'check'; // Safety
+
         if (action === 'raise') {
             const minRaise = this.game.minRaise;
-            let raiseAmt = minRaise + Math.floor(Math.random() * 50); // Add variance
+            // Bet sizing: 2.5x BB or Pot Size
+            let raiseAmt = Math.max(minRaise, this.game.bigBlind * 2.5);
             
-            if (player.chips <= toCall) {
-                action = 'all-in';
-            } else if (player.chips < raiseAmt) {
-                action = 'all-in';
-            } else {
-                amount = currentBet + raiseAmt;
-            }
-        } else if (action === 'call') {
+            // Randomize slightly to be less robotic
+            raiseAmt += Math.floor(Math.random() * this.game.bigBlind);
+
             if (player.chips <= toCall) action = 'all-in';
+            else if (player.chips < raiseAmt) action = 'all-in';
+            else amount = currentBet + raiseAmt;
         }
 
-        // If Check is possible but AI wants to Fold (logic error fix)
-        if (action === 'fold' && toCall === 0) action = 'check';
+        if (action === 'call' && player.chips <= toCall) action = 'all-in';
 
-        // Execute
+        // Animate Avatar based on action
+        this.game.ui.animateAvatar(player.id, action);
+
         this.game.handlePlayerAction(action, amount);
+    }
+
+    decidePreFlop(player, hand, toCall, currentBet) {
+        const c1 = hand[0];
+        const c2 = hand[1];
+        const pair = c1.rank === c2.rank;
+        const suited = c1.suit === c2.suit;
+        const highCard = Math.max(c1.value, c2.value);
+        const lowCard = Math.min(c1.value, c2.value);
+        const gap = highCard - lowCard;
+        const connected = gap === 1;
+
+        // Chen Formula-ish Score
+        let score = 0;
+        score += Math.max(10, c1.value) + Math.max(10, c2.value); // Simplified high card value
+        if (pair) score *= 2;
+        if (suited) score += 2;
+        if (connected) score += 1;
+        if (gap > 4) score -= 2;
+
+        // Tighter ranges
+        const isAggressive = Math.random() > 0.5; // Bot personality
+        
+        if (score > 28) return 'raise'; // AA, KK, QQ, AKs
+        if (score > 20) return toCall > this.game.bigBlind * 3 ? 'call' : 'raise';
+        if (score > 16) return 'call'; // Playable hands
+        
+        // Position / Pot Odds Logic (Simplified)
+        if (toCall === 0) return 'check';
+        
+        // Random Bluff (Low frequency)
+        if (Math.random() < 0.05) return 'raise';
+
+        return 'fold';
+    }
+
+    decidePostFlop(player, hole, community, toCall, pot) {
+        const evalResult = Evaluator.evaluate([...hole, ...community]);
+        const handRank = evalResult.rank; // 1-10
+        const score = evalResult.score;
+
+        // Calculate Pot Odds
+        const potOdds = toCall / (pot + toCall);
+        
+        // Hand Strength (0-1) relative to board texture is hard, using Rank
+        // Rank 1 (High Card) -> Rank 10 (Royal Flush)
+        
+        // Determine "Made Hand" vs "Draw" (Draws not fully implemented, assume Made Hand logic)
+        
+        if (handRank >= 4) return 'raise'; // Three of a Kind or better -> Monster
+        if (handRank === 3) return 'raise'; // Two Pair -> Strong
+        if (handRank === 2) { // Pair
+            // Top pair check? (Simplified: Pair is decent)
+            if (toCall > pot * 0.5) return 'call'; // Call big bets
+            return 'raise'; // Raise small bets
+        }
+        
+        // High Card / Weak
+        if (toCall === 0) return 'check';
+        
+        // Floating / Bluffing
+        if (Math.random() < 0.1) return 'raise'; // Bluff
+        if (toCall < pot * 0.1) return 'call'; // Cheap call
+
+        return 'fold';
     }
 }
