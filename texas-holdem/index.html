@@ -143,6 +143,10 @@
 
         <!-- Game Controls -->
         <div class="controls-area">
+            <!-- Turn Timer -->
+            <div class="turn-timer-bar" id="turn-timer-bar" style="display: none;">
+                <div class="timer-fill" id="timer-fill"></div>
+            </div>
             <div class="betting-controls" id="betting-controls">
                 <div class="slider-container">
                     <input type="range" min="0" max="100" value="0" class="bet-slider" id="bet-slider">
@@ -227,6 +231,18 @@
             <div class="shop-grid" id="shop-grid">
                 <!-- Items injected by JS -->
             </div>
+        </div>
+    </div>
+
+    <!-- Winnings Modal -->
+    <div class="modal" id="winnings-modal">
+        <div class="modal-content winner-modal">
+            <div class="winner-avatar" id="winner-avatar">👤</div>
+            <h2 class="winner-title"><span id="winner-name">Player</span> WINS!</h2>
+            <div class="winner-amount" id="winner-amount">$0</div>
+            <div class="winning-hand" id="winning-hand"></div>
+            <div class="winner-hand-name" id="winner-hand-name">High Card</div>
+            <button class="btn btn-primary" id="btn-next-round">NEXT ROUND</button>
         </div>
     </div>
 

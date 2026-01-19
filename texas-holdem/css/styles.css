@@ -589,6 +589,86 @@ body {
 }
 .tab-btn.active { background: var(--color-primary); color: #000; font-weight: 700; }
 
+/* Turn Timer Bar */
+.turn-timer-bar {
+    position: absolute;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+}
+
+.timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--color-primary);
+    border-radius: 3px;
+    transition: width 0.1s linear, background-color 0.3s;
+}
+
+/* Winnings Modal */
+.winner-modal .modal-content {
+    text-align: center;
+    padding: 40px;
+}
+
+.winner-modal .winner-avatar {
+    width: 80px;
+    height: 80px;
+    background: #222;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 20px;
+    border: 3px solid var(--color-primary);
+    box-shadow: 0 0 20px var(--color-primary-glow);
+    position: relative;
+}
+
+.winner-modal .winner-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.winner-modal .winner-amount {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    text-shadow: 0 0 10px var(--color-primary-glow);
+    margin-bottom: 20px;
+}
+
+.winner-modal .winning-hand {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.winner-modal .winning-hand .card {
+    width: 50px;
+    height: 70px;
+    font-size: 0.9rem;
+}
+
+.winner-modal .winner-hand-name {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .poker-table { transform: scale(0.8); }
