@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Student</title>
+    <title>Flappy Student - Ultimate Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,31 +12,69 @@
         
         <div id="ui-layer">
             <div id="score-display">0</div>
+            <div id="high-score-indicator">Best: <span id="best-score">0</span></div>
+            
+            <!-- Pause Button -->
+            <button id="pause-button" class="game-control hidden">⏸</button>
             
             <!-- Main Menu -->
             <div id="menu-screen" class="overlay">
-                <h1>Flappy Student</h1>
-                <p>Help the student pass the exams!</p>
-                <div id="name-input-container">
-                    <input type="text" id="player-name" placeholder="Your Name" maxlength="10">
-                </div>
-                <button id="start-button">Start Game</button>
-                <div id="leaderboard">
-                    <h2>Top 10 Highscores</h2>
-                    <div id="highscore-list">
-                        <!-- Scores will be injected here -->
+                <div class="menu-content">
+                    <h1 class="game-title">
+                        <span class="title-flappy">Flappy</span>
+                        <span class="title-student">Student</span>
+                    </h1>
+                    <p class="subtitle">Navigate through university buildings and pass your exams!</p>
+                    <div id="name-input-container">
+                        <input type="text" id="player-name" placeholder="Your Name" maxlength="10">
                     </div>
+                    <button id="start-button" class="btn btn-primary">
+                        <span class="btn-icon">🎓</span>
+                        <span>Start Game</span>
+                    </button>
+                    <div id="controls-info">
+                        <p>🖱️ Click, 👆 Tap, or ⌨️ Space to flap</p>
+                    </div>
+                    <div id="leaderboard">
+                        <h2>🏆 Top 10 Highscores</h2>
+                        <div id="highscore-list">
+                            <!-- Scores will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pause Screen -->
+            <div id="pause-screen" class="overlay hidden">
+                <div class="pause-content">
+                    <h1>⏸ Paused</h1>
+                    <button id="resume-button" class="btn btn-primary">Resume</button>
+                    <button id="quit-button" class="btn btn-secondary">Quit to Menu</button>
                 </div>
             </div>
 
             <!-- Game Over -->
             <div id="game-over-screen" class="overlay hidden">
-                <h1>Exam Failed!</h1>
-                <p>Final Score: <span id="final-score">0</span></p>
-                <button id="restart-button">Try Again</button>
+                <div class="gameover-content">
+                    <h1 class="gameover-title">📚 Exam Failed!</h1>
+                    <div class="score-container">
+                        <p class="score-label">Final Score</p>
+                        <p class="final-score-value"><span id="final-score">0</span></p>
+                        <p id="new-record" class="new-record hidden">🎉 New High Score!</p>
+                    </div>
+                    <button id="restart-button" class="btn btn-primary">
+                        <span class="btn-icon">🔄</span>
+                        <span>Try Again</span>
+                    </button>
+                    <button id="menu-button" class="btn btn-secondary">Main Menu</button>
+                </div>
             </div>
         </div>
     </div>
+    
+    <!-- Mute Toggle -->
+    <button id="mute-toggle" class="mute-btn" title="Toggle Sound">🔊</button>
+    
     <script src="game.js"></script>
 </body>
 </html>
