@@ -236,6 +236,43 @@ var PACKET_MOTION = (function () {
     }, { passive: true });
   }
 
+  function portraitTilt() {
+    var portrait = document.querySelector(".node-portrait");
+    if (!portrait || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (portrait.dataset.tilt) return;
+    portrait.dataset.tilt = "1";
+    portrait.addEventListener("pointermove", function (event) {
+      if (reduced) return;
+      var rect = portrait.getBoundingClientRect();
+      var px = (event.clientX - rect.left) / rect.width - 0.5;
+      var py = (event.clientY - rect.top) / rect.height - 0.5;
+      portrait.style.setProperty("--rx", (-py * 10).toFixed(2));
+      portrait.style.setProperty("--ry", (px * 12).toFixed(2));
+      portrait.style.setProperty("--nx", (px * 8).toFixed(1));
+      portrait.style.setProperty("--ny", (py * 8).toFixed(1));
+    });
+    portrait.addEventListener("pointerleave", function () {
+      portrait.style.removeProperty("--rx");
+      portrait.style.removeProperty("--ry");
+      portrait.style.removeProperty("--nx");
+      portrait.style.removeProperty("--ny");
+    });
+  }
+
+  function armAvatar() {
+    var face = document.querySelector(".node-face");
+    if (!face || reduced || face.dataset.live === "1") return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    var loop = new Image();
+    loop.onload = function () {
+      if (reduced || !face.isConnected) return;
+      if (!face.dataset.poster) face.dataset.poster = face.getAttribute("src");
+      face.src = loop.src;
+      face.dataset.live = "1";
+    };
+    loop.src = "/img/avatar-loop.webp";
+  }
+
   function loadGL() {
     if (reduced) return;
     if (!matchMedia("(min-width: 900px)").matches) return;
@@ -255,6 +292,11 @@ var PACKET_MOTION = (function () {
     if (reduced) {
       document.documentElement.classList.remove("has-motion", "has-cursor");
       document.querySelectorAll(".cursor, .trail, .burst").forEach(function (el) { el.remove(); });
+      var face = document.querySelector(".node-face");
+      if (face && face.dataset.poster) {
+        face.src = face.dataset.poster;
+        face.dataset.live = "0";
+      }
       if (window.__packetGL) {
         window.__packetGL.stop();
         window.__packetGL = null;
@@ -270,6 +312,8 @@ var PACKET_MOTION = (function () {
       bursts();
       var title = document.querySelector(".hero-title");
       if (title) title.classList.add("is-live");
+      portraitTilt();
+      armAvatar();
       cursor();
       magnetic();
       tilt();
@@ -290,6 +334,7 @@ var PACKET_MOTION = (function () {
     } else {
       if (!document.querySelector(".cursor")) cursor();
       if (!window.__packetGL) loadGL();
+      armAvatar();
     }
     scrub();
   }
