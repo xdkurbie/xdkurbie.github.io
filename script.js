@@ -34,31 +34,69 @@
 
   if (year) year.textContent = String(new Date().getFullYear());
 
-  var darkBg = { signal: "#07090a", aurora: "#090712", kobber: "#110c09" };
+  var darkBg = {
+    signal: "#07090a", aurora: "#090712", kobber: "#110c09",
+    dracula: "#282a36", nord: "#2e3440", catppuccin: "#1e1e2e",
+    tokyonight: "#1a1b26", gruvbox: "#282828", "rose-pine": "#191724",
+    solarized: "#002b36", "one-dark": "#282c34", synthwave: "#262335",
+    monokai: "#272822", everforest: "#2d353b", cyberpunk: "#0b0614"
+  };
   var lightBg = { signal: "#f4f5ef", aurora: "#f7f3fb", kobber: "#fbf6f1" };
 
   function syncThemeButton() {
     var light = root.getAttribute("data-theme") === "light";
     var palette = root.getAttribute("data-palette") || "signal";
+    var lightOnly = palette === "signal" || palette === "aurora" || palette === "kobber";
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", light ? (lightBg[palette] || lightBg.signal) : (darkBg[palette] || darkBg.signal));
+    if (meta) meta.setAttribute("content", (light && lightOnly) ? (lightBg[palette] || lightBg.signal) : (darkBg[palette] || darkBg.signal));
+  }
+
+  function paletteLabel(button) {
+    var key = lang === "en" ? "data-label-en" : "data-label-nb";
+    return button.getAttribute(key) || button.textContent.trim() || "Signal";
   }
 
   function syncPalette() {
     var name = root.getAttribute("data-palette") || "signal";
     document.querySelectorAll("[data-palette-set]").forEach(function (button) {
-      button.setAttribute("aria-pressed", button.getAttribute("data-palette-set") === name ? "true" : "false");
+      var on = button.getAttribute("data-palette-set") === name;
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+      button.setAttribute("aria-selected", on ? "true" : "false");
+      button.setAttribute("aria-label", paletteLabel(button));
+      if (button.getAttribute("role") === "option") button.tabIndex = on ? 0 : -1;
     });
     syncThemeButton();
+  }
+
+  function choosePalette(name) {
+    if (!darkBg[name]) name = "signal";
+    root.setAttribute("data-palette", name);
+    try { localStorage.setItem("palette", name); } catch (e) {}
+    syncPalette();
   }
 
   syncPalette();
   document.querySelectorAll("[data-palette-set]").forEach(function (button) {
     button.addEventListener("click", function () {
-      var name = button.getAttribute("data-palette-set") || "signal";
-      root.setAttribute("data-palette", name);
-      try { localStorage.setItem("palette", name); } catch (e) {}
-      syncPalette();
+      choosePalette(button.getAttribute("data-palette-set") || "signal");
+    });
+  });
+  document.querySelectorAll(".palette-list").forEach(function (list) {
+    list.addEventListener("keydown", function (event) {
+      var options = Array.prototype.slice.call(list.querySelectorAll("[data-palette-set]"));
+      if (!options.length) return;
+      var current = options.indexOf(document.activeElement);
+      if (current < 0) current = options.findIndex(function (option) { return option.getAttribute("aria-selected") === "true"; });
+      var next = current;
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") next = (Math.max(0, current) + 1) % options.length;
+      else if (event.key === "ArrowUp" || event.key === "ArrowLeft") next = (Math.max(0, current) - 1 + options.length) % options.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = options.length - 1;
+      else return;
+      event.preventDefault();
+      options[next].focus();
+      if (options[next].scrollIntoView) options[next].scrollIntoView({ block: "nearest" });
+      choosePalette(options[next].getAttribute("data-palette-set"));
     });
   });
 
@@ -459,6 +497,7 @@
         root.lang = next;
         lang = next;
         syncLangButtons();
+        syncPalette();
         document.dispatchEvent(new CustomEvent("packet-lang"));
       }
     });

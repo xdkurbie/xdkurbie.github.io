@@ -39,14 +39,19 @@
       ? motionSaved
       : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
     document.documentElement.setAttribute("data-motion", motion);
-    var palette = localStorage.getItem("palette");
-    if (palette === "aurora" || palette === "kobber" || palette === "signal") {
-      document.documentElement.setAttribute("data-palette", palette);
-    }
-    var darkBg = { signal: "#07090a", aurora: "#090712", kobber: "#110c09" };
+    var darkBg = {
+      signal: "#07090a", aurora: "#090712", kobber: "#110c09",
+      dracula: "#282a36", nord: "#2e3440", catppuccin: "#1e1e2e",
+      tokyonight: "#1a1b26", gruvbox: "#282828", "rose-pine": "#191724",
+      solarized: "#002b36", "one-dark": "#282c34", synthwave: "#262335",
+      monokai: "#272822", everforest: "#2d353b", cyberpunk: "#0b0614"
+    };
     var lightBg = { signal: "#f4f5ef", aurora: "#f7f3fb", kobber: "#fbf6f1" };
+    var palette = localStorage.getItem("palette");
+    if (darkBg[palette]) document.documentElement.setAttribute("data-palette", palette);
     var chosen = document.documentElement.getAttribute("data-palette") || "signal";
-    if (meta) meta.setAttribute("content", theme === "light" ? lightBg[chosen] : darkBg[chosen]);
+    var lightOnly = chosen === "signal" || chosen === "aurora" || chosen === "kobber";
+    if (meta) meta.setAttribute("content", (theme === "light" && lightOnly) ? lightBg[chosen] : (darkBg[chosen] || darkBg.signal));
   } catch (e) {}
 })();
 </script>
@@ -69,11 +74,31 @@
       <button type="button" class="hud-btn" data-lang-set="nb" lang="nb">NO</button>
       <button type="button" class="hud-btn" data-lang-set="en" lang="en">EN</button>
     </div>
-    <div class="palettes" role="group" aria-label="Fargepalett">
-      <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
-      <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>
-      <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false"><span class="only-nb">Kobber</span><span class="only-en">Copper</span></button>
-    </div>
+    <details class="nav-more">
+      <summary class="hud-btn"><span class="only-nb">Mer</span><span class="only-en">More</span></summary>
+      <div class="nav-more-panel">
+      <div class="palette-menu">
+        <p class="palette-label" id="palette-label"><span class="only-nb">Palett</span><span class="only-en">Palette</span></p>
+        <div class="palette-list" role="listbox" aria-labelledby="palette-label">
+        <button type="button" class="palette-option" role="option" data-palette-set="signal" data-label-nb="Signal" data-label-en="Signal" aria-pressed="true" aria-selected="true"><span class="swatches" aria-hidden="true"><i style="background:#07090a"></i><i style="background:#d2ff00"></i><i style="background:#5cf2ff"></i><i style="background:#f4f5ef"></i></span><span class="palette-name"><span class="only-nb">Signal</span><span class="only-en">Signal</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="aurora" data-label-nb="Aurora" data-label-en="Aurora" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#090712"></i><i style="background:#efc2ff"></i><i style="background:#ffc857"></i><i style="background:#f6f2fb"></i></span><span class="palette-name"><span class="only-nb">Aurora</span><span class="only-en">Aurora</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="kobber" data-label-nb="Kobber" data-label-en="Copper" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#110c09"></i><i style="background:#ffb197"></i><i style="background:#5dffe0"></i><i style="background:#f8f3ee"></i></span><span class="palette-name"><span class="only-nb">Kobber</span><span class="only-en">Copper</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="dracula" data-label-nb="Dracula" data-label-en="Dracula" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#282a36"></i><i style="background:#50fa7b"></i><i style="background:#8be9fd"></i><i style="background:#ff79c6"></i></span><span class="palette-name"><span class="only-nb">Dracula</span><span class="only-en">Dracula</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="nord" data-label-nb="Nord" data-label-en="Nord" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#2e3440"></i><i style="background:#a3be8c"></i><i style="background:#88c0d0"></i><i style="background:#ebcb8b"></i></span><span class="palette-name"><span class="only-nb">Nord</span><span class="only-en">Nord</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="catppuccin" data-label-nb="Catppuccin Mocha" data-label-en="Catppuccin Mocha" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#1e1e2e"></i><i style="background:#a6e3a1"></i><i style="background:#89dceb"></i><i style="background:#cba6f7"></i></span><span class="palette-name"><span class="only-nb">Catppuccin Mocha</span><span class="only-en">Catppuccin Mocha</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="tokyonight" data-label-nb="Tokyo Night" data-label-en="Tokyo Night" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#1a1b26"></i><i style="background:#9ece6a"></i><i style="background:#7dcfff"></i><i style="background:#bb9af7"></i></span><span class="palette-name"><span class="only-nb">Tokyo Night</span><span class="only-en">Tokyo Night</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="gruvbox" data-label-nb="Gruvbox mørk" data-label-en="Gruvbox Dark" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#282828"></i><i style="background:#b8bb26"></i><i style="background:#8ec07c"></i><i style="background:#fe8019"></i></span><span class="palette-name"><span class="only-nb">Gruvbox mørk</span><span class="only-en">Gruvbox Dark</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="rose-pine" data-label-nb="Rosé Pine" data-label-en="Rosé Pine" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#191724"></i><i style="background:#9ccfd8"></i><i style="background:#c4a7e7"></i><i style="background:#ebbcba"></i></span><span class="palette-name"><span class="only-nb">Rosé Pine</span><span class="only-en">Rosé Pine</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="solarized" data-label-nb="Solarized mørk" data-label-en="Solarized Dark" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#002b36"></i><i style="background:#859900"></i><i style="background:#2aa198"></i><i style="background:#eee8d5"></i></span><span class="palette-name"><span class="only-nb">Solarized mørk</span><span class="only-en">Solarized Dark</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="one-dark" data-label-nb="One Dark" data-label-en="One Dark" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#282c34"></i><i style="background:#98c379"></i><i style="background:#61afef"></i><i style="background:#c678dd"></i></span><span class="palette-name"><span class="only-nb">One Dark</span><span class="only-en">One Dark</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="synthwave" data-label-nb="Synthwave '84" data-label-en="Synthwave '84" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#262335"></i><i style="background:#fede5d"></i><i style="background:#36f9f6"></i><i style="background:#ff7edb"></i></span><span class="palette-name"><span class="only-nb">Synthwave '84</span><span class="only-en">Synthwave '84</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="monokai" data-label-nb="Monokai" data-label-en="Monokai" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#272822"></i><i style="background:#a6e22e"></i><i style="background:#66d9ef"></i><i style="background:#f92672"></i></span><span class="palette-name"><span class="only-nb">Monokai</span><span class="only-en">Monokai</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="everforest" data-label-nb="Everforest" data-label-en="Everforest" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#2d353b"></i><i style="background:#a7c080"></i><i style="background:#7fbbb3"></i><i style="background:#d699b6"></i></span><span class="palette-name"><span class="only-nb">Everforest</span><span class="only-en">Everforest</span></span></button>
+        <button type="button" class="palette-option" role="option" data-palette-set="cyberpunk" data-label-nb="Cyberpunk" data-label-en="Cyberpunk" aria-pressed="false" aria-selected="false"><span class="swatches" aria-hidden="true"><i style="background:#0b0614"></i><i style="background:#ff4fd8"></i><i style="background:#00f0ff"></i><i style="background:#f4f4f8"></i></span><span class="palette-name"><span class="only-nb">Cyberpunk</span><span class="only-en">Cyberpunk</span></span></button>
+        </div>
+      </div>
+      </div>
+    </details>
     <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
       <span class="when-motion-on only-nb">Bevegelse på</span>
       <span class="when-motion-on only-en">Motion on</span>

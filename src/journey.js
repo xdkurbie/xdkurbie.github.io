@@ -119,9 +119,10 @@ const fill = new THREE.DirectionalLight(0x5cf2ff, 0.35);
 fill.position.set(-6, 2, -4);
 scene.add(fill);
 
+const glassMats = [];
 function glassMaterial(roughness, color, transmissive) {
   const transmit = transmissive && !low;
-  return new THREE.MeshPhysicalMaterial({
+  const mat = new THREE.MeshPhysicalMaterial({
     color,
     metalness: 0,
     roughness,
@@ -138,6 +139,8 @@ function glassMaterial(roughness, color, transmissive) {
     attenuationColor: new THREE.Color("#d7ffe0"),
     attenuationDistance: 2.4
   });
+  glassMats.push(mat);
+  return mat;
 }
 
 const emissive = [];
@@ -232,8 +235,11 @@ for (let i = 0; i < (low ? 7 : 12); i += 1) {
   fishGroup.add(mesh);
   shards.push(mesh);
 }
+fishGroup.visible = false;
 scene.add(fishGroup);
-scene.add(new THREE.PointLight(0xd2ff66, low ? 4 : 8, 14).translateX(0).translateY(1.4).translateZ(fishGroup.position.z + 1.2));
+const fishLight = new THREE.PointLight(0xd2ff66, low ? 4 : 8, 14);
+fishLight.position.set(0, 1.4, fishGroup.position.z + 1.2);
+scene.add(fishLight);
 
 const sakuraPanel = makePanel({
   key: "sakura",
@@ -285,8 +291,11 @@ const ceil = new THREE.Mesh(
 );
 ceil.position.set(0, 1.85, 1.4);
 room.add(ceil);
+room.visible = false;
 scene.add(room);
-scene.add(new THREE.PointLight(0xd0ddff, low ? 3 : 6, 16).translateY(1.3).translateZ(forestZ + 2));
+const forestLight = new THREE.PointLight(0xd0ddff, low ? 3 : 6, 16);
+forestLight.position.set(0, 1.3, forestZ + 2);
+scene.add(forestLight);
 
 const treePanel = makePanel({
   key: "tree",
@@ -306,6 +315,7 @@ const ring = limeMesh(new THREE.TorusGeometry(1.6, 0.018, 12, 64), 1.5);
 portal.add(ring);
 const glassRing = new THREE.Mesh(new THREE.TorusGeometry(1.88, 0.09, 16, 48), glassMaterial(0.08, 0xe9fff4, true));
 portal.add(glassRing);
+portal.visible = false;
 scene.add(portal);
 
 const cubes = [];
@@ -552,10 +562,11 @@ const composite = new THREE.ShaderMaterial({
   uniforms: {
     tBeauty: { value: null },
     tBloom: { value: null },
-    strength: { value: low ? 0.28 : 0.62 }
+    strength: { value: low ? 0.28 : 0.62 },
+    tint: { value: new THREE.Color("#d2ff00") }
   },
   vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
-  fragmentShader: "uniform sampler2D tBeauty; uniform sampler2D tBloom; uniform float strength; varying vec2 vUv; void main(){ vec3 base = texture2D(tBeauty, vUv).rgb; vec3 glow = texture2D(tBloom, vUv).rgb; gl_FragColor = vec4(base + glow * strength, 1.0); }"
+  fragmentShader: "uniform sampler2D tBeauty; uniform sampler2D tBloom; uniform float strength; uniform vec3 tint; varying vec2 vUv; void main(){ vec3 base = texture2D(tBeauty, vUv).rgb; vec3 glow = texture2D(tBloom, vUv).rgb; float lum = max(glow.r, max(glow.g, glow.b)); vec3 tinted = mix(glow, tint * lum, 0.72); gl_FragColor = vec4(base + tinted * strength, 1.0); }"
 });
 const quad = new THREE.Mesh(quadGeo, highPass);
 const quadScene = new THREE.Scene();
@@ -662,6 +673,10 @@ function frame() {
     node.classList.toggle("is-on", on && mapped.local > 0.04 && mapped.local < 0.8);
   });
   const stage = u < 0.24 ? 0 : u < 0.56 ? 1 : u < 0.86 ? 2 : 3;
+  fishGroup.visible = u > 0.22 && u < 0.62;
+  room.visible = u > 0.48;
+  portal.visible = u > 0.7;
+  if (performance.now() < paletteFollowUntil) applySceneColors();
   sidePanels.forEach((panel) => {
     const want = (panel.key === "sakura" && stage === 1) || (panel.key === "tree" && stage === 2);
     if (!want || mobileQuery.matches || fade > 0.35) {
@@ -726,20 +741,57 @@ function frame() {
   paint(composite, null);
 }
 
-function applyLime() {
-  const raw = getComputedStyle(root).getPropertyValue("--signal").trim();
-  if (!raw) return;
-  LIME.set(raw);
-  nodes.material.color.copy(LIME);
-  edges.material.color.copy(LIME);
-  heart.material.color.copy(LIME);
-  dustMat.color.copy(LIME);
-  emissive.forEach((mesh) => {
-    if (mesh.material && mesh.material.color) mesh.material.color.copy(LIME);
-  });
+const colorProbe = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+const glassTint = new THREE.Color();
+const glassWhite = new THREE.Color("#ffffff");
+const signalColor = new THREE.Color("#d2ff00");
+const packetColor = new THREE.Color("#5cf2ff");
+let paletteFollowUntil = 0;
+
+function cssColor(raw, fallback, out) {
+  const value = (raw || "").trim();
+  colorProbe.fillStyle = "#000000";
+  if (value) colorProbe.fillStyle = value;
+  const painted = colorProbe.fillStyle;
+  if (typeof painted === "string" && painted.charAt(0) === "#") out.set(painted);
+  else out.set(fallback);
+  return out;
 }
-applyLime();
-new MutationObserver(applyLime).observe(root, { attributes: true, attributeFilter: ["data-palette", "data-theme"] });
+
+function applySceneColors() {
+  const cs = getComputedStyle(root);
+  cssColor(cs.getPropertyValue("--signal"), "#d2ff00", signalColor);
+  cssColor(cs.getPropertyValue("--packet"), "#5cf2ff", packetColor);
+  cssColor(cs.getPropertyValue("--bg"), "#07090a", BG);
+  LIME.copy(signalColor);
+  nodes.material.color.copy(signalColor);
+  edges.material.color.copy(packetColor);
+  heart.material.color.copy(signalColor);
+  dustMat.color.copy(signalColor);
+  emissive.forEach((mesh) => {
+    if (mesh.material && mesh.material.color) mesh.material.color.copy(signalColor);
+  });
+  glassTint.copy(packetColor).lerp(glassWhite, 0.58);
+  glassMats.forEach((mat) => {
+    mat.color.copy(glassTint);
+    mat.attenuationColor.copy(signalColor);
+  });
+  key.color.copy(signalColor);
+  fill.color.copy(packetColor);
+  fishLight.color.copy(signalColor);
+  forestLight.color.copy(packetColor);
+  composite.uniforms.tint.value.copy(signalColor);
+  scene.background = BG;
+  renderer.setClearColor(BG, 1);
+}
+
+function notePalette() {
+  paletteFollowUntil = performance.now() + 700;
+  applySceneColors();
+}
+
+applySceneColors();
+new MutationObserver(notePalette).observe(root, { attributes: true, attributeFilter: ["data-palette", "data-theme"] });
 
 function stop() {
   stopped = true;

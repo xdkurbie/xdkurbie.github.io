@@ -16,9 +16,22 @@ var PACKET_GL = (function () {
     ];
   }
 
+  var colorProbe = null;
+  function parseColor(value, fallback) {
+    var parsed = hexToRgb(value, null);
+    if (parsed) return parsed;
+    var rgb = (value || "").match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/);
+    if (rgb) return [Number(rgb[1]) / 255, Number(rgb[2]) / 255, Number(rgb[3]) / 255];
+    return fallback;
+  }
   function readColor(name, fallback) {
     var value = getComputedStyle(document.documentElement).getPropertyValue(name);
-    return hexToRgb(value, fallback);
+    var parsed = parseColor(value, null);
+    if (parsed) return parsed;
+    if (!colorProbe) colorProbe = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+    colorProbe.fillStyle = "#000000";
+    if ((value || "").trim()) colorProbe.fillStyle = value.trim();
+    return parseColor(String(colorProbe.fillStyle), fallback);
   }
 
   function compile(gl, type, source) {
@@ -179,15 +192,21 @@ var PACKET_GL = (function () {
       gl.viewport(0, 0, canvas.width, canvas.height);
     }
 
-    function readColors() {
+    var colorFollowUntil = 0;
+    function sampleColors() {
       colors.node = readColor("--gl-node", [0.82, 1, 0]);
       colors.packet = readColor("--gl-packet", [0.36, 0.95, 1]);
+    }
+    function readColors() {
+      colorFollowUntil = performance.now() + 700;
+      sampleColors();
     }
 
     function frame(now) {
       if (!running) return;
       raf = requestAnimationFrame(frame);
       if (!visible || document.hidden) return;
+      if (now < colorFollowUntil) sampleColors();
       var dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       if (dt > 0.022) slowFrames += 1;
