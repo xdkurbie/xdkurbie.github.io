@@ -1672,6 +1672,27 @@ html[data-motion="on"] .petal-field.is-live .petal {
   .thanks figcaption { margin-top: 0.2rem; }
 }
 
+.hero-quiet { display: none; }
+
+.nav-more { position: relative; }
+.nav-more summary { list-style: none; cursor: pointer; }
+.nav-more summary::-webkit-details-marker { display: none; }
+.nav-more[open] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+#journey-veil {
+  position: fixed;
+  inset: 0;
+  background: #07090a;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
 #journey-gl,
 .journey-scrub {
   position: fixed;
@@ -1711,22 +1732,175 @@ html[data-journey] .orb { display: none !important; }
 
 html[data-journey] .corridor-section { padding-top: 0; }
 
+html[data-journey] .nav {
+  background: color-mix(in srgb, var(--bg) 94%, #07090a);
+}
+
 html[data-journey] .hero-stage,
 html[data-journey] .about-panel { background: transparent; }
 
-html[data-journey] .hero-copy {
-  background: linear-gradient(to top, color-mix(in srgb, var(--bg) 82%, transparent), transparent 72%);
+html[data-journey] #hero {
+  height: 180vh;
+  min-height: 0;
 }
 
-html[data-journey] .node-portrait { top: 16vh; }
+html[data-journey] .hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 0;
+}
 
-html[data-journey] #hero { min-height: 210vh; }
+html[data-journey] .hero-copy {
+  position: static;
+  min-height: 0;
+  height: auto;
+  width: min(22rem, 86vw);
+  margin: 0 0 11vh 6vw;
+  padding: 0.9rem 1.1rem 1rem;
+  background: rgba(7, 9, 10, 0.9);
+  color: #f4f6ef;
+}
 
-html[data-journey] #prosjekter { min-height: 230vh; }
+html[data-journey] .hero-title,
+html[data-journey] .hero-quiet { color: #f4f6ef; }
 
-html[data-journey] #om-meg { min-height: 190vh; }
+html[data-journey] .hero-quiet {
+  display: block;
+  margin: 0.35rem 0 0;
+  max-width: 18rem;
+  color: #f4f6ef;
+}
 
-html[data-journey] #kontakt { min-height: 130vh; }
+html[data-journey] .kicker,
+html[data-journey] .signal-line,
+html[data-journey] .lede,
+html[data-journey] .route,
+html[data-journey] .hero-cta .actions,
+html[data-journey] .coord,
+html[data-journey] .ring,
+html[data-journey] .in-packet,
+html[data-journey] .node-glare,
+html[data-journey] .node-scan,
+html[data-journey] .hud { display: none !important; }
+
+html[data-journey] .node-portrait {
+  left: 6vw;
+  top: auto;
+  bottom: 27vh;
+  margin: 0;
+  width: 92px;
+  height: 92px;
+  transform: none !important;
+}
+
+html[data-journey] .scroll-ind {
+  position: absolute;
+  left: 50%;
+  bottom: 1.35rem;
+  width: auto;
+  margin: 0;
+  transform: translateX(-50%);
+  color: #f4f6ef;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.beat { display: none; }
+
+html[data-journey] .beat {
+  display: block;
+  height: 175vh;
+  position: relative;
+}
+
+html[data-journey] .beat-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 12vh 6vw;
+  pointer-events: none;
+}
+
+html[data-journey] .beat-copy {
+  width: min(22rem, 86vw);
+  margin: 0;
+  padding: 0.95rem 1.1rem 1rem;
+  background: rgba(7, 9, 10, 0.9);
+  color: #f4f6ef;
+}
+
+html[data-journey] .beat-index {
+  margin: 0 0 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: #d2ff00;
+}
+
+html[data-journey] .beat-title {
+  margin: 0;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: #f4f6ef;
+}
+
+html[data-journey] .beat-line {
+  margin: 0.45rem 0 0;
+  max-width: 18rem;
+  color: #f4f6ef;
+}
+
+html[data-journey][data-motion="on"] .is-on .beat-title span,
+html[data-journey][data-motion="on"] .is-on .beat-line span,
+html[data-journey][data-motion="on"] .is-on .hero-title,
+html[data-journey][data-motion="on"] .is-on .hero-quiet,
+html[data-journey][data-motion="on"] .is-on .portal-mark,
+html[data-journey][data-motion="on"] .is-on .giant {
+  animation: line-mask 0.9s cubic-bezier(.16, .84, .2, 1) both;
+}
+
+html[data-journey][data-motion="on"] .is-on .beat-line span,
+html[data-journey][data-motion="on"] .is-on .hero-quiet { animation-delay: 0.14s; }
+
+@keyframes line-mask {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(30%); }
+  to { clip-path: inset(0 0 0 0); transform: none; }
+}
+
+html[data-journey] .readout,
+html[data-journey] #prosjekter,
+html[data-journey] #flere,
+html[data-journey] footer {
+  position: relative;
+  z-index: 4;
+  background: var(--bg);
+  color: var(--text);
+}
+
+html[data-journey] #kontakt {
+  height: 160vh;
+  min-height: 0;
+}
+
+html[data-journey] #kontakt .intro,
+html[data-journey] #kontakt .section-head,
+html[data-journey] #kontakt .ping,
+html[data-journey] #kontakt .thanks { display: none; }
+
+html[data-journey] .giant {
+  font-size: 1.05rem;
+  color: #f4f6ef;
+  letter-spacing: 0.03em;
+}
+
+html[data-journey] #journey-veil {
+  z-index: 2;
+}
 
 html[data-journey] .hud-progress {
   top: auto;
@@ -1765,12 +1939,20 @@ html[data-journey] .progress-label {
 }
 
 html[data-journey] #kontakt .wrap {
-  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+html[data-journey] .portal-mark {
+  color: #f4f6ef;
+  text-shadow: none;
 }
 
 html[data-journey] #kontakt .section-head,

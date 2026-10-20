@@ -118,6 +118,7 @@
 </head>
 <body id="topp">
 <canvas id="journey-gl" aria-hidden="true"></canvas>
+<div id="journey-veil" aria-hidden="true"></div>
 <video id="journey-scrub" class="journey-scrub" muted playsinline preload="none"></video>
 <a class="skip" href="#innhold">Skip to content</a>
 <div class="hud-progress" aria-hidden="true"><i></i></div>
@@ -134,7 +135,9 @@
       <a class="hud-btn" href="/" hreflang="nb" lang="nb" data-lang-set="nb">NO</a>
       <a class="hud-btn" href="/en/" hreflang="en" lang="en" data-lang-set="en" aria-current="page">EN</a>
     </div>
-    <div class="palettes" role="group" aria-label="Color palette">
+    <details class="nav-more">
+      <summary class="hud-btn">More<span class="sr-only"> More settings</span></summary>
+      <div class="palettes" role="group" aria-label="Color palette">
       <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
       <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>
       <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false">Copper</button>
@@ -147,6 +150,8 @@
       <span class="when-dark">Light theme</span>
       <span class="when-light">Dark theme</span>
     </button>
+  
+    </details>
   </div>
 </header>
 <main id="innhold">
@@ -209,6 +214,7 @@
           <span aria-hidden="true" data-scramble data-text="PORT 01 · VG3 INFORMATION TECHNOLOGY · ØSTFOLD">PORT 01 · VG3 INFORMATION TECHNOLOGY · ØSTFOLD</span>
         </p>
         <h1 class="hero-title" id="hero-title">Lars</h1>
+        <p class="hero-quiet">Vg3 information technology in Østfold.</p>
         <p class="signal-line">
           <span class="sr-only">Rust · Networks · CS2 · Electronics</span>
           <span aria-hidden="true" data-scramble data-text="Rust · Networks · CS2 · Electronics">Rust · Networks · CS2 · Electronics</span>
@@ -274,7 +280,17 @@
     </div>
   </div>
 
-  <section class="section" id="prosjekter" aria-labelledby="prosjekter-tittel">
+  <section class="beat" id="krystall" aria-labelledby="krystall-tittel">
+    <div class="beat-sticky">
+      <div class="beat-copy">
+        <p class="beat-index">02</p>
+        <h2 class="beat-title" id="krystall-tittel"><span>Crystal</span></h2>
+        <p class="beat-line"><span>A loop, sealed in glass.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section readout" id="prosjekter" aria-labelledby="prosjekter-tittel">
     <div class="wrap">
       <div class="section-head">
         <p class="section-index">Node 02–04</p>
@@ -479,7 +495,7 @@
     </div>
   </div>
 
-  <section class="section" id="flere" data-scrub aria-labelledby="flere-tittel">
+  <section class="section readout" id="flere" data-scrub aria-labelledby="flere-tittel">
     <div class="wrap">
       <div class="section-head">
         <p class="section-index">Node 05+</p>
@@ -619,6 +635,15 @@
   </section>
 
   <section class="section corridor-section" id="om-meg" data-scrub aria-labelledby="om-tittel">
+    <div class="beat" id="skog">
+      <div class="beat-sticky">
+        <div class="beat-copy">
+          <p class="beat-index">03</p>
+          <p class="beat-title"><span>Forest</span></p>
+          <p class="beat-line"><span>A corridor of frosted glass.</span></p>
+        </div>
+      </div>
+    </div>
     <div class="corridor" aria-hidden="true">
       <div class="clip-slot">
         <img class="clip-still" src="/img/clips/walk-poster.webp" srcset="/img/clips/walk-poster-sm.webp 960w, /img/clips/walk-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="720" loading="lazy" decoding="async">
@@ -626,7 +651,7 @@
       </div>
       <span class="duotone"></span>
     </div>
-    <div class="wrap about-panel">
+    <div class="wrap about-panel readout">
       <div class="section-head">
         <p class="section-index">Traceroute</p>
         <h2 id="om-tittel">About</h2>

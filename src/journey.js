@@ -126,13 +126,15 @@ function glassMaterial(roughness, color, transmissive) {
     metalness: 0,
     roughness,
     transmission: transmit ? 1 : 0,
-    thickness: transmit ? 0.65 : 0.2,
-    ior: 1.45,
+    thickness: transmit ? 1.15 : 0.35,
+    ior: 1.5,
     transparent: !transmit,
-    opacity: transmit ? 1 : 0.28,
-    envMapIntensity: 1.15,
-    clearcoat: 0.55,
-    clearcoatRoughness: 0.18,
+    opacity: transmit ? 1 : 0.2,
+    envMapIntensity: transmit ? 1.8 : 2.5,
+    clearcoat: 1,
+    clearcoatRoughness: 0.06,
+    iridescence: transmit ? 0.22 : 0.55,
+    iridescenceIOR: 1.35,
     attenuationColor: new THREE.Color("#d7ffe0"),
     attenuationDistance: 2.4
   });
@@ -192,20 +194,8 @@ const heart = limeMesh(new THREE.IcosahedronGeometry(0.35, 2), 1.4);
 net.add(heart);
 scene.add(net);
 
-const holo = makePanel({
-  key: "holo",
-  poster: "/img/holo-poster.webp",
-  src: "/video/holo-card.mp4",
-  srcSm: "/video/holo-card.mp4",
-  w: 1.28,
-  h: 0.72,
-  position: new THREE.Vector3(1.15, -0.05, 1.28),
-  allowVideo: !low
-});
-scene.add(holo.group);
-
 const fishGroup = new THREE.Group();
-fishGroup.position.copy(b2t(0, 16, 0));
+fishGroup.position.copy(b2t(0.95, 16, 0));
 const fishAspect = 1920 / 612;
 const fishH = 1.28;
 const fishW = fishH * fishAspect;
@@ -236,7 +226,7 @@ const shards = [];
 for (let i = 0; i < (low ? 7 : 12); i += 1) {
   const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.08 + rand() * 0.16, 0), shardMat);
   const side = rand() < 0.5 ? -1 : 1;
-  mesh.position.set(side * (2.2 + rand() * 1.5), (rand() - 0.5) * 2.4, (rand() - 0.5) * 2.2);
+  mesh.position.set(1.1 + rand() * 2.2, (rand() - 0.5) * 1.8, (rand() - 0.5) * 1.4);
   mesh.scale.set(1, 0.35 + rand() * 0.8, 1.4 + rand());
   mesh.userData.spin = 0.3 + rand() * 0.6;
   fishGroup.add(mesh);
@@ -245,26 +235,15 @@ for (let i = 0; i < (low ? 7 : 12); i += 1) {
 scene.add(fishGroup);
 scene.add(new THREE.PointLight(0xd2ff66, low ? 4 : 8, 14).translateX(0).translateY(1.4).translateZ(fishGroup.position.z + 1.2));
 
-const eyePanel = makePanel({
-  key: "eye",
-  poster: "/img/clips/eye-poster.webp",
-  src: "/img/clips/eye.mp4",
-  srcSm: "/img/clips/eye-sm.mp4",
-  w: 1.7,
-  h: 1.7 * (888 / 1920),
-  position: b2t(-2.4, 8.5, 0.35),
-  allowVideo: !low
-});
-scene.add(eyePanel.group);
 const sakuraPanel = makePanel({
   key: "sakura",
   poster: "/img/clips/sakura-poster.webp",
   src: "/img/clips/sakura.mp4",
   srcSm: "/img/clips/sakura-sm.mp4",
-  w: 1.55,
-  h: 1.55 * (800 / 1920),
-  position: b2t(2.5, 22, 0.2),
-  allowVideo: !low
+  w: 1.15,
+  h: 1.15 * (800 / 1920),
+  position: b2t(3.9, 16.2, 0.55),
+  allowVideo: false
 });
 scene.add(sakuraPanel.group);
 
@@ -314,23 +293,12 @@ const treePanel = makePanel({
   poster: "/img/clips/tree-poster.webp",
   src: "/img/clips/tree.mp4",
   srcSm: "/img/clips/tree-sm.mp4",
-  w: 1.35,
-  h: 1.35 * (950 / 1920),
-  position: b2t(-2.7, 31.2, 0.15),
-  allowVideo: !low
+  w: 1.05,
+  h: 1.05 * (950 / 1920),
+  position: b2t(3.7, 33.2, 0.45),
+  allowVideo: false
 });
 scene.add(treePanel.group);
-const smilePanel = makePanel({
-  key: "smile",
-  poster: "/img/clips/smile-poster.webp",
-  src: "/img/clips/smile.mp4",
-  srcSm: "/img/clips/smile-sm.mp4",
-  w: 1.25,
-  h: 1.25 * (1080 / 1920),
-  position: b2t(2.15, 44.2, -0.15),
-  allowVideo: !low
-});
-scene.add(smilePanel.group);
 
 const portal = new THREE.Group();
 portal.position.copy(b2t(0, 48, 0));
@@ -370,12 +338,13 @@ const dustMat = new THREE.PointsMaterial({
 const dust = new THREE.Points(dustGeo, dustMat);
 scene.add(dust);
 
-const panels = [holo, fishPanel, eyePanel, sakuraPanel, forestPanel, treePanel, smilePanel];
+const panels = [fishPanel, forestPanel];
+const sidePanels = [sakuraPanel, treePanel];
 const stageKeys = {
-  0: low ? [] : ["holo", "eye"],
-  1: low ? ["fish"] : ["fish", "sakura"],
-  2: low ? ["forest"] : ["forest", "tree"],
-  3: low ? [] : ["smile"]
+  0: [],
+  1: ["fish"],
+  2: ["forest"],
+  3: []
 };
 
 function makePanel(opts) {
@@ -489,52 +458,62 @@ function setStage(index) {
 
 function sectionStarts() {
   const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-  const ids = ["hero", "prosjekter", "om-meg", "kontakt"];
+  const ids = ["hero", "krystall", "prosjekter", "om-meg", "kontakt"];
   const starts = ids.map((id) => {
     const el = document.getElementById(id);
     if (!el) return 0;
-    return Math.min(0.98, Math.max(0, (el.getBoundingClientRect().top + window.scrollY) / max));
+    return Math.min(0.995, Math.max(0, (el.getBoundingClientRect().top + window.scrollY) / max));
   });
   return starts.concat([1]);
 }
 
 const curveSpan = [
-  [0.0, 0.30],
-  [0.30, 0.56],
-  [0.56, 0.84],
-  [0.84, 1.0]
+  [0.02, 0.2],
+  [0.26, 0.5],
+  [0.5, 0.64],
+  [0.64, 0.86],
+  [0.86, 1]
 ];
 
 function heroEase(t) {
-  if (t < 0.58) return (t / 0.58) * 0.16;
-  return 0.16 + smoothstep((t - 0.58) / 0.42) * 0.84;
+  if (t < 0.7) return (t / 0.7) * 0.18;
+  return 0.18 + smoothstep((t - 0.7) / 0.3) * 0.82;
 }
 
-function arriveHold(t) {
-  if (t < 0.2) return smoothstep(t / 0.2) * 0.76;
-  if (t < 0.78) return 0.76 + ((t - 0.2) / 0.58) * 0.06;
-  return 0.82 + smoothstep((t - 0.78) / 0.22) * 0.18;
+function showpiece(t) {
+  if (t < 0.16) return smoothstep(t / 0.16) * 0.58;
+  if (t < 0.74) return 0.58 + ((t - 0.16) / 0.58) * 0.12;
+  return 0.7 + smoothstep((t - 0.74) / 0.26) * 0.3;
 }
 
-let starts = [0, 0.28, 0.58, 0.86, 1];
+function travel(t) {
+  return smoothstep(t);
+}
+
+function portalEase(t) {
+  if (t < 0.2) return smoothstep(t / 0.2) * 0.78;
+  return 0.78 + ((t - 0.2) / 0.8) * 0.22;
+}
+
+let starts = [0, 0.18, 0.34, 0.62, 0.84, 1];
 function measureStarts() {
   starts = sectionStarts();
 }
 
-function pageToU(p) {
+function pageMap(p) {
   let i = 0;
-  while (i < 3 && p >= starts[i + 1] - 0.001) i += 1;
+  while (i < starts.length - 2 && p >= starts[i + 1] - 0.001) i += 1;
   const span = Math.max(0.0001, starts[i + 1] - starts[i]);
   const local = Math.min(1, Math.max(0, (p - starts[i]) / span));
-  const eased = i === 0 ? heroEase(local) : arriveHold(local);
+  const eased = i === 0 ? heroEase(local) : i === 2 ? travel(local) : i === 4 ? portalEase(local) : showpiece(local);
   const a = curveSpan[i][0];
   const b = curveSpan[i][1];
-  return a + (b - a) * eased;
+  return { u: a + (b - a) * eased, i, local };
 }
 
 const scrollState = { p: 0 };
 const lenis = new Lenis({
-  lerp: 0.085,
+  lerp: 0.06,
   smoothWheel: true,
   syncTouch: false,
   autoRaf: false
@@ -544,7 +523,7 @@ ScrollTrigger.create({
   trigger: "#innhold",
   start: "top top",
   end: "bottom bottom",
-  scrub: 0.65,
+  scrub: 1.2,
   onUpdate: (self) => {
     scrollState.p = self.progress;
   }
@@ -615,15 +594,84 @@ const clock = new THREE.Clock();
 measureStarts();
 ScrollTrigger.addEventListener("refresh", measureStarts);
 
+const veil = document.getElementById("journey-veil");
+const pointer = { x: 0, y: 0 };
+const sway = { x: 0, y: 0 };
+const mobileQuery = matchMedia("(max-width: 760px)");
+const ndc = new THREE.Vector3();
+const copyNodes = {
+  0: document.querySelector("#hero .hero-sticky"),
+  1: document.querySelector("#krystall .beat-copy"),
+  3: document.querySelector("#skog .beat-copy"),
+  4: document.querySelector("#kontakt .wrap")
+};
+window.addEventListener("pointermove", (event) => {
+  pointer.x = (event.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
+  pointer.y = (event.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
+}, { passive: true });
+
+function copyFade(index, local) {
+  if (index === 2) return 1;
+  if (index === 0) {
+    if (local < 0.58) return 1;
+    return 1 - smoothstep((local - 0.58) / 0.3);
+  }
+  if (local < 0.12) return smoothstep(local / 0.12);
+  if (local < 0.66) return 1;
+  return 1 - smoothstep((local - 0.66) / 0.24);
+}
+
 function frame() {
   if (stopped || root.getAttribute("data-motion") !== "on") return;
   const t = clock.getElapsedTime();
   const page = scrollState.p;
-  const u = pageToU(page);
+  const mapped = pageMap(page);
+  const u = Math.min(0.999, Math.max(0.001, mapped.u));
   root.style.setProperty("--page", page.toFixed(4));
-  camera.position.copy(camCurve.getPointAt(Math.min(0.999, Math.max(0.001, u))));
-  camera.lookAt(lookCurve.getPointAt(Math.min(0.999, Math.max(0.001, u))));
-  net.rotation.y = t * 0.22;
+  const pos = camCurve.getPointAt(u);
+  const look = lookCurve.getPointAt(u);
+  const showFish = u > 0.28 && u < 0.52;
+  const showForest = u > 0.66 && u < 0.84;
+  if (showFish || showForest) {
+    const dir = look.clone().sub(pos);
+    if (dir.length() > 0.5) {
+      dir.normalize();
+      pos.addScaledVector(dir, showFish ? 0.85 : 0.5);
+    }
+  }
+  camera.position.copy(pos);
+  camera.lookAt(look);
+  if (!mobileQuery.matches && !low) {
+    sway.x += (pointer.x - sway.x) * 0.045;
+    sway.y += (pointer.y - sway.y) * 0.045;
+    camera.position.x += sway.x * 0.14;
+    camera.position.y += -sway.y * 0.07;
+  }
+  let fade = 0;
+  if (mapped.i !== 2) {
+    const enter = mapped.i === 0 ? 0 : 1 - smoothstep(mapped.local / 0.14);
+    const exit = smoothstep((mapped.local - 0.82) / 0.18);
+    fade = Math.max(enter, exit);
+  }
+  if (veil) veil.style.opacity = String(fade);
+  Object.keys(copyNodes).forEach((key) => {
+    const node = copyNodes[key];
+    if (!node) return;
+    const on = Number(key) === mapped.i;
+    node.style.opacity = on ? String(copyFade(mapped.i, mapped.local)) : "0";
+    node.classList.toggle("is-on", on && mapped.local > 0.04 && mapped.local < 0.8);
+  });
+  const stage = u < 0.24 ? 0 : u < 0.56 ? 1 : u < 0.86 ? 2 : 3;
+  sidePanels.forEach((panel) => {
+    const want = (panel.key === "sakura" && stage === 1) || (panel.key === "tree" && stage === 2);
+    if (!want || mobileQuery.matches || fade > 0.35) {
+      panel.group.visible = false;
+      return;
+    }
+    panel.group.getWorldPosition(ndc).project(camera);
+    panel.group.visible = ndc.z < 1 && ndc.x > 0.46;
+  });
+  net.rotation.y = t * 0.12;
   net.rotation.x = 0.18;
   core.rotation.x = t * 0.18;
   core.rotation.y = t * 0.27;
@@ -632,17 +680,30 @@ function frame() {
   shards.forEach((mesh, i) => {
     mesh.rotation.x = t * mesh.userData.spin + i;
     mesh.rotation.y = t * mesh.userData.spin * 0.7;
+    if (mobileQuery.matches) {
+      mesh.visible = false;
+      return;
+    }
+    mesh.getWorldPosition(ndc).project(camera);
+    mesh.visible = ndc.z < 1 && ndc.x > 0.08;
   });
   cubes.forEach((cube) => {
     cube.position.y = cube.userData.baseY + Math.sin(t * 0.8 + cube.userData.bob) * 0.12;
     cube.rotation.y = t * 0.4;
   });
   dust.position.y = Math.sin(t * 0.15) * 0.15;
-  dust.position.z = Math.sin(t * 0.08) * 0.2;
-  const lift = smoothstep((u - 0.74) / 0.12);
+  dust.position.z = Math.sin(t * 0.08) * 0.2 - fade * 2.4;
+  dustMat.size = (low ? 0.035 : 0.028) * (1 + fade * 2.4);
+  const lift = smoothstep((u - 0.845) / 0.06);
   forestPanel.group.position.y = 0.35 + lift * 3.15;
-  const stage = u < 0.3 ? 0 : u < 0.56 ? 1 : u < 0.84 ? 2 : 3;
   setStage(stage);
+  const label = document.getElementById("progress-label");
+  if (label) {
+    const names = root.lang === "en"
+      ? ["01 NETWORK", "02 CRYSTAL", "02 PROJECTS", "03 FOREST", "04 CONTACT"]
+      : ["01 NETTVERK", "02 KRYSTALL", "02 PROSJEKTER", "03 SKOG", "04 KONTAKT"];
+    label.textContent = names[mapped.i] || names[0];
+  }
   panels.forEach((panel) => {
     if (panel.texture) panel.texture.needsUpdate = true;
   });
