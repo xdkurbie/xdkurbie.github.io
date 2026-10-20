@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nb" data-theme="dark">
+<html lang="nb" data-theme="dark" data-motion="off">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,12 +23,13 @@
 <meta name="twitter:title" content="Lars (xdkurbie) – Vg3 Datateknologi i Østfold">
 <meta name="twitter:description" content="Portefølje for Lars. Topologi Studio, CS2 Clips, TinkerLARS og andre prosjekter.">
 <meta name="twitter:image" content="https://xdkurbie.github.io/img/og.png">
-<meta name="theme-color" content="#0a0d00">
+<meta name="theme-color" content="#07090a">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/img/icon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/img/icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script>
 (function () {
@@ -39,7 +40,12 @@
       : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
     document.documentElement.setAttribute("data-theme", theme);
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f5ef" : "#0a0d00");
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f5ef" : "#07090a");
+    var motionSaved = localStorage.getItem("motion");
+    var motion = motionSaved === "on" || motionSaved === "off"
+      ? motionSaved
+      : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
+    document.documentElement.setAttribute("data-motion", motion);
   } catch (e) {}
 })();
 </script>
@@ -85,24 +91,82 @@
     <a href="#om-meg">Om meg</a>
     <a href="#kontakt">Kontakt</a>
   </nav>
-  <button type="button" class="theme-btn" id="theme-toggle">
-    <span class="when-dark">Lyst tema</span>
-    <span class="when-light">Mørkt tema</span>
-  </button>
+  <div class="nav-controls">
+    <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
+      <span class="when-motion-on">Bevegelse på</span>
+      <span class="when-motion-off">Bevegelse av</span>
+    </button>
+    <button type="button" class="hud-btn" id="theme-toggle">
+      <span class="when-dark">Lyst tema</span>
+      <span class="when-light">Mørkt tema</span>
+    </button>
+  </div>
 </header>
 <main id="innhold">
-  <section class="hero">
-    <div class="wrap hero-layout">
-      <img class="avatar" src="/img/avatar.webp" width="192" height="192" alt="Profilbilde av Lars (xdkurbie)">
-      <div>
-        <p class="kicker">Vg3 Datateknologi · Østfold</p>
-        <h1>Lars</h1>
+  <section class="hero-pin" id="hero" data-scrub aria-labelledby="hero-title">
+    <div class="hero-sticky">
+      <div class="hero-stage">
+        <canvas id="net" aria-hidden="true"></canvas>
+        <svg class="fallback-net" viewBox="0 0 1000 640" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.25">
+            <path d="M500 330 L230 150"/>
+            <path d="M500 330 L790 170"/>
+            <path d="M500 330 L540 530"/>
+            <path d="M230 150 L170 430"/>
+            <path d="M790 170 L840 460"/>
+            <path d="M540 530 L280 560"/>
+            <path d="M170 430 L280 560"/>
+            <path d="M840 460 L540 530"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="500" cy="330" r="8"/>
+            <circle cx="230" cy="150" r="5"/>
+            <circle cx="790" cy="170" r="5"/>
+            <circle cx="540" cy="530" r="5"/>
+            <circle cx="170" cy="430" r="4"/>
+            <circle cx="840" cy="460" r="4"/>
+            <circle cx="280" cy="560" r="4"/>
+          </g>
+          <circle class="fb-packet p1" r="4"/>
+          <circle class="fb-packet p2" r="3.5"/>
+          <circle class="fb-packet p3" r="3.5"/>
+          <circle class="fb-packet p4" r="3"/>
+        </svg>
+        <p id="node-label" class="node-label" hidden></p>
+        <span class="hud hud-tl" aria-hidden="true"></span>
+        <span class="hud hud-tr" aria-hidden="true"></span>
+        <span class="hud hud-bl" aria-hidden="true"></span>
+        <span class="hud hud-br" aria-hidden="true"></span>
+      </div>
+      <div class="hero-copy">
+        <p class="sr-only">Et nett av noder for prosjektene. Pakker går langs koblingene mellom Topologi Studio, CS2 Clips, TinkerLARS og de andre.</p>
+        <p class="kicker">
+          <span class="sr-only">Port 01 · Vg3 Datateknologi · Østfold</span>
+          <span aria-hidden="true" data-scramble data-text="PORT 01 · VG3 DATATEKNOLOGI · ØSTFOLD">PORT 01 · VG3 DATATEKNOLOGI · ØSTFOLD</span>
+        </p>
+        <h1 class="hero-title" id="hero-title">Lars</h1>
+        <p class="signal-line">
+          <span class="sr-only">Rust · Nettverk · CS2 · Elektronikk</span>
+          <span aria-hidden="true" data-scramble data-text="Rust · Nettverk · CS2 · Elektronikk">Rust · Nettverk · CS2 · Elektronikk</span>
+        </p>
         <p class="lede">Hei, jeg heter Lars. Jeg går Vg3 Datateknologi i Østfold og lager programmer i Rust, nettverksskisser og verktøy til spillene jeg selv spiller.</p>
-        <div class="hero-cta">
-          <a class="btn primary" href="#prosjekter">Se prosjekter</a>
-          <a class="btn" href="https://github.com/xdkurbie">GitHub</a>
-          <a class="btn" href="mailto:xkurbie@gmail.com">E-post</a>
+        <nav class="route" aria-label="Stasjoner">
+          <a href="#topologi-studio">01 Topologi</a>
+          <a href="#cs2-clips">02 CS2</a>
+          <a href="#tinkerlars">03 Tinker</a>
+        </nav>
+        <div class="hero-cta hero-end">
+          <div class="actions">
+            <a class="btn primary" href="#prosjekter">Se prosjekter <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn" href="https://github.com/xdkurbie">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn" href="mailto:xkurbie@gmail.com">E-post <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+          <a class="scroll-ind" href="#topologi-studio">
+            <span class="scroll-box" aria-hidden="true"></span>
+            Scroll
+          </a>
         </div>
+        <p class="coord" id="coord">10.0.20.48</p>
       </div>
     </div>
   </section>
@@ -110,22 +174,35 @@
   <section class="section" id="prosjekter" aria-labelledby="prosjekter-tittel">
     <div class="wrap">
       <div class="section-head">
+        <p class="section-index">Node 02–04</p>
         <h2 id="prosjekter-tittel">Utvalgte prosjekter</h2>
         <p>Teksten under er det repoene faktisk beskriver. Versjoner og nedlastinger oppdateres fra GitHub når nettleseren får svar. Uten JavaScript står det som var riktig 20. oktober 2026.</p>
       </div>
+    </div>
 
-      <article class="feature" id="topologi-studio" data-repo="topologi-studio" data-version="v0.1.1">
-        <div>
-          <img
-            class="shot"
-            src="/img/projects/topologi-redigering.webp"
-            srcset="/img/projects/topologi-redigering-800.webp 800w, /img/projects/topologi-redigering.webp 1280w"
-            sizes="(min-width: 900px) 520px, 100vw"
-            width="1280"
-            height="800"
-            alt="Topologi Studio med UniFi-malen åpen. Mørkt lerret med enhetskort og koblinger, bibliotek til venstre og inspektør til høyre."
-            fetchpriority="high"
-            decoding="async">
+    <article class="station" id="topologi-studio" data-scrub data-repo="topologi-studio" data-version="v0.1.1">
+      <div class="station-sticky">
+        <div class="visual">
+          <svg class="schematic" viewBox="0 0 360 240" aria-hidden="true">
+            <path class="cable" pathLength="1" d="M30 120 H120 V48 H250"/>
+            <path class="cable" pathLength="1" d="M120 120 V190 H300"/>
+            <path class="cable" pathLength="1" d="M250 48 V120 H330"/>
+            <circle cx="30" cy="120" r="4" fill="currentColor"/>
+            <circle cx="250" cy="48" r="4" fill="currentColor"/>
+            <circle cx="300" cy="190" r="4" fill="currentColor"/>
+            <circle cx="330" cy="120" r="4" fill="currentColor"/>
+          </svg>
+          <div class="shot-frame">
+            <img
+              class="shot"
+              src="/img/projects/topologi-redigering.webp"
+              srcset="/img/projects/topologi-redigering-800.webp 800w, /img/projects/topologi-redigering.webp 1280w"
+              sizes="(min-width: 980px) 560px, 100vw"
+              width="1280"
+              height="800"
+              alt="Topologi Studio med UniFi-malen åpen. Mørkt lerret med enhetskort og koblinger, bibliotek til venstre og inspektør til høyre."
+              decoding="async">
+          </div>
           <div class="shot-row" tabindex="0" aria-label="Flere skjermbilder fra Topologi Studio">
             <figure>
               <img src="/img/projects/topologi-mal-topp.webp" width="960" height="600" alt="Øvre del av UniFi-malen, med gateway, ONT og VLAN-tagger." loading="lazy" decoding="async">
@@ -144,6 +221,11 @@
               <figcaption>Eksportert PNG</figcaption>
             </figure>
           </div>
+          <ul class="pills" aria-label="Deler av UniFi-malen">
+            <li>Gateway</li>
+            <li>VLAN</li>
+            <li>Brannmur</li>
+          </ul>
         </div>
         <div class="feature-copy">
           <p class="meta"><span class="version">v0.1.1</span> · oppdatert <time class="repo-time" datetime="2026-10-20">20. oktober 2026</time></p>
@@ -159,106 +241,126 @@
           </ul>
           <div class="actions">
             <div class="downloads" data-downloads>
-              <a class="btn primary" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_universal.dmg">macOS universal .dmg <span class="size">4,4 MB</span></a>
-              <a class="btn" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_x64-setup.exe">Windows x64 .exe <span class="size">3,6 MB</span></a>
-              <a class="btn" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_arm64-setup.exe">Windows ARM64 .exe <span class="size">3,5 MB</span></a>
-              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/topologi-studio/releases/tag/v0.1.1">Alle filer</a>
+              <a class="btn primary" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_universal.dmg">macOS universal .dmg <span class="size">4,4 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_x64-setup.exe">Windows x64 .exe <span class="size">3,6 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_arm64-setup.exe">Windows ARM64 .exe <span class="size">3,5 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/topologi-studio/releases/tag/v0.1.1">Alle filer <span class="arrow" aria-hidden="true">→</span></a>
             </div>
-            <a class="btn ghost" href="https://github.com/xdkurbie/topologi-studio">GitHub</a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/topologi-studio">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </div>
-      </article>
+      </div>
+    </article>
 
-      <div class="feature-pair">
-        <article class="feature stack" id="cs2-clips" data-repo="cs2-clips" data-version="v0.2.0">
-          <div>
+    <article class="station" id="cs2-clips" data-scrub data-repo="cs2-clips" data-version="v0.2.0">
+      <div class="station-sticky">
+        <div class="visual">
+          <div class="killfeed" aria-hidden="true">
+            <span>2K</span><span>5K</span><span>ACE</span><span>CLUTCH</span><span>NOSCOPE</span><span>WALLBANG</span>
+          </div>
+          <div class="shot-frame">
             <img
               class="shot"
               src="/img/projects/cs2-highlights.webp"
               srcset="/img/projects/cs2-highlights-800.webp 800w, /img/projects/cs2-highlights.webp 1280w"
-              sizes="(min-width: 900px) 460px, 100vw"
+              sizes="(min-width: 980px) 560px, 100vw"
               width="1280"
               height="800"
               alt="CS2 Clips på fanen Høydepunkter, med treff fra en de_mirage-demo."
               loading="lazy"
               decoding="async">
-            <div class="shot-row" tabindex="0" aria-label="Flere skjermbilder fra CS2 Clips">
-              <figure>
-                <img src="/img/projects/cs2-matches.webp" width="960" height="600" alt="Fanen Kamper i CS2 Clips." loading="lazy" decoding="async">
-                <figcaption>Kamper</figcaption>
-              </figure>
-              <figure>
-                <img src="/img/projects/cs2-clips.webp" width="960" height="600" alt="Fanen Klipp i CS2 Clips. Miniatyrbildene er genererte prøvevideoer." loading="lazy" decoding="async">
-                <figcaption>Klipp</figcaption>
-              </figure>
-              <figure>
-                <img src="/img/projects/cs2-montage.webp" width="960" height="600" alt="Fanen Montasje i CS2 Clips." loading="lazy" decoding="async">
-                <figcaption>Montasje</figcaption>
-              </figure>
-              <figure>
-                <img src="/img/projects/cs2-settings.webp" width="960" height="600" alt="Fanen Innstillinger i CS2 Clips." loading="lazy" decoding="async">
-                <figcaption>Innstillinger</figcaption>
-              </figure>
-            </div>
-            <p class="meta">Skjermbildene er appen på Linux med en offentlig CS2-testdemo (de_mirage). Miniatyrbildene i klipp-fanen er genererte prøvevideoer, ikke ekte opptak.</p>
           </div>
-          <div class="feature-copy">
-            <p class="meta"><span class="version">v0.2.0</span> · oppdatert <time class="repo-time" datetime="2026-10-14">14. oktober 2026</time></p>
-            <h3>CS2 Clips</h3>
-            <p>Finner høydepunkter i Counter-Strike 2-demoer, tar opp via spillets egen demo-avspilling og setter klippene sammen til en montasje. Kjører lokalt. Skrivebordsappen er Rust med egui. Nettsiden er Leptos og WebAssembly.</p>
-            <p>Den finner blant annet 2K–5K, ace, clutches, noscope, wallbang, røyk- og blind-kills. Windows-zipen inneholder også kommandolinjeverktøyet. Opptak trenger ffmpeg.</p>
-            <p class="note">På macOS kan du se kamper, analysere demoer og bygge montasje. Opptak krever CS2 på Windows og er implementert, men ikke testet ende-til-ende ennå. Steam-historikken er testet mot en etterlignet HTTP-tjeneste, ikke det ekte API-et. Appen på macOS er ad-hoc-signert, ikke notarisert.</p>
-            <ul class="tags">
-              <li>Rust</li>
-              <li>egui</li>
-              <li>Leptos</li>
-              <li>WebAssembly</li>
-            </ul>
-            <div class="actions">
-              <div class="downloads" data-downloads>
-                <a class="btn primary" href="https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-windows-x64.exe">Windows x64 .exe <span class="size">10,4 MB</span></a>
-                <a class="btn" href="https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-macos-universal.zip">macOS .zip <span class="size">9,2 MB</span></a>
-                <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/cs2-clips/releases/tag/v0.2.0">Alle filer</a>
-              </div>
-              <a class="btn ghost" href="https://xdkurbie.github.io/cs2-clips/">Nettside</a>
-              <a class="btn ghost" href="https://github.com/xdkurbie/cs2-clips">GitHub</a>
-            </div>
+          <div class="shot-row" tabindex="0" aria-label="Flere skjermbilder fra CS2 Clips">
+            <figure>
+              <img src="/img/projects/cs2-matches.webp" width="960" height="600" alt="Fanen Kamper i CS2 Clips." loading="lazy" decoding="async">
+              <figcaption>Kamper</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/cs2-clips.webp" width="960" height="600" alt="Fanen Klipp i CS2 Clips. Miniatyrbildene er genererte prøvevideoer." loading="lazy" decoding="async">
+              <figcaption>Klipp</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/cs2-montage.webp" width="960" height="600" alt="Fanen Montasje i CS2 Clips." loading="lazy" decoding="async">
+              <figcaption>Montasje</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/cs2-settings.webp" width="960" height="600" alt="Fanen Innstillinger i CS2 Clips." loading="lazy" decoding="async">
+              <figcaption>Innstillinger</figcaption>
+            </figure>
           </div>
-        </article>
+          <p class="meta">Skjermbildene er appen på Linux med en offentlig CS2-testdemo (de_mirage). Miniatyrbildene i klipp-fanen er genererte prøvevideoer, ikke ekte opptak.</p>
+        </div>
+        <div class="feature-copy">
+          <p class="meta"><span class="version">v0.2.0</span> · oppdatert <time class="repo-time" datetime="2026-10-14">14. oktober 2026</time></p>
+          <h3>CS2 Clips</h3>
+          <p>Finner høydepunkter i Counter-Strike 2-demoer, tar opp via spillets egen demo-avspilling og setter klippene sammen til en montasje. Kjører lokalt. Skrivebordsappen er Rust med egui. Nettsiden er Leptos og WebAssembly.</p>
+          <p>Den finner blant annet 2K–5K, ace, clutches, noscope, wallbang, røyk- og blind-kills. Windows-zipen inneholder også kommandolinjeverktøyet. Opptak trenger ffmpeg.</p>
+          <p class="note">På macOS kan du se kamper, analysere demoer og bygge montasje. Opptak krever CS2 på Windows og er implementert, men ikke testet ende-til-ende ennå. Steam-historikken er testet mot en etterlignet HTTP-tjeneste, ikke det ekte API-et. Appen på macOS er ad-hoc-signert, ikke notarisert.</p>
+          <ul class="tags">
+            <li>Rust</li>
+            <li>egui</li>
+            <li>Leptos</li>
+            <li>WebAssembly</li>
+          </ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn primary" href="https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-windows-x64.exe">Windows x64 .exe <span class="size">10,4 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn" href="https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-macos-universal.zip">macOS .zip <span class="size">9,2 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/cs2-clips/releases/tag/v0.2.0">Alle filer <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+            <a class="btn ghost" href="https://xdkurbie.github.io/cs2-clips/">Nettside <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/cs2-clips">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
 
-        <article class="feature stack" id="tinkerlars" data-repo="tinkerlars" data-version="v0.1.0">
+    <article class="station" id="tinkerlars" data-scrub data-repo="tinkerlars" data-version="v0.1.0">
+      <div class="station-sticky">
+        <div class="visual">
+          <svg class="pcb" viewBox="0 0 360 220" aria-hidden="true">
+            <rect x="8" y="8" width="344" height="204" rx="16" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path class="cable" pathLength="1" d="M40 40 H160 V110 H300"/>
+            <path class="cable" pathLength="1" d="M40 70 H90 V170 H240"/>
+            <path class="cable" pathLength="1" d="M160 40 V180 H320"/>
+            <circle class="led" cx="300" cy="110" r="8"/>
+            <circle cx="40" cy="40" r="3" fill="currentColor"/>
+            <circle cx="40" cy="70" r="3" fill="currentColor"/>
+            <circle cx="240" cy="170" r="3" fill="currentColor"/>
+          </svg>
           <ul class="spec">
             <li><span>3D</span> Boks, sylinder, kule, kjegle og torus. Hull, CSG-gruppe og binær STL.</li>
             <li><span>Krets</span> Arduino Uno, motstand, LED, knapp og ledning. DC-løser viser strøm og brente LED-er.</li>
             <li><span>Kode</span> Blockly lager Arduino C++ og kjører blink-eksempelet i simulatoren.</li>
           </ul>
-          <div class="feature-copy">
-            <p class="meta"><span class="version">v0.1.0</span> · oppdatert <time class="repo-time" datetime="2026-10-13">13. oktober 2026</time></p>
-            <h3>TinkerLARS</h3>
-            <p>Nettleserapp for 3D-design, enkle kretser og kodeblokker, laget som Vg3-prosjekt. Inspirert av ideen bak nybegynnerverktøy som Tinkercad, men skrevet fra bunnen av på åpne biblioteker. Ikke tilknyttet Autodesk. Grensesnittet finnes på norsk og engelsk.</p>
-            <p class="note">3D-scener lagres ikke ennå. Shift-klikk er den eneste måten å velge former for gruppering. Kretsløseren er bare DC, og komponenter plasseres med nedtrekkslister, ikke ved å dra.</p>
-            <ul class="tags">
-              <li>three.js</li>
-              <li>Blockly</li>
-              <li>JavaScript</li>
-            </ul>
-            <div class="actions">
-              <div class="downloads" data-downloads>
-                <a class="btn" href="https://github.com/xdkurbie/tinkerlars/releases/download/v0.1.0/tinkerlars-0.1.0-web.zip">Web-zip <span class="size">368 KB</span></a>
-                <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/tinkerlars/releases/tag/v0.1.0">Alle filer</a>
-              </div>
-              <a class="btn primary" href="https://xdkurbie.github.io/tinkerlars/">Åpne appen</a>
-              <a class="btn ghost" href="https://github.com/xdkurbie/tinkerlars">GitHub</a>
+        </div>
+        <div class="feature-copy">
+          <p class="meta"><span class="version">v0.1.0</span> · oppdatert <time class="repo-time" datetime="2026-10-13">13. oktober 2026</time></p>
+          <h3>TinkerLARS</h3>
+          <p>Nettleserapp for 3D-design, enkle kretser og kodeblokker, laget som Vg3-prosjekt. Inspirert av ideen bak nybegynnerverktøy som Tinkercad, men skrevet fra bunnen av på åpne biblioteker. Ikke tilknyttet Autodesk. Grensesnittet finnes på norsk og engelsk.</p>
+          <p class="note">3D-scener lagres ikke ennå. Shift-klikk er den eneste måten å velge former for gruppering. Kretsløseren er bare DC, og komponenter plasseres med nedtrekkslister, ikke ved å dra.</p>
+          <ul class="tags">
+            <li>three.js</li>
+            <li>Blockly</li>
+            <li>JavaScript</li>
+          </ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn" href="https://github.com/xdkurbie/tinkerlars/releases/download/v0.1.0/tinkerlars-0.1.0-web.zip">Web-zip <span class="size">368 KB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/tinkerlars/releases/tag/v0.1.0">Alle filer <span class="arrow" aria-hidden="true">→</span></a>
             </div>
+            <a class="btn primary" href="https://xdkurbie.github.io/tinkerlars/">Åpne appen <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/tinkerlars">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
-        </article>
+        </div>
       </div>
-    </div>
+    </article>
   </section>
 
   <section class="section" id="flere" aria-labelledby="flere-tittel">
     <div class="wrap">
       <div class="section-head">
+        <p class="section-index">Node 05+</p>
         <h2 id="flere-tittel">Flere prosjekter</h2>
         <p>Nye offentlige repoer som ikke står her, legges til nederst når GitHub svarer.</p>
       </div>
@@ -272,112 +374,112 @@
       <div class="cards" id="more-grid">
         <article class="card" id="dune-overlay" data-repo="dune-overlay" data-version="v0.1.0" data-category="verktoy">
           <p class="meta"><span class="version">v0.1.0</span> · <time class="repo-time" datetime="2026-10-12">12. oktober 2026</time></p>
-          <h3>Dune Overlay</h3>
+          <h3><span class="title-real">Dune Overlay</span><span class="title-ghost" aria-hidden="true" data-text="Dune Overlay">Dune Overlay</span></h3>
           <p>Gjennomsiktig kartoverlegg for Dune: Awakening, laget med Electron. Egne markører, hurtigtaster og valgfri OCR av koordinater på skjermen. Ingen kartgrafikk følger med. Du legger inn et bilde du selv har rett til.</p>
           <p class="note">Virker over vindu og borderless, ikke eksklusiv fullskjerm. OCR avhenger av at spillet viser koordinater. v0.1.0 er en portabel Windows-.exe.</p>
           <ul class="tags"><li>Electron</li><li>JavaScript</li></ul>
           <div class="actions">
             <div class="downloads" data-downloads>
-              <a class="btn primary" href="https://github.com/xdkurbie/dune-overlay/releases/download/v0.1.0/DuneOverlay-0.1.0-portable.exe">Windows .exe <span class="size">72,9 MB</span></a>
-              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/dune-overlay/releases/tag/v0.1.0">Alle filer</a>
+              <a class="btn primary" href="https://github.com/xdkurbie/dune-overlay/releases/download/v0.1.0/DuneOverlay-0.1.0-portable.exe">Windows .exe <span class="size">72,9 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/dune-overlay/releases/tag/v0.1.0">Alle filer <span class="arrow" aria-hidden="true">→</span></a>
             </div>
-            <a class="btn ghost" href="https://github.com/xdkurbie/dune-overlay">GitHub</a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/dune-overlay">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="gaming-companion" data-repo="gaming-companion" data-version="v1.0.0" data-category="verktoy">
           <p class="meta"><span class="version">v1.0.0</span> · <time class="repo-time" datetime="2026-10-12">12. oktober 2026</time></p>
-          <h3>Gaming Companion</h3>
+          <h3><span class="title-real">Gaming Companion</span><span class="title-ghost" aria-hidden="true" data-text="Gaming Companion">Gaming Companion</span></h3>
           <p>AI-spillassistent for Windows som leser skjermen, kan sende tastatur og mus, og har ferdigheter for Elden Ring, Dune: Awakening og Rocket League. Kan bruke en OpenAI-kompatibel modell og MCP-tillegg. Dry-run er på som standard. Nødstopp er F12.</p>
           <p class="note">Ferdighetene er enhetstestet, men ikke verifisert mot de ekte spillene. Tastene er forslag. Automatisk input i nettspill kan bryte vilkårene og utløse anti-cheat. README-en sier at det er for moro, læring og offline spill.</p>
           <ul class="tags"><li>Python</li><li>Windows</li></ul>
           <div class="actions">
             <div class="downloads" data-downloads>
-              <a class="btn primary" href="https://github.com/xdkurbie/gaming-companion/releases/download/v1.0.0/GamingCompanion.exe">Windows .exe <span class="size">32,4 MB</span></a>
-              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/gaming-companion/releases/tag/v1.0.0">Alle filer</a>
+              <a class="btn primary" href="https://github.com/xdkurbie/gaming-companion/releases/download/v1.0.0/GamingCompanion.exe">Windows .exe <span class="size">32,4 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/gaming-companion/releases/tag/v1.0.0">Alle filer <span class="arrow" aria-hidden="true">→</span></a>
             </div>
-            <a class="btn ghost" href="https://github.com/xdkurbie/gaming-companion">GitHub</a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/gaming-companion">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="norsk-stream-hub" data-repo="norsk-stream-hub" data-category="web">
           <p class="meta"><time class="repo-time" datetime="2026-05-08">8. mai 2026</time></p>
-          <h3>Norsk Stream Hub</h3>
+          <h3><span class="title-real">Norsk Stream Hub</span><span class="title-ghost" aria-hidden="true" data-text="Norsk Stream Hub">Norsk Stream Hub</span></h3>
           <p>Stremio-tillegg (NORGE-HUB) som slår opp norske strømmelenker for film og serier: NRK, TV 2 Play, Max, Strim, Viaplay, Prime Video og SkyShowtime, via JustWatch. Kjører på Vercel.</p>
           <p class="note">Roten på Vercel svarer 404. Manifestet, som Stremio bruker, svarer.</p>
           <ul class="tags"><li>JavaScript</li><li>Stremio</li></ul>
           <div class="actions">
-            <a class="btn primary" href="https://norsk-stream-hub.vercel.app/manifest.json">Stremio-manifest</a>
-            <a class="btn ghost" href="https://github.com/xdkurbie/norsk-stream-hub">GitHub</a>
+            <a class="btn primary" href="https://norsk-stream-hub.vercel.app/manifest.json">Stremio-manifest <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/norsk-stream-hub">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="bookmarked" data-repo="bookmarked" data-category="skole">
           <p class="meta"><time class="repo-time" datetime="2026-09-23">23. september 2026</time></p>
-          <h3>Bookmarked</h3>
+          <h3><span class="title-real">Bookmarked</span><span class="title-ghost" aria-hidden="true" data-text="Bookmarked">Bookmarked</span></h3>
           <p>Samling med Vg3-ressurser: bokmerkesiden «Lars sine bokmerker», nettverksdokumentasjon, topologi-SVG-er og en bruksanvisning for Windows Server 2025. Repoet har ingen README.</p>
           <ul class="tags"><li>HTML</li></ul>
           <div class="actions">
-            <a class="btn primary" href="https://github.com/xdkurbie/bookmarked">GitHub</a>
+            <a class="btn primary" href="https://github.com/xdkurbie/bookmarked">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="snake-game" data-repo="snake-game" data-category="spill">
           <p class="meta"><time class="repo-time" datetime="2026-01-16">16. januar 2026</time></p>
-          <h3>Snake Game</h3>
+          <h3><span class="title-real">Snake Game</span><span class="title-ghost" aria-hidden="true" data-text="Snake Game">Snake Game</span></h3>
           <p>Klassisk Snake med HTML5 Canvas og toppliste i Firebase. Kan spilles her. README-en peker også på en egen Firebase-host.</p>
           <ul class="tags"><li>HTML</li><li>JavaScript</li><li>Firebase</li></ul>
           <div class="actions">
-            <a class="btn primary" href="/snake-game/">Spill</a>
-            <a class="btn ghost" href="https://github.com/xdkurbie/snake-game">GitHub</a>
+            <a class="btn primary" href="/snake-game/">Spill <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/snake-game">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="flappy-student" data-category="spill">
-          <h3>Flappy Student</h3>
+          <h3><span class="title-real">Flappy Student</span><span class="title-ghost" aria-hidden="true" data-text="Flappy Student">Flappy Student</span></h3>
           <p>Reaksjonsspill i Flappy-stil, laget som skoleprosjekt. Det ligger bare på denne siden, ikke som et eget GitHub-repo.</p>
           <ul class="tags"><li>HTML</li><li>JavaScript</li><li>Canvas</li></ul>
           <div class="actions">
-            <a class="btn primary" href="/flappy-student/">Spill</a>
+            <a class="btn primary" href="/flappy-student/">Spill <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="cs2-config-manager" data-repo="cs2-config-manager" data-category="web">
           <p class="meta"><time class="repo-time" datetime="2026-01-12">12. januar 2026</time></p>
-          <h3>CS2 Config Manager</h3>
+          <h3><span class="title-real">CS2 Config Manager</span><span class="title-ghost" aria-hidden="true" data-text="CS2 Config Manager">CS2 Config Manager</span></h3>
           <p>Nettapp for CS2-konfigurasjoner: video, lyd, gameplay, sikte, viewmodel, nettverk, HUD og radar, import og eksport av .cfg, proff-presets og en case-åpner. React, TypeScript og Vite. Ingen ferdig utgivelse. Kjøres lokalt med npm.</p>
           <ul class="tags"><li>React</li><li>TypeScript</li><li>Vite</li></ul>
           <div class="actions">
-            <a class="btn primary" href="https://github.com/xdkurbie/cs2-config-manager">GitHub</a>
+            <a class="btn primary" href="https://github.com/xdkurbie/cs2-config-manager">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="cs2-config-webapp" data-repo="cs2-config-manager-webapp-" data-category="web">
           <p class="meta"><time class="repo-time" datetime="2026-01-10">10. januar 2026</time></p>
-          <h3>CS2 Settings Manager</h3>
+          <h3><span class="title-real">CS2 Settings Manager</span><span class="title-ghost" aria-hidden="true" data-text="CS2 Settings Manager">CS2 Settings Manager</span></h3>
           <p>Én HTML-fil som leser CS2-.cfg-filer, med React og Tailwind fra CDN. README-en beskriver den som en rask skisse og peker på zip-filen som selve prosjektet.</p>
           <ul class="tags"><li>HTML</li><li>React</li></ul>
           <div class="actions">
-            <a class="btn primary" href="https://github.com/xdkurbie/cs2-config-manager-webapp-">GitHub</a>
+            <a class="btn primary" href="https://github.com/xdkurbie/cs2-config-manager-webapp-">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="imgui-csco-chair" data-repo="imgui-csco-chair" data-category="annet">
           <p class="meta"><time class="repo-time" datetime="2025-06-14">14. juni 2025</time></p>
-          <h3>imgui-csco-chair</h3>
+          <h3><span class="title-real">imgui-csco-chair</span><span class="title-ghost" aria-hidden="true" data-text="imgui-csco-chair">imgui-csco-chair</span></h3>
           <p>Repoet inneholder ingen kildekode. README-en er bare linjen «very comfy chair for csco».</p>
           <div class="actions">
-            <a class="btn primary" href="https://github.com/xdkurbie/imgui-csco-chair">GitHub</a>
+            <a class="btn primary" href="https://github.com/xdkurbie/imgui-csco-chair">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
 
         <article class="card" id="denne-siden" data-repo="xdkurbie.github.io" data-category="web">
           <p class="meta"><time class="repo-time" datetime="2026-10-20">20. oktober 2026</time></p>
-          <h3>Denne nettsiden</h3>
+          <h3><span class="title-real">Denne nettsiden</span><span class="title-ghost" aria-hidden="true" data-text="Denne nettsiden">Denne nettsiden</span></h3>
           <p>Porteføljen du ser på. Statisk HTML, CSS og JavaScript, publisert med GitHub Pages.</p>
           <ul class="tags"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
           <div class="actions">
-            <a class="btn primary" href="https://github.com/xdkurbie/xdkurbie.github.io">GitHub</a>
+            <a class="btn primary" href="https://github.com/xdkurbie/xdkurbie.github.io">GitHub <span class="arrow" aria-hidden="true">→</span></a>
           </div>
         </article>
       </div>
@@ -388,29 +490,46 @@
   <section class="section" id="om-meg" aria-labelledby="om-tittel">
     <div class="wrap">
       <div class="section-head">
+        <p class="section-index">Traceroute</p>
         <h2 id="om-tittel">Om meg</h2>
       </div>
       <div class="about-grid">
         <div>
+          <img class="portrait" src="/img/avatar.webp" width="96" height="96" alt="Profilbilde av Lars (xdkurbie)" loading="lazy" decoding="async">
           <p>Jeg er elev på Vg3 Datateknologi i Østfold. På skolen og på fritiden jobber jeg med programmering, nettverk og elektronikk.</p>
           <p>Jeg lærer mest ved å bygge ting og prøve meg fram. Det blir skrivebordsprogrammer, nettverksskisser og små verktøy til spill.</p>
-          <ul class="tags" aria-label="Teknologi jeg bruker i prosjektene">
-            <li>Rust</li>
-            <li>TypeScript</li>
-            <li>JavaScript</li>
-            <li>Python</li>
-            <li>HTML og CSS</li>
-            <li>Tauri</li>
-            <li>KiCad</li>
-            <li>Git</li>
+          <ol class="trace">
+            <li><span>1</span> <code>vg1.datateknologi</code> <em>start</em></li>
+            <li><span>2</span> <code>vg2.datateknologi</code> <em>videre</em></li>
+            <li><span>3</span> <code>vg3.datateknologi.ostfold</code> <em>nå · VGMALA</em></li>
+          </ol>
+        </div>
+        <div>
+          <table class="ports">
+            <caption class="sr-only">Ferdigheter, vist som porter i nettet. Det er ikke en ekte svitsjkonfigurasjon.</caption>
+            <thead>
+              <tr><th scope="col">Port</th><th scope="col">Lag</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">01</th><td>Rust</td></tr>
+              <tr><th scope="row">02</th><td>TypeScript</td></tr>
+              <tr><th scope="row">03</th><td>JavaScript</td></tr>
+              <tr><th scope="row">04</th><td>Python</td></tr>
+              <tr><th scope="row">05</th><td>HTML og CSS</td></tr>
+              <tr><th scope="row">06</th><td>Tauri</td></tr>
+              <tr><th scope="row">07</th><td>KiCad</td></tr>
+              <tr><th scope="row">08</th><td>Git</td></tr>
+              <tr><th scope="row">09</th><td>UniFi</td></tr>
+              <tr><th scope="row">10</th><td>RouterOS</td></tr>
+            </tbody>
+          </table>
+          <ul class="interests" aria-label="Interesser">
+            <li>Programmering i Rust</li>
+            <li>Nettverk, UniFi og VLAN</li>
+            <li>Elektronikk og KiCad</li>
+            <li>CS2 og gaming</li>
           </ul>
         </div>
-        <ul class="interests">
-          <li>Programmering i Rust</li>
-          <li>Nettverk, UniFi og VLAN</li>
-          <li>Elektronikk og KiCad</li>
-          <li>CS2 og gaming</li>
-        </ul>
       </div>
     </div>
   </section>
@@ -418,13 +537,15 @@
   <section class="section contact" id="kontakt" aria-labelledby="kontakt-tittel">
     <div class="wrap">
       <div class="section-head">
+        <p class="section-index">Port 443</p>
         <h2 id="kontakt-tittel">Kontakt</h2>
       </div>
       <p class="intro">Lurer du på noe om prosjektene? Send en e-post. På Steam heter jeg rasu420.</p>
-      <div class="hero-cta">
-        <a class="btn primary" href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a>
-        <a class="btn" href="https://github.com/xdkurbie" rel="me">GitHub</a>
-        <a class="btn" href="https://steamcommunity.com/id/rasu420" rel="me">Steam</a>
+      <a class="giant" href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a>
+      <a class="ping" href="mailto:xkurbie@gmail.com"><span aria-hidden="true">&gt; </span>ping xkurbie@gmail.com</a>
+      <div class="actions">
+        <a class="btn" href="https://github.com/xdkurbie" rel="me">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="https://steamcommunity.com/id/rasu420" rel="me">Steam <span class="arrow" aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -432,8 +553,14 @@
 <footer class="footer">
   <div class="wrap">
     <p>© <span id="year">2026</span> Lars (xdkurbie)</p>
+    <p>Bygget fra bunnen av, ingen maler.</p>
     <p>Sist oppdatert <time id="updated" datetime="2026-10-20">20. oktober 2026</time></p>
+    <p>Commit <a id="commit" href="https://github.com/xdkurbie/xdkurbie.github.io/commits/main">main</a></p>
     <p><a href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a> · <a href="https://github.com/xdkurbie">GitHub</a></p>
+    <button type="button" class="hud-btn" id="sound-toggle" aria-pressed="false">
+      <span class="when-sound-off">Lyd av</span>
+      <span class="when-sound-on">Lyd på</span>
+    </button>
     <p id="live-status" class="sr-only" aria-live="polite"></p>
   </div>
 </footer>

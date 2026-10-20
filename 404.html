@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nb" data-theme="dark">
+<html lang="nb" data-theme="dark" data-motion="off">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +7,12 @@
 <meta name="description" content="Siden finnes ikke på xdkurbie.github.io.">
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#0a0d00">
+<meta name="theme-color" content="#07090a">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/img/icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script>
 (function () {
@@ -22,7 +23,12 @@
       : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
     document.documentElement.setAttribute("data-theme", theme);
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f5ef" : "#0a0d00");
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f5ef" : "#07090a");
+    var motionSaved = localStorage.getItem("motion");
+    var motion = motionSaved === "on" || motionSaved === "off"
+      ? motionSaved
+      : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
+    document.documentElement.setAttribute("data-motion", motion);
   } catch (e) {}
 })();
 </script>
@@ -36,19 +42,25 @@
     <a href="/#om-meg">Om meg</a>
     <a href="/#kontakt">Kontakt</a>
   </nav>
-  <button type="button" class="theme-btn" id="theme-toggle">
-    <span class="when-dark">Lyst tema</span>
-    <span class="when-light">Mørkt tema</span>
-  </button>
+  <div class="nav-controls">
+    <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
+      <span class="when-motion-on">Bevegelse på</span>
+      <span class="when-motion-off">Bevegelse av</span>
+    </button>
+    <button type="button" class="hud-btn" id="theme-toggle">
+      <span class="when-dark">Lyst tema</span>
+      <span class="when-light">Mørkt tema</span>
+    </button>
+  </div>
 </header>
-<main id="innhold" class="section">
+<main id="innhold" class="miss">
   <div class="wrap">
-    <p class="kicker">404</p>
+    <p class="kicker">ICMP · dest unreachable</p>
     <h1>Siden finnes ikke</h1>
-    <p class="lede">Lenken er feil, eller siden er flyttet.</p>
-    <div class="hero-cta">
-      <a class="btn primary" href="/">Til forsiden</a>
-      <a class="btn" href="/#prosjekter">Se prosjekter</a>
+    <p class="lede">Lenken er feil, eller siden er flyttet. Ruten stopper her.</p>
+    <div class="actions">
+      <a class="btn primary" href="/">Til forsiden <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn" href="/#prosjekter">Se prosjekter <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </div>
 </main>

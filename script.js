@@ -13,7 +13,7 @@
   function syncThemeButton() {
     var light = root.getAttribute("data-theme") === "light";
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", light ? "#f4f5ef" : "#0a0d00");
+    if (meta) meta.setAttribute("content", light ? "#f4f5ef" : "#07090a");
   }
 
   syncThemeButton();
@@ -135,6 +135,11 @@
       span.textContent = size;
       link.appendChild(span);
     }
+    var arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "→";
+    link.appendChild(arrow);
     return link;
   }
 
@@ -361,9 +366,135 @@
             pushed_at: repo.pushed_at
           };
         }));
+        return getJson("https://api.github.com/repos/xdkurbie/xdkurbie.github.io/commits/main");
+      })
+      .then(function (commit) {
+        var sha = commit && commit.sha;
+        var el = document.getElementById("commit");
+        if (!el || !sha) return;
+        el.textContent = sha.slice(0, 7);
+        el.setAttribute("href", "https://github.com/xdkurbie/xdkurbie.github.io/commit/" + sha);
       })
       .catch(function () {});
   }
+
+  var motionBtn = document.getElementById("motion-toggle");
+  var soundBtn = document.getElementById("sound-toggle");
+  var audioCtx = null;
+
+  function syncMotionButton() {
+    if (!motionBtn) return;
+    motionBtn.setAttribute("aria-pressed", root.getAttribute("data-motion") === "on" ? "true" : "false");
+  }
+
+  function bootMotion() {
+    if (root.getAttribute("data-motion") !== "on" || bootMotion.started) return;
+    if (!document.getElementById("hero")) return;
+    bootMotion.started = true;
+    var script = document.createElement("script");
+    script.src = "/motion.js";
+    document.body.appendChild(script);
+  }
+
+  syncMotionButton();
+  if (motionBtn) {
+    motionBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-motion") === "on" ? "off" : "on";
+      root.setAttribute("data-motion", next);
+      try { localStorage.setItem("motion", next); } catch (e) {}
+      syncMotionButton();
+      if (next === "on") bootMotion();
+    });
+  }
+
+  try {
+    if (localStorage.getItem("sound") === "on" && soundBtn) {
+      root.setAttribute("data-sound", "on");
+      soundBtn.setAttribute("aria-pressed", "true");
+    }
+  } catch (e) {}
+
+  function blip(freq) {
+    if (root.getAttribute("data-sound") !== "on") return;
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    if (!audioCtx) audioCtx = new Ctx();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = freq || 700;
+    gain.gain.value = 0.02;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    var stopAt = audioCtx.currentTime + 0.045;
+    gain.gain.exponentialRampToValueAtTime(0.0001, stopAt);
+    osc.stop(stopAt);
+  }
+
+  if (soundBtn) {
+    soundBtn.addEventListener("click", function () {
+      var on = root.getAttribute("data-sound") !== "on";
+      if (on) root.setAttribute("data-sound", "on");
+      else root.removeAttribute("data-sound");
+      soundBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      try { localStorage.setItem("sound", on ? "on" : "off"); } catch (e) {}
+      if (on) blip(520);
+    });
+  }
+
+  document.addEventListener("pointerdown", function (event) {
+    var hit = event.target.closest && event.target.closest("a, button");
+    if (!hit || hit.id === "sound-toggle") return;
+    blip(hit.classList.contains("primary") ? 880 : 640);
+  }, { passive: true });
+
+  function bootLine() {
+    if (!document.getElementById("hero") || root.getAttribute("data-motion") !== "on") return;
+    try { if (sessionStorage.getItem("packet-boot")) return; } catch (e) { return; }
+    var bar = document.createElement("div");
+    bar.className = "boot";
+    bar.setAttribute("role", "status");
+    var text = document.createElement("p");
+    var ascii = document.createElement("pre");
+    var skip = document.createElement("button");
+    skip.type = "button";
+    skip.className = "hud-btn";
+    skip.textContent = "Hopp over";
+    text.textContent = "Kobler til …";
+    ascii.textContent = "[          ]";
+    bar.appendChild(text);
+    bar.appendChild(ascii);
+    bar.appendChild(skip);
+    document.body.appendChild(bar);
+    var phrases = ["Kobler til …", "DHCP →", "IP 10.0.20.48 →", "OK"];
+    var step = 0;
+    var timer = setInterval(function () {
+      step += 1;
+      var n = Math.min(10, step * 3);
+      var fill = "";
+      var pad = "";
+      for (var i = 0; i < n; i++) fill += "#";
+      for (var j = n; j < 10; j++) pad += ".";
+      ascii.textContent = "[" + fill + pad + "]";
+      if (phrases[step]) text.textContent = phrases[step];
+    }, 260);
+    function done() {
+      clearInterval(timer);
+      if (bar.parentNode) bar.parentNode.removeChild(bar);
+      try { sessionStorage.setItem("packet-boot", "1"); } catch (e) {}
+    }
+    skip.addEventListener("click", done);
+    setTimeout(done, 1200);
+  }
+
+  bootLine();
+  window.addEventListener("load", function () {
+    var run = function () { bootMotion(); };
+    if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 1400 });
+    else setTimeout(run, 350);
+  });
 
   refresh();
 })();
