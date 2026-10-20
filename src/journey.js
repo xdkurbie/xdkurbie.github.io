@@ -317,7 +317,7 @@ const dust = new THREE.Points(dustGeo, dustMat);
 scene.add(dust);
 
 const rockRand = mulberry32(21);
-const rockCount = low ? 15 : 42;
+const rockCount = low ? 11 : 32;
 const rockGeo = new THREE.IcosahedronGeometry(1, 0);
 {
   const pos = rockGeo.attributes.position;
@@ -335,22 +335,22 @@ const rockFade = new Float32Array(rockCount);
 rockFade.fill(1);
 rockGeo.setAttribute("aFade", new THREE.InstancedBufferAttribute(rockFade, 1));
 const rockMat = new THREE.MeshPhysicalMaterial({
-  color: 0xdff7ff,
-  metalness: 0.04,
-  roughness: 0.06,
+  color: 0x101618,
+  metalness: 0.06,
+  roughness: 0.04,
   transmission: 0,
-  thickness: 0.8,
+  thickness: 0.35,
   transparent: true,
-  opacity: 0.86,
-  envMapIntensity: 2.6,
+  opacity: 0.4,
+  envMapIntensity: 1.15,
   clearcoat: 1,
-  clearcoatRoughness: 0.04,
-  iridescence: 0.85,
-  iridescenceIOR: 1.55,
-  iridescenceThicknessRange: [80, 420],
+  clearcoatRoughness: 0.015,
+  iridescence: 0.22,
+  iridescenceIOR: 1.45,
+  iridescenceThicknessRange: [180, 360],
   depthWrite: true
 });
-rockMat.customProgramCacheKey = () => "rock-fade";
+rockMat.customProgramCacheKey = () => "rock-fade-thin";
 rockMat.onBeforeCompile = (shader) => {
   shader.uniforms.uAccent = { value: signalColor };
   shader.uniforms.uPacket = { value: packetColor };
@@ -359,7 +359,7 @@ rockMat.onBeforeCompile = (shader) => {
     .replace("#include <begin_vertex>", "#include <begin_vertex>\nvFade = aFade;");
   shader.fragmentShader = shader.fragmentShader
     .replace("#include <common>", "#include <common>\nuniform vec3 uAccent;\nuniform vec3 uPacket;\nvarying float vFade;")
-    .replace("#include <output_fragment>", "#include <output_fragment>\nfloat ndv = clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0);\nfloat fres = pow(1.0 - ndv, 2.45);\ngl_FragColor.r += uAccent.r * fres * 0.95;\ngl_FragColor.g += uPacket.g * pow(fres, 3.1) * 0.62;\ngl_FragColor.b += uPacket.b * pow(fres, 1.45) * 0.78;\ngl_FragColor.a = clamp(gl_FragColor.a + fres * 0.4, 0.0, 1.0) * vFade;");
+    .replace("#include <output_fragment>", "#include <output_fragment>\nfloat ndv = clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0);\nfloat fres = pow(1.0 - ndv, 4.8);\ngl_FragColor.rgb += uAccent * fres * 0.72;\ngl_FragColor.r += uPacket.r * pow(1.0 - ndv, 3.4) * 0.1;\ngl_FragColor.b += uPacket.b * pow(1.0 - ndv, 2.6) * 0.16;\ngl_FragColor.a = min(0.78, gl_FragColor.a + fres * 0.28) * vFade;");
 };
 const rocks = new THREE.InstancedMesh(rockGeo, rockMat, rockCount);
 rocks.frustumCulled = false;
@@ -368,6 +368,21 @@ const upAxis = new THREE.Vector3(0, 1, 0);
 const rockRight = new THREE.Vector3();
 const rockForward = new THREE.Vector3();
 const rockLook = new THREE.Vector3();
+const heroCam = camCurve.getPointAt(0);
+const heroRay = new THREE.Vector3();
+function clearsHeroSphere(pos) {
+  heroRay.copy(pos).sub(heroCam);
+  const dist = heroRay.length();
+  if (dist < 1e-3) return false;
+  heroRay.multiplyScalar(1 / dist);
+  const t = -heroCam.dot(heroRay);
+  if (t < 0.35) return true;
+  const alongRay = Math.min(t, dist);
+  const cx = heroCam.x + heroRay.x * alongRay;
+  const cy = heroCam.y + heroRay.y * alongRay;
+  const cz = heroCam.z + heroRay.z * alongRay;
+  return cx * cx + cy * cy + cz * cz > 8.4;
+}
 for (let i = 0; i < rockCount; i += 1) {
   const u = Math.min(0.985, (i + rockRand() * 0.65) / rockCount);
   const p = camCurve.getPointAt(u);
@@ -378,16 +393,23 @@ for (let i = 0; i < rockCount; i += 1) {
   rockRight.crossVectors(rockForward, upAxis);
   if (rockRight.lengthSq() < 1e-4) rockRight.set(1, 0, 0);
   rockRight.normalize();
-  const near = rockRand() < 0.3;
+  const near = rockRand() < 0.22;
   const sideSign = rockRand() < 0.82 ? 1 : -1;
-  const side = (near ? 0.55 + rockRand() * 0.85 : 1.15 + rockRand() * 2.6) * sideSign;
+  const side = (near ? 0.85 + rockRand() * 0.7 : 1.15 + rockRand() * 2.6) * sideSign;
   const lift = (near ? -0.15 : 0.15) + rockRand() * (near ? 1.1 : 2.3);
-  const along = (rockRand() - 0.5) * (near ? 2.2 : 4.2);
+  const along = (rockRand() - 0.5) * (near ? 1.6 : 4.2);
   const base = p.clone()
     .addScaledVector(rockRight, side)
     .addScaledVector(upAxis, lift)
     .addScaledVector(rockForward, along);
-  const sx = 0.16 + rockRand() * (near ? 0.34 : 0.72);
+  if (u < 0.16) {
+    let guard = 0;
+    while (guard < 6 && !clearsHeroSphere(base)) {
+      base.addScaledVector(rockRight, sideSign * 0.7);
+      guard += 1;
+    }
+  }
+  const sx = (0.16 + rockRand() * (near ? 0.34 : 0.72)) * (near ? 0.7 : 1);
   const sy = sx * (0.45 + rockRand() * 1.35);
   const sz = sx * (0.7 + rockRand() * 1.5);
   rockData.push({
@@ -405,28 +427,47 @@ scene.add(rocks);
 
 const heroRocks = [];
 if (!low) {
-  [[2.7, 0.85, 2.5], [1.7, 1.55, 3.3], [3.25, -0.15, 1.35]].forEach((spot, i) => {
-    const mat = glassMaterial(0.04, 0xe7fbff, true);
+  const heroLook = lookCurve.getPointAt(0);
+  rockForward.copy(heroLook).sub(heroCam).normalize();
+  rockRight.crossVectors(rockForward, upAxis);
+  if (rockRight.lengthSq() < 1e-4) rockRight.set(1, 0, 0);
+  rockRight.normalize();
+  [
+    { side: 3.35, lift: 0.95, along: 5.35, s: 0.34 },
+    { side: 2.9, lift: -1.12, along: 4.25, s: 0.45 }
+  ].forEach((spot, i) => {
+    const mat = glassMaterial(0.03, 0x8aa0a6, true);
     mat.opacity = 1;
-    mat.iridescence = 0.9;
-    mat.iridescenceIOR = 1.6;
-    mat.iridescenceThicknessRange = [90, 480];
-    mat.envMapIntensity = 2.8;
-    mat.customProgramCacheKey = () => "hero-rock";
+    mat.thickness = 0.4;
+    mat.attenuationDistance = 8;
+    mat.iridescence = 0.18;
+    mat.iridescenceIOR = 1.5;
+    mat.iridescenceThicknessRange = [160, 340];
+    mat.envMapIntensity = 1.15;
+    mat.clearcoatRoughness = 0.02;
+    mat.customProgramCacheKey = () => "hero-rock-thin";
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uAccent = { value: signalColor };
       shader.uniforms.uPacket = { value: packetColor };
       shader.fragmentShader = shader.fragmentShader
         .replace("#include <common>", "#include <common>\nuniform vec3 uAccent;\nuniform vec3 uPacket;")
-        .replace("#include <output_fragment>", "#include <output_fragment>\nfloat ndv = clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0);\nfloat fres = pow(1.0 - ndv, 2.3);\ngl_FragColor.r += uAccent.r * fres * 1.05;\ngl_FragColor.g += uPacket.g * pow(fres, 3.0) * 0.7;\ngl_FragColor.b += uPacket.b * pow(fres, 1.4) * 0.85;");
+        .replace("#include <output_fragment>", "#include <output_fragment>\nfloat ndv = clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0);\nfloat fres = pow(1.0 - ndv, 4.8);\ngl_FragColor.rgb += uAccent * fres * 0.62;\ngl_FragColor.r += uPacket.r * pow(1.0 - ndv, 3.2) * 0.08;\ngl_FragColor.b += uPacket.b * pow(1.0 - ndv, 2.5) * 0.14;");
     };
     const mesh = new THREE.Mesh(rockGeo, mat);
-    mesh.position.set(spot[0], spot[1], spot[2]);
-    const s = 0.48 + i * 0.16;
+    mesh.position.copy(heroCam)
+      .addScaledVector(rockRight, spot.side)
+      .addScaledVector(upAxis, spot.lift)
+      .addScaledVector(rockForward, spot.along);
+    let guard = 0;
+    while (guard < 4 && !clearsHeroSphere(mesh.position)) {
+      mesh.position.addScaledVector(rockRight, 0.55);
+      guard += 1;
+    }
+    const s = spot.s;
     mesh.userData.base = mesh.position.clone();
     mesh.userData.sx = s;
-    mesh.userData.sy = s * (0.7 + i * 0.2);
-    mesh.userData.sz = s * 1.15;
+    mesh.userData.sy = s * (0.72 + i * 0.18);
+    mesh.userData.sz = s * 1.12;
     mesh.userData.spin = 0.22 + i * 0.07;
     mesh.userData.phase = i * 1.7;
     mesh.scale.set(mesh.userData.sx, mesh.userData.sy, mesh.userData.sz);
@@ -434,7 +475,7 @@ if (!low) {
     heroRocks.push(mesh);
   });
 }
-const rockLight = new THREE.PointLight(0xd2ff00, low ? 4 : 9, 18, 1.15);
+const rockLight = new THREE.PointLight(0xd2ff00, low ? 2.6 : 5.2, 18, 1.15);
 scene.add(rockLight);
 let rockU = 0;
 let rockVel = 0;
@@ -920,9 +961,16 @@ function applySceneColors() {
   fishLight.color.copy(signalColor);
   forestLight.color.copy(packetColor);
   rockLight.color.copy(signalColor);
-  rockMat.color.copy(glassTint);
+  rockMat.color.copy(packetColor).multiplyScalar(0.2);
   rockMat.emissive.copy(signalColor);
-  rockMat.emissiveIntensity = 0.08;
+  rockMat.emissiveIntensity = 0.012;
+  heroRocks.forEach((mesh) => {
+    const mat = mesh.material;
+    mat.color.copy(packetColor).lerp(glassWhite, 0.22).multiplyScalar(0.62);
+    mat.attenuationColor.copy(packetColor).lerp(BG, 0.72);
+    mat.emissive.copy(signalColor);
+    mat.emissiveIntensity = 0.012;
+  });
   if (scene.fog) scene.fog.color.copy(BG);
   composite.uniforms.tint.value.copy(signalColor);
   scene.background = BG;
