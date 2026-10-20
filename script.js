@@ -328,7 +328,7 @@
       page.className = "btn ghost";
       page.setAttribute("data-release-page", "true");
       page.href = pageHref;
-      page.textContent = copy.allFiles;
+      page.textContent = copy && copy.allFiles ? copy.allFiles : (lang === "en" ? "All files" : "Alle filer");
       box.appendChild(page);
     }
     var changed = false;
@@ -541,6 +541,94 @@
     document.body.appendChild(script);
   }
 
+  function journeyTier() {
+    if (root.getAttribute("data-motion") !== "on") return "static";
+    var cores = navigator.hardwareConcurrency || 8;
+    var mem = navigator.deviceMemory || 8;
+    var gl = false;
+    try {
+      var test = document.createElement("canvas");
+      gl = !!(window.WebGL2RenderingContext && test.getContext("webgl2"));
+    } catch (e) {}
+    if (!gl || cores <= 2 || mem <= 2) return "video";
+    if (cores <= 4 || mem <= 4 || matchMedia("(max-width: 720px)").matches) return "low";
+    return "full";
+  }
+
+  function stageName(p) {
+    var names = root.lang === "en"
+      ? ["01 NETWORK", "02 CRYSTAL", "03 FOREST", "04 CONTACT"]
+      : ["01 NETTVERK", "02 KRYSTALL", "03 SKOG", "04 KONTAKT"];
+    return names[Math.min(names.length - 1, Math.floor(Math.min(0.999, Math.max(0, p)) * names.length))];
+  }
+
+  function bootScrubVideo() {
+    var video = document.getElementById("journey-scrub");
+    if (!video) return;
+    root.setAttribute("data-journey", "video");
+    if (bootScrubVideo.armed) return;
+    bootScrubVideo.armed = true;
+    var narrow = matchMedia("(max-width: 720px)").matches;
+    video.poster = "/img/journey-poster.webp";
+    video.src = narrow ? "/video/journey-scrub-sm.mp4" : "/video/journey-scrub.mp4";
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    var duration = 12;
+    video.addEventListener("loadedmetadata", function () {
+      if (video.duration && isFinite(video.duration)) duration = video.duration;
+    });
+    var frame = 0;
+    function apply() {
+      frame = 0;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      root.style.setProperty("--page", p.toFixed(4));
+      var label = document.getElementById("progress-label");
+      if (label) label.textContent = stageName(p);
+      if (video.readyState >= 1) {
+        var target = Math.min(Math.max(0, duration - 0.04), p * duration);
+        if (Math.abs((video.currentTime || 0) - target) > 0.04) {
+          try { video.currentTime = target; } catch (e) {}
+        }
+      }
+    }
+    window.addEventListener("scroll", function () {
+      if (frame) return;
+      frame = requestAnimationFrame(apply);
+    }, { passive: true });
+    apply();
+    window.__journey = {
+      stop: function () {
+        root.removeAttribute("data-journey");
+        video.removeAttribute("src");
+        video.load();
+      },
+      start: function () { bootScrubVideo(); }
+    };
+  }
+
+  function bootJourney() {
+    if (root.getAttribute("data-motion") !== "on") {
+      if (window.__journey && window.__journey.stop) window.__journey.stop();
+      return;
+    }
+    if (window.__journey && window.__journey.start && root.getAttribute("data-journey") !== "3d" && root.getAttribute("data-journey") !== "video") {
+      window.__journey.start();
+      return;
+    }
+    if (bootJourney.started) return;
+    var tier = journeyTier();
+    if (tier === "static") return;
+    bootJourney.started = true;
+    if (tier === "video") { bootScrubVideo(); return; }
+    var script = document.createElement("script");
+    script.type = "module";
+    script.src = "/journey-gl.js";
+    script.dataset.tier = tier;
+    document.body.appendChild(script);
+  }
+
   syncMotionButton();
   if (motionBtn) {
     motionBtn.addEventListener("click", function () {
@@ -548,7 +636,8 @@
       root.setAttribute("data-motion", next);
       try { localStorage.setItem("motion", next); } catch (e) {}
       syncMotionButton();
-      if (next === "on") bootMotion();
+      if (next === "on") { bootMotion(); bootJourney(); }
+      else if (window.__journey && window.__journey.stop) window.__journey.stop();
     });
   }
 
@@ -639,6 +728,18 @@
     var run = function () { bootMotion(); };
     if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 1400 });
     else setTimeout(run, 350);
+    var armJourney = function () {
+      window.removeEventListener("scroll", armJourney);
+      window.removeEventListener("wheel", armJourney);
+      window.removeEventListener("touchstart", armJourney);
+      window.removeEventListener("keydown", armJourney);
+      bootJourney();
+    };
+    window.addEventListener("scroll", armJourney, { passive: true });
+    window.addEventListener("wheel", armJourney, { passive: true });
+    window.addEventListener("touchstart", armJourney, { passive: true });
+    window.addEventListener("keydown", armJourney);
+    if (window.scrollY > 8) armJourney();
   });
 
   refresh();

@@ -1672,3 +1672,118 @@ html[data-motion="on"] .petal-field.is-live .petal {
   .thanks figcaption { margin-top: 0.2rem; }
 }
 
+#journey-gl,
+.journey-scrub {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  z-index: 0;
+  pointer-events: none;
+  background: #07090a;
+}
+
+.journey-scrub { object-fit: cover; }
+
+html[data-journey="3d"] #journey-gl,
+html[data-journey="video"] .journey-scrub { display: block; }
+
+html[data-journey] { scroll-behavior: auto !important; }
+
+html[data-journey] body::before { display: none; }
+
+html[data-journey] main,
+html[data-journey] footer {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-journey] .ticker,
+html[data-journey] .rail-wrap,
+html[data-journey] .reel,
+html[data-journey] .slit,
+html[data-journey] .sakura-break,
+html[data-journey] .corridor,
+html[data-journey] #net,
+html[data-journey] .fallback-net,
+html[data-journey] .orb { display: none !important; }
+
+html[data-journey] .corridor-section { padding-top: 0; }
+
+html[data-journey] .hero-stage,
+html[data-journey] .about-panel { background: transparent; }
+
+html[data-journey] .hero-copy {
+  background: linear-gradient(to top, color-mix(in srgb, var(--bg) 82%, transparent), transparent 72%);
+}
+
+html[data-journey] .node-portrait { top: 16vh; }
+
+html[data-journey] #hero { min-height: 210vh; }
+
+html[data-journey] #prosjekter { min-height: 230vh; }
+
+html[data-journey] #om-meg { min-height: 190vh; }
+
+html[data-journey] #kontakt { min-height: 130vh; }
+
+html[data-journey] .hud-progress {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: 3px;
+  background: rgba(210, 255, 0, 0.16);
+}
+
+html[data-journey] .hud-progress i {
+  width: calc(var(--page, 0) * 100%);
+  height: 100%;
+  background: #d2ff00;
+  box-shadow: 0 0 12px #d2ff00;
+}
+
+html[data-journey] .progress-label {
+  top: 0.95rem;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  z-index: 32;
+}
+
+.portal-mark {
+  margin: 0 0 0.2rem;
+  font-size: clamp(3.2rem, 9vw, 7.4rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 0.9;
+  color: var(--signal);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--signal) 55%, transparent);
+}
+
+html[data-journey] #kontakt .wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+html[data-journey] #kontakt .section-head,
+html[data-journey] #kontakt .intro,
+html[data-journey] #kontakt .giant,
+html[data-journey] #kontakt .ping,
+html[data-journey] #kontakt .actions,
+html[data-journey] #kontakt .thanks {
+  width: min(100%, 46rem);
+}
+
+html[data-journey="3d"] .section-head,
+html[data-journey="video"] .section-head {
+  text-shadow: 0 1px 0 #07090a;
+}
+

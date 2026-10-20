@@ -67,10 +67,10 @@ var PACKET_MOTION = (function () {
     document.documentElement.style.setProperty("--page", page.toFixed(3));
     document.documentElement.style.setProperty("--shift", page.toFixed(3));
     var label = document.getElementById("progress-label");
-    if (label) {
+    if (label && !document.documentElement.getAttribute("data-journey")) {
       var names = document.documentElement.lang === "en"
-        ? ["01 HERO", "02 TOPOLOGY", "03 CS2", "04 TINKER", "05 NODES", "06 ABOUT", "07 PING"]
-        : ["01 HERO", "02 TOPOLOGI", "03 CS2", "04 TINKER", "05 NODER", "06 OM", "07 PING"];
+        ? ["01 NETWORK", "02 CRYSTAL", "03 FOREST", "04 CONTACT"]
+        : ["01 NETTVERK", "02 KRYSTALL", "03 SKOG", "04 KONTAKT"];
       label.textContent = names[Math.min(names.length - 1, Math.floor(page * names.length))];
     }
     var hero = document.querySelector(".hero-pin");
@@ -489,6 +489,7 @@ var PACKET_MOTION = (function () {
   var reelsArmed = false;
 
   function armReels() {
+    if (document.getElementById("journey-gl")) return;
     if (reduced) return;
     if (window.gsap && window.ScrollTrigger) { initReels(); return; }
     if (reelsArmed) return;
@@ -507,6 +508,7 @@ var PACKET_MOTION = (function () {
   }
 
   function loadGL() {
+    if (document.getElementById("journey-gl")) return;
     if (reduced) return;
     if (!matchMedia("(min-width: 900px)").matches) return;
     if ((navigator.hardwareConcurrency || 2) < 4) return;

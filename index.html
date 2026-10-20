@@ -67,6 +67,11 @@
       ? motionSaved
       : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
     document.documentElement.setAttribute("data-motion", motion);
+    if (motion === "on") {
+      var cores = navigator.hardwareConcurrency || 8;
+      var mem = navigator.deviceMemory || 8;
+      document.documentElement.setAttribute("data-journey", (cores <= 2 || mem <= 2) ? "video" : "3d");
+    }
     var palette = localStorage.getItem("palette");
     if (palette === "aurora" || palette === "kobber" || palette === "signal") {
       document.documentElement.setAttribute("data-palette", palette);
@@ -112,9 +117,11 @@
 <script src="/script.js" defer></script>
 </head>
 <body id="topp">
+<canvas id="journey-gl" aria-hidden="true"></canvas>
+<video id="journey-scrub" class="journey-scrub" muted playsinline preload="none"></video>
 <a class="skip" href="#innhold">Hopp til innhold</a>
 <div class="hud-progress" aria-hidden="true"><i></i></div>
-<p class="progress-label" id="progress-label" aria-hidden="true">01 HERO</p>
+<p class="progress-label" id="progress-label" aria-hidden="true">01 NETTVERK</p>
 <header class="nav">
   <a class="logo" href="#topp">xdkurbie<span>.</span></a>
   <nav class="nav-links" aria-label="Hovedmeny">
@@ -672,6 +679,7 @@
         <h2 id="kontakt-tittel">Kontakt</h2>
       </div>
       <p class="intro">Lurer du på noe om prosjektene? Send en e-post. På Steam heter jeg rasu420.</p>
+      <p class="portal-mark">SI HEI</p>
       <a class="giant" href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a>
       <a class="ping" href="mailto:xkurbie@gmail.com"><span aria-hidden="true">&gt; </span>ping xkurbie@gmail.com</a>
       <div class="actions">
