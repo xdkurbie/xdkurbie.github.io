@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -81,31 +82,9 @@ const camCurve = new THREE.CatmullRomCurve3(camPts, false, "centripetal", 0.5);
 const lookCurve = new THREE.CatmullRomCurve3(lookPts, false, "centripetal", 0.5);
 
 function makeEnv() {
-  const c = document.createElement("canvas");
-  c.width = 128;
-  c.height = 64;
-  const g = c.getContext("2d");
-  const sky = g.createLinearGradient(0, 0, 0, 64);
-  sky.addColorStop(0, "#24300c");
-  sky.addColorStop(0.45, "#10140c");
-  sky.addColorStop(1, "#050607");
-  g.fillStyle = sky;
-  g.fillRect(0, 0, 128, 64);
-  g.fillStyle = "#d2ff00";
-  g.globalAlpha = 0.9;
-  g.beginPath();
-  g.ellipse(64, 16, 10, 6, 0, 0, Math.PI * 2);
-  g.fill();
-  g.globalAlpha = 0.35;
-  g.fillStyle = "#5cf2ff";
-  g.fillRect(18, 40, 22, 4);
-  const tex = new THREE.CanvasTexture(c);
-  tex.mapping = THREE.EquirectangularReflectionMapping;
-  tex.colorSpace = THREE.SRGBColorSpace;
   const pmrem = new THREE.PMREMGenerator(renderer);
-  const env = pmrem.fromEquirectangular(tex).texture;
+  const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   pmrem.dispose();
-  tex.dispose();
   return env;
 }
 
@@ -224,17 +203,6 @@ fishGroup.add(slab);
   rail.position.set(0, side * (fishH / 2 + 0.16), 0.16);
   fishGroup.add(rail);
 });
-const shardMat = glassMaterial(0.04, 0xc8ffd4, false);
-const shards = [];
-for (let i = 0; i < (low ? 7 : 12); i += 1) {
-  const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.08 + rand() * 0.16, 0), shardMat);
-  const side = rand() < 0.5 ? -1 : 1;
-  mesh.position.set(1.1 + rand() * 2.2, (rand() - 0.5) * 1.8, (rand() - 0.5) * 1.4);
-  mesh.scale.set(1, 0.35 + rand() * 0.8, 1.4 + rand());
-  mesh.userData.spin = 0.3 + rand() * 0.6;
-  fishGroup.add(mesh);
-  shards.push(mesh);
-}
 fishGroup.visible = false;
 scene.add(fishGroup);
 const fishLight = new THREE.PointLight(0xd2ff66, low ? 4 : 8, 14);
@@ -347,6 +315,146 @@ const dustMat = new THREE.PointsMaterial({
 });
 const dust = new THREE.Points(dustGeo, dustMat);
 scene.add(dust);
+
+const rockRand = mulberry32(21);
+const rockCount = low ? 15 : 42;
+const rockGeo = new THREE.IcosahedronGeometry(1, 0);
+{
+  const pos = rockGeo.attributes.position;
+  const rv = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i += 1) {
+    rv.fromBufferAttribute(pos, i);
+    const len = rv.length() || 1;
+    const ny = Math.abs(rv.y / len);
+    rv.multiplyScalar((0.58 + rockRand() * 0.9 + ny * 0.62) / len);
+    pos.setXYZ(i, rv.x, rv.y, rv.z);
+  }
+  rockGeo.computeVertexNormals();
+}
+const rockFade = new Float32Array(rockCount);
+rockFade.fill(1);
+rockGeo.setAttribute("aFade", new THREE.InstancedBufferAttribute(rockFade, 1));
+const rockMat = new THREE.MeshPhysicalMaterial({
+  color: 0xdff7ff,
+  metalness: 0.04,
+  roughness: 0.06,
+  transmission: 0,
+  thickness: 0.8,
+  transparent: true,
+  opacity: 0.86,
+  envMapIntensity: 2.6,
+  clearcoat: 1,
+  clearcoatRoughness: 0.04,
+  iridescence: 0.85,
+  iridescenceIOR: 1.55,
+  iridescenceThicknessRange: [80, 420],
+  depthWrite: true
+});
+rockMat.customProgramCacheKey = () => "rock-fade";
+rockMat.onBeforeCompile = (shader) => {
+  shader.uniforms.uAccent = { value: signalColor };
+  shader.uniforms.uPacket = { value: packetColor };
+  shader.vertexShader = shader.vertexShader
+    .replace("#include <common>", "#include <common>\nattribute float aFade;\nvarying float vFade;")
+    .replace("#include <begin_vertex>", "#include <begin_vertex>\nvFade = aFade;");
+  shader.fragmentShader = shader.fragmentShader
+    .replace("#include <common>", "#include <common>\nuniform vec3 uAccent;\nuniform vec3 uPacket;\nvarying float vFade;")
+    .replace("#include <output_fragment>", "#include <output_fragment>\nfloat ndv = clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0);\nfloat fres = pow(1.0 - ndv, 2.45);\ngl_FragColor.r += uAccent.r * fres * 0.95;\ngl_FragColor.g += uPacket.g * pow(fres, 3.1) * 0.62;\ngl_FragColor.b += uPacket.b * pow(fres, 1.45) * 0.78;\ngl_FragColor.a = clamp(gl_FragColor.a + fres * 0.4, 0.0, 1.0) * vFade;");
+};
+const rocks = new THREE.InstancedMesh(rockGeo, rockMat, rockCount);
+rocks.frustumCulled = false;
+const rockData = [];
+const upAxis = new THREE.Vector3(0, 1, 0);
+const rockRight = new THREE.Vector3();
+const rockForward = new THREE.Vector3();
+const rockLook = new THREE.Vector3();
+for (let i = 0; i < rockCount; i += 1) {
+  const u = Math.min(0.985, (i + rockRand() * 0.65) / rockCount);
+  const p = camCurve.getPointAt(u);
+  rockLook.copy(lookCurve.getPointAt(u));
+  rockForward.copy(rockLook).sub(p);
+  if (rockForward.lengthSq() < 1e-4) rockForward.set(0, 0, -1);
+  rockForward.normalize();
+  rockRight.crossVectors(rockForward, upAxis);
+  if (rockRight.lengthSq() < 1e-4) rockRight.set(1, 0, 0);
+  rockRight.normalize();
+  const near = rockRand() < 0.3;
+  const sideSign = rockRand() < 0.82 ? 1 : -1;
+  const side = (near ? 0.55 + rockRand() * 0.85 : 1.15 + rockRand() * 2.6) * sideSign;
+  const lift = (near ? -0.15 : 0.15) + rockRand() * (near ? 1.1 : 2.3);
+  const along = (rockRand() - 0.5) * (near ? 2.2 : 4.2);
+  const base = p.clone()
+    .addScaledVector(rockRight, side)
+    .addScaledVector(upAxis, lift)
+    .addScaledVector(rockForward, along);
+  const sx = 0.16 + rockRand() * (near ? 0.34 : 0.72);
+  const sy = sx * (0.45 + rockRand() * 1.35);
+  const sz = sx * (0.7 + rockRand() * 1.5);
+  rockData.push({
+    base,
+    sx,
+    sy,
+    sz,
+    spin: 0.15 + rockRand() * 0.45,
+    phase: rockRand() * Math.PI * 2,
+    drift: 0.08 + rockRand() * 0.22,
+    axis: rockRand() * Math.PI
+  });
+}
+scene.add(rocks);
+
+const heroRocks = [];
+if (!low) {
+  [[2.7, 0.85, 2.5], [1.7, 1.55, 3.3], [3.25, -0.15, 1.35]].forEach((spot, i) => {
+    const mat = glassMaterial(0.04, 0xe7fbff, true);
+    mat.opacity = 1;
+    mat.iridescence = 0.9;
+    mat.iridescenceIOR = 1.6;
+    mat.iridescenceThicknessRange = [90, 480];
+    mat.envMapIntensity = 2.8;
+    mat.customProgramCacheKey = () => "hero-rock";
+    mat.onBeforeCompile = (shader) => {
+      shader.uniforms.uAccent = { value: signalColor };
+      shader.uniforms.uPacket = { value: packetColor };
+      shader.fragmentShader = shader.fragmentShader
+        .replace("#include <common>", "#include <common>\nuniform vec3 uAccent;\nuniform vec3 uPacket;")
+        .replace("#include <output_fragment>", "#include <output_fragment>\nfloat ndv = clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0);\nfloat fres = pow(1.0 - ndv, 2.3);\ngl_FragColor.r += uAccent.r * fres * 1.05;\ngl_FragColor.g += uPacket.g * pow(fres, 3.0) * 0.7;\ngl_FragColor.b += uPacket.b * pow(fres, 1.4) * 0.85;");
+    };
+    const mesh = new THREE.Mesh(rockGeo, mat);
+    mesh.position.set(spot[0], spot[1], spot[2]);
+    const s = 0.48 + i * 0.16;
+    mesh.userData.base = mesh.position.clone();
+    mesh.userData.sx = s;
+    mesh.userData.sy = s * (0.7 + i * 0.2);
+    mesh.userData.sz = s * 1.15;
+    mesh.userData.spin = 0.22 + i * 0.07;
+    mesh.userData.phase = i * 1.7;
+    mesh.scale.set(mesh.userData.sx, mesh.userData.sy, mesh.userData.sz);
+    scene.add(mesh);
+    heroRocks.push(mesh);
+  });
+}
+const rockLight = new THREE.PointLight(0xd2ff00, low ? 4 : 9, 18, 1.15);
+scene.add(rockLight);
+let rockU = 0;
+let rockVel = 0;
+const rockDummy = new THREE.Object3D();
+const rockNdc = new THREE.Vector3();
+
+function rockTextFade(world, travel) {
+  rockNdc.copy(world).project(camera);
+  if (rockNdc.z > 1) return 1;
+  let zone = 0;
+  if (rockNdc.x < 0.08 && rockNdc.y < 0.22) {
+    zone = Math.max(zone, smoothstep((0.08 - rockNdc.x) / 0.6) * smoothstep((0.22 - rockNdc.y) / 0.75));
+  }
+  if (travel > 0.82 && Math.abs(rockNdc.x) < 0.52 && rockNdc.y > -0.4 && rockNdc.y < 0.62) {
+    const dx = 1 - smoothstep((Math.abs(rockNdc.x) - 0.16) / 0.36);
+    const dy = 1 - smoothstep((Math.abs(rockNdc.y - 0.08) - 0.18) / 0.32);
+    zone = Math.max(zone, dx * dy);
+  }
+  return 1 - zone;
+}
 
 const panels = [fishPanel, forestPanel];
 const sidePanels = [sakuraPanel, treePanel];
@@ -692,15 +800,46 @@ function frame() {
   core.rotation.y = t * 0.27;
   heart.scale.setScalar(1 + Math.sin(t * 2.2) * 0.04);
   glassRing.rotation.z = t * 0.45;
-  shards.forEach((mesh, i) => {
-    mesh.rotation.x = t * mesh.userData.spin + i;
-    mesh.rotation.y = t * mesh.userData.spin * 0.7;
-    if (mobileQuery.matches) {
-      mesh.visible = false;
-      return;
-    }
-    mesh.getWorldPosition(ndc).project(camera);
-    mesh.visible = ndc.z < 1 && ndc.x > 0.08;
+  const du = Math.abs(u - rockU);
+  rockU = u;
+  rockVel += (Math.min(1, du * 28) - rockVel) * 0.12;
+  const boost = 1 + rockVel * 5;
+  const stretch = 1 + rockVel * 0.22;
+  key.position.set(Math.cos(t * 0.31) * 7.5, 5.4 + Math.sin(t * 0.22) * 2.1, Math.sin(t * 0.31) * 7.5);
+  rockLight.position.copy(camera.position);
+  rockLight.position.x += Math.cos(t * 0.72) * 1.7;
+  rockLight.position.y += 0.85 + Math.sin(t * 0.58) * 0.55;
+  rockLight.position.z += Math.sin(t * 0.72) * 1.25;
+  for (let i = 0; i < rockCount; i += 1) {
+    const rock = rockData[i];
+    const wobble = Math.sin(t * rock.drift + rock.phase);
+    rockDummy.position.copy(rock.base);
+    rockDummy.position.y += wobble * 0.28;
+    rockDummy.position.x += Math.cos(t * rock.drift * 0.7 + rock.phase) * 0.16;
+    const fade = rockTextFade(rockDummy.position, u);
+    rockFade[i] = fade;
+    const live = Math.max(0.001, fade);
+    rockDummy.scale.set(rock.sx * live, rock.sy * stretch * live, rock.sz * live);
+    rockDummy.rotation.set(
+      rock.axis + t * rock.spin * boost,
+      rock.phase + t * rock.spin * 0.73 * boost,
+      rock.phase * 0.4 + t * rock.spin * 0.35 * boost
+    );
+    rockDummy.updateMatrix();
+    rocks.setMatrixAt(i, rockDummy.matrix);
+  }
+  rocks.instanceMatrix.needsUpdate = true;
+  rockGeo.attributes.aFade.needsUpdate = true;
+  heroRocks.forEach((mesh) => {
+    mesh.visible = u < 0.2;
+    if (!mesh.visible) return;
+    const fade = rockTextFade(mesh.userData.base, u);
+    const live = Math.max(0.001, fade);
+    mesh.position.copy(mesh.userData.base);
+    mesh.position.y += Math.sin(t * 0.32 + mesh.userData.phase) * 0.14;
+    mesh.rotation.x = mesh.userData.phase + t * mesh.userData.spin * boost;
+    mesh.rotation.y = t * mesh.userData.spin * 0.66 * boost;
+    mesh.scale.set(mesh.userData.sx * live, mesh.userData.sy * stretch * live, mesh.userData.sz * live);
   });
   cubes.forEach((cube) => {
     cube.position.y = cube.userData.baseY + Math.sin(t * 0.8 + cube.userData.bob) * 0.12;
@@ -780,6 +919,11 @@ function applySceneColors() {
   fill.color.copy(packetColor);
   fishLight.color.copy(signalColor);
   forestLight.color.copy(packetColor);
+  rockLight.color.copy(signalColor);
+  rockMat.color.copy(glassTint);
+  rockMat.emissive.copy(signalColor);
+  rockMat.emissiveIntensity = 0.08;
+  if (scene.fog) scene.fog.color.copy(BG);
   composite.uniforms.tint.value.copy(signalColor);
   scene.background = BG;
   renderer.setClearColor(BG, 1);

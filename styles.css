@@ -645,6 +645,51 @@ html[data-sound="on"] .when-sound-on { display: inline; }
 
 .orb-a { left: -6%; top: 8%; }
 
+.static-rock {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(150deg, color-mix(in srgb, white 55%, var(--signal)) 0%, var(--signal) 28%, color-mix(in srgb, var(--packet) 70%, transparent) 70%, color-mix(in srgb, var(--bg) 30%, transparent) 100%);
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--signal) 75%, transparent));
+  opacity: 0.92;
+}
+
+html[data-motion="off"] .static-rock { display: block; }
+html[data-journey] .static-rock { display: none !important; }
+
+.static-rock.r1 {
+  right: 8vw;
+  top: 16vh;
+  width: 74px;
+  height: 108px;
+  clip-path: polygon(48% 0, 100% 30%, 78% 100%, 16% 74%, 0 26%);
+}
+
+.static-rock.r2 {
+  right: 18vw;
+  top: 34vh;
+  width: 46px;
+  height: 70px;
+  opacity: 0.75;
+  clip-path: polygon(30% 0, 100% 18%, 70% 100%, 0 62%);
+}
+
+.static-rock.r3 {
+  right: 5vw;
+  bottom: 16vh;
+  width: 58px;
+  height: 40px;
+  clip-path: polygon(12% 0, 100% 20%, 82% 100%, 0 70%);
+}
+
+@media (max-width: 720px) {
+  .static-rock.r1 { width: 42px; height: 62px; right: 4vw; top: 12vh; }
+  .static-rock.r2 { width: 28px; height: 42px; right: 14vw; }
+  html[data-motion="off"] .static-rock.r3 { display: none; }
+}
+
 .node-portrait {
   position: absolute;
   z-index: 4;
