@@ -221,6 +221,13 @@
     </div>
   </div>
 
+  <div class="slit" data-scrub aria-hidden="true">
+    <div class="clip-slot">
+      <img class="clip-still" src="/img/clips/eye-poster.webp" alt="" width="800" height="370" loading="lazy" decoding="async">
+      <video class="clip" data-src="/img/clips/eye.mp4" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+
   <section class="section" id="prosjekter" aria-labelledby="prosjekter-tittel">
     <div class="wrap">
       <div class="section-head">
@@ -411,7 +418,23 @@
     </article>
   </section>
 
-  <section class="section" id="flere" aria-labelledby="flere-tittel">
+  <div class="sakura-break" data-scrub aria-hidden="true">
+    <div class="sakura-frame">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/sakura-poster.webp" alt="" width="480" height="200" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/sakura.mp4" muted loop playsinline preload="none"></video>
+      </div>
+    </div>
+    <div class="petal-field"></div>
+  </div>
+
+  <section class="section" id="flere" data-scrub aria-labelledby="flere-tittel">
+    <div class="peek" aria-hidden="true">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/tree-poster.webp" alt="" width="560" height="276" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/tree.mp4" muted loop playsinline preload="none"></video>
+      </div>
+    </div>
     <div class="wrap">
       <div class="section-head">
         <p class="section-index">Node 05+</p>
@@ -541,8 +564,25 @@
     </div>
   </section>
 
-  <section class="section" id="om-meg" aria-labelledby="om-tittel">
-    <div class="wrap">
+  <div class="grove" aria-hidden="true">
+    <div class="grove-frame">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/forest-poster.webp" alt="" width="400" height="225" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/forest.mp4" muted loop playsinline preload="none"></video>
+      </div>
+      <span class="duotone"></span>
+    </div>
+  </div>
+
+  <section class="section corridor-section" id="om-meg" data-scrub aria-labelledby="om-tittel">
+    <div class="corridor" aria-hidden="true">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/walk-poster.webp" alt="" width="720" height="404" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/walk.mp4" muted loop playsinline preload="none"></video>
+      </div>
+      <span class="duotone"></span>
+    </div>
+    <div class="wrap about-panel">
       <div class="section-head">
         <p class="section-index">Traceroute</p>
         <h2 id="om-tittel">Om meg</h2>
@@ -588,7 +628,7 @@
     </div>
   </section>
 
-  <section class="section contact" id="kontakt" aria-labelledby="kontakt-tittel">
+  <section class="section contact" id="kontakt" data-scrub aria-labelledby="kontakt-tittel">
     <div class="wrap">
       <div class="section-head">
         <p class="section-index">Port 443</p>
@@ -601,10 +641,25 @@
         <a class="btn" href="https://github.com/xdkurbie" rel="me">GitHub <span class="arrow" aria-hidden="true">→</span></a>
         <a class="btn" href="https://steamcommunity.com/id/rasu420" rel="me">Steam <span class="arrow" aria-hidden="true">→</span></a>
       </div>
+      <figure class="thanks">
+        <div class="clip-frame">
+          <div class="clip-slot">
+            <img class="clip-still" src="/img/clips/smile-poster.webp" width="480" height="270" alt="Lars smiler med lukkede øyne, som en takk for besøket." loading="lazy" decoding="async">
+            <video class="clip" data-src="/img/clips/smile.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+          </div>
+        </div>
+        <figcaption>Takk for turen.</figcaption>
+      </figure>
     </div>
   </section>
 </main>
 <footer class="footer">
+  <div class="mascot" aria-hidden="true">
+    <div class="clip-slot">
+      <img class="clip-still" src="/img/clips/dance-poster.webp" alt="" width="360" height="202" loading="lazy" decoding="async">
+      <video class="clip" data-src="/img/clips/dance.mp4" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
   <div class="wrap">
     <p>© <span id="year">2026</span> Lars (xdkurbie)</p>
     <p>Bygget fra bunnen av, ingen maler.</p>
@@ -618,5 +673,18 @@
     <p id="live-status" class="sr-only" aria-live="polite"></p>
   </div>
 </footer>
+<div id="fish-egg" class="fish-egg" hidden>
+  <div class="fish-card" role="dialog" aria-modal="true" aria-labelledby="fish-title">
+    <p class="kicker" id="fish-title">NODE · FISK</p>
+    <div class="clip-frame">
+      <div class="clip-slot">
+        <img class="clip-still" alt="Figuren holder en fisk i munnen." data-src="/img/clips/fish-poster.webp" width="540" height="226" decoding="async">
+        <video class="clip" data-src="/img/clips/fish.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+      </div>
+    </div>
+    <p>Du fant et gjemt klipp.</p>
+    <button type="button" class="hud-btn" id="fish-close">Lukk</button>
+  </div>
+</div>
 </body>
 </html>

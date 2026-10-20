@@ -1340,3 +1340,312 @@ html[data-motion="on"] .f4 { offset-path: path("M160 40 V180 H320"); animation-d
   to { transform: translate(var(--dx), var(--dy)); opacity: 0; }
 }
 
+.clip-slot { position: relative; width: 100%; height: 100%; }
+
+.clip-still,
+.clip-slot .clip {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.clip-slot .clip {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.clip-slot .clip.is-playing { opacity: 1; }
+
+.slit {
+  position: relative;
+  height: 24vh;
+  min-height: 128px;
+  max-height: 220px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.slit .clip-slot {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(34% 0 34% 0);
+}
+
+html[data-motion="on"] .slit .clip-slot {
+  clip-path: inset(calc(48% - var(--scrub, 0) * 48%) 0 calc(48% - var(--scrub, 0) * 48%) 0);
+}
+
+.slit .clip-still,
+.slit .clip { object-position: center 40%; }
+
+.peek { display: none; }
+
+.corridor-section { position: relative; overflow: hidden; }
+
+.corridor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.corridor .clip-slot { position: absolute; inset: -14% 0; }
+
+.corridor .clip-still,
+.corridor .clip {
+  filter: grayscale(1) contrast(1.2) brightness(0.72);
+}
+
+html[data-motion="on"] .corridor .clip-slot {
+  transform: translate3d(0, calc((var(--scrub, 0.5) - 0.5) * -12%), 0) scale(1.08);
+}
+
+.duotone {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, var(--signal), var(--packet));
+  mix-blend-mode: color;
+  opacity: 0.86;
+}
+
+.corridor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--bg), transparent 18% 80%, var(--bg)),
+    linear-gradient(90deg, var(--bg), transparent 6% 94%, var(--bg));
+}
+
+.about-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  padding: 1.35rem 1.2rem 0.2rem;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.thanks {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: end;
+  margin: 1.4rem 0 0;
+  max-width: 34rem;
+}
+
+.thanks .clip-frame,
+.lost-fish .clip-frame,
+.fish-card .clip-frame {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.thanks .clip-frame { aspect-ratio: 16 / 9; }
+
+.thanks figcaption,
+.lost-fish figcaption {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+html[data-motion="on"] .thanks {
+  transform: translateY(calc((1 - var(--scrub, 1)) * 12px));
+}
+
+.footer { position: relative; overflow: hidden; }
+
+.mascot { overflow: hidden; max-width: 100%; }
+
+.mascot .clip-still,
+.mascot .clip { min-width: 0; }
+
+.footer .wrap { padding-right: 9.5rem; }
+
+.mascot {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 0.7rem;
+  width: 140px;
+  height: 78px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mascot .clip-slot {
+  mix-blend-mode: screen;
+  transform: translate3d(var(--mx, 0px), var(--my, 0px), 0) rotate(var(--mr, 0deg));
+}
+
+.mascot .clip-still,
+.mascot .clip { object-fit: contain; }
+
+html[data-theme="light"] .mascot {
+  background: #141800;
+  border-radius: 12px;
+}
+
+.fish-egg {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+  background: color-mix(in srgb, var(--bg) 74%, transparent);
+}
+
+.fish-card {
+  width: min(440px, 100%);
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px color-mix(in srgb, #000 45%, transparent);
+}
+
+.fish-card .clip-frame { aspect-ratio: 540 / 226; margin: 0.6rem 0; }
+
+.fish-card p { margin: 0.4rem 0 0.8rem; }
+
+.lost-fish { margin: 1.6rem 0 0; max-width: 320px; }
+
+.lost-fish .clip-frame { aspect-ratio: 540 / 226; }
+
+.lost-fish figcaption { margin-top: 0.45rem; }
+
+@media (min-width: 1100px) {
+  #flere { position: relative; }
+
+  .peek {
+    display: block;
+    position: absolute;
+    top: 4.6rem;
+    right: 0;
+    width: min(240px, 20vw);
+    height: 132px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+    mask-image: linear-gradient(90deg, transparent, #000 32%);
+  }
+
+  .peek .clip-still,
+  .peek .clip { object-position: 62% center; }
+
+  html[data-motion="on"] .peek .clip-still,
+  html[data-motion="on"] .peek .clip {
+    object-position: calc(100% - min(var(--scrub, 0) * 220%, 48%)) center;
+  }
+}
+
+.sakura-break {
+  position: relative;
+  height: 28vh;
+  min-height: 168px;
+  max-height: 260px;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.sakura-frame {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: min(460px, 86vw);
+  height: 62%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.sakura-frame .clip-still,
+.sakura-frame .clip { object-position: center 32%; }
+
+.petal-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+html[data-motion="on"] .sakura-break .petal-field {
+  transform: translate3d(0, calc(var(--scrub, 0) * -72px), 0);
+}
+
+.petal {
+  position: absolute;
+  top: 62%;
+  width: 8px;
+  height: 11px;
+  border-radius: 70% 12% 70% 12%;
+  opacity: 0;
+}
+
+html[data-motion="on"] .petal-field.is-live .petal {
+  animation-name: petal-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes petal-rise {
+  0% { transform: translate3d(0, 12px, 0) rotate(0deg); opacity: 0; }
+  18% { opacity: 0.9; }
+  100% { transform: translate3d(var(--dx, 20px), -210px, 0) rotate(var(--spin, 40deg)); opacity: 0; }
+}
+
+.grove {
+  display: flex;
+  justify-content: center;
+  padding: 2.6rem 0 0.4rem;
+}
+
+.grove-frame {
+  position: relative;
+  width: min(232px, 62vw);
+  height: 292px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #07090a;
+}
+
+.grove-frame .clip-slot {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 240%;
+  height: 210%;
+  transform: translateX(-50%);
+}
+
+.grove-frame .clip-still,
+.grove-frame .clip {
+  object-position: center 22%;
+  filter: grayscale(1) contrast(1.12) brightness(0.76);
+}
+
+.grove-frame .duotone { opacity: 0.7; }
+
+@media (max-width: 720px) {
+  .thanks { grid-template-columns: 112px minmax(0, 1fr); }
+  .footer .wrap { padding-right: 0; }
+  .mascot {
+    position: static;
+    width: 96px;
+    height: 54px;
+    margin-left: auto;
+  }
+  .grove-frame { height: 240px; }
+}
+

@@ -409,9 +409,72 @@
     motionBtn.setAttribute("aria-pressed", root.getAttribute("data-motion") === "on" ? "true" : "false");
   }
 
+  var fishReturn = null;
+
+  function openFish() {
+    var egg = document.getElementById("fish-egg");
+    if (!egg || !egg.hidden) return;
+    var still = egg.querySelector("img");
+    if (still && still.dataset.src && !still.getAttribute("src")) still.src = still.dataset.src;
+    fishReturn = document.activeElement;
+    egg.hidden = false;
+    var close = document.getElementById("fish-close");
+    if (close) close.focus();
+    document.dispatchEvent(new CustomEvent("packet-fish"));
+  }
+
+  function closeFish() {
+    var egg = document.getElementById("fish-egg");
+    if (!egg || egg.hidden) return;
+    egg.hidden = true;
+    var video = egg.querySelector("video");
+    if (video) video.pause();
+    if (fishReturn && fishReturn.focus) fishReturn.focus();
+    fishReturn = null;
+  }
+
+  (function armFish() {
+    var egg = document.getElementById("fish-egg");
+    if (!egg) return;
+    var close = document.getElementById("fish-close");
+    if (close) close.addEventListener("click", closeFish);
+    egg.addEventListener("click", function (event) {
+      if (event.target === egg) closeFish();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (egg.hidden) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeFish();
+      }
+    });
+    var portrait = document.querySelector(".node-portrait");
+    if (portrait) {
+      var taps = 0;
+      var first = 0;
+      portrait.addEventListener("click", function () {
+        var now = Date.now();
+        if (now - first > 4000) { taps = 0; first = now; }
+        taps += 1;
+        if (taps >= 5) { taps = 0; openFish(); }
+      });
+    }
+    var konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+    var step = 0;
+    document.addEventListener("keydown", function (event) {
+      var key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      if (key === konami[step]) {
+        step += 1;
+        if (step === konami.length) { step = 0; openFish(); }
+      } else {
+        step = key === konami[0] ? 1 : 0;
+      }
+    });
+  })();
+
   function bootMotion() {
     if (root.getAttribute("data-motion") !== "on" || bootMotion.started) return;
-    if (!document.getElementById("hero")) return;
+    if (!document.querySelector("#hero, video.clip")) return;
     bootMotion.started = true;
     var script = document.createElement("script");
     script.src = "/motion.js";
