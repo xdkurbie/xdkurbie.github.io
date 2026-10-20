@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-motion="off" data-palette="signal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lars (xdkurbie) – Vg3 information technology in Østfold</title>
+<meta name="description" content="Portfolio of Lars (xdkurbie), a Vg3 information-technology student in Østfold. Networks, Rust and CS2: Topologi Studio, CS2 Clips and TinkerLARS.">
+<meta name="author" content="Lars">
+<meta name="robots" content="index, follow">
+<meta name="color-scheme" content="dark light">
+<link rel="canonical" href="https://xdkurbie.github.io/en/">
+<link rel="alternate" hreflang="nb" href="https://xdkurbie.github.io/">
+<link rel="alternate" hreflang="en" href="https://xdkurbie.github.io/en/">
+<link rel="alternate" hreflang="x-default" href="https://xdkurbie.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nb_NO">
+<meta property="og:site_name" content="xdkurbie">
+<meta property="og:title" content="Lars (xdkurbie) – Vg3 information technology in Østfold">
+<meta property="og:description" content="Portfolio of Lars. Topologi Studio, CS2 Clips, TinkerLARS and other projects.">
+<meta property="og:url" content="https://xdkurbie.github.io/en/">
+<meta property="og:image" content="https://xdkurbie.github.io/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="xdkurbie, Lars, Vg3 information technology in Østfold">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lars (xdkurbie) – Vg3 information technology in Østfold">
+<meta name="twitter:description" content="Portfolio of Lars. Topologi Studio, CS2 Clips, TinkerLARS and other projects.">
+<meta name="twitter:image" content="https://xdkurbie.github.io/img/og.png">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/img/icon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/img/icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<script>
+(function () {
+  try {
+    var path = location.pathname.replace(/\/index\.html$/, "/");
+    if (path.length > 1 && path.charAt(path.length - 1) === "/") path = path.slice(0, -1);
+    var onEn = path === "/en";
+    var q = new URLSearchParams(location.search).get("lang") || "";
+    if (q === "en" || q === "nb") localStorage.setItem("lang", q);
+    var savedLang = localStorage.getItem("lang") || "";
+    var hash = location.hash || "";
+    if (!onEn && (path === "/" || path === "") && q !== "nb" && (q === "en" || savedLang === "en")) {
+      location.replace("/en/" + hash);
+      return;
+    }
+    if (onEn && q === "nb") {
+      location.replace("/" + hash);
+      return;
+    }
+  } catch (e) {}
+  try {
+    var saved = localStorage.getItem("theme");
+    var theme = saved === "light" || saved === "dark"
+      ? saved
+      : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f5ef" : "#07090a");
+    var motionSaved = localStorage.getItem("motion");
+    var motion = motionSaved === "on" || motionSaved === "off"
+      ? motionSaved
+      : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
+    document.documentElement.setAttribute("data-motion", motion);
+    var palette = localStorage.getItem("palette");
+    if (palette === "aurora" || palette === "kobber" || palette === "signal") {
+      document.documentElement.setAttribute("data-palette", palette);
+    }
+    var darkBg = { signal: "#07090a", aurora: "#090712", kobber: "#110c09" };
+    var lightBg = { signal: "#f4f5ef", aurora: "#f7f3fb", kobber: "#fbf6f1" };
+    var chosen = document.documentElement.getAttribute("data-palette") || "signal";
+    if (meta) meta.setAttribute("content", theme === "light" ? lightBg[chosen] : darkBg[chosen]);
+  } catch (e) {}
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://xdkurbie.github.io/#lars",
+      "name": "Lars",
+      "alternateName": ["xdkurbie", "rasu420"],
+      "url": "https://xdkurbie.github.io/en/",
+      "image": "https://xdkurbie.github.io/img/avatar.png",
+      "email": "xkurbie@gmail.com",
+      "homeLocation": { "@type": "Place", "name": "Østfold, Norway" },
+      "description": "Student in Vg3 Datateknologi (information technology) in Østfold.",
+      "knowsAbout": ["Rust", "TypeScript", "networking", "UniFi", "VLAN", "KiCad", "Counter-Strike 2"],
+      "sameAs": [
+        "https://github.com/xdkurbie",
+        "https://steamcommunity.com/id/rasu420"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://xdkurbie.github.io/#site",
+      "url": "https://xdkurbie.github.io/en/",
+      "name": "xdkurbie",
+      "inLanguage": "en",
+      "author": { "@id": "https://xdkurbie.github.io/#lars" }
+    }
+  ]
+}
+</script>
+<script src="/script.js" defer></script>
+</head>
+<body id="topp">
+<a class="skip" href="#innhold">Skip to content</a>
+<div class="hud-progress" aria-hidden="true"><i></i></div>
+<p class="progress-label" id="progress-label" aria-hidden="true">01 HERO</p>
+<header class="nav">
+  <a class="logo" href="#topp">xdkurbie<span>.</span></a>
+  <nav class="nav-links" aria-label="Main menu">
+    <a href="#prosjekter">Projects</a>
+    <a href="#om-meg">About</a>
+    <a href="#kontakt">Contact</a>
+  </nav>
+  <div class="nav-controls">
+    <div class="langs" role="group" aria-label="Language">
+      <a class="hud-btn" href="/" hreflang="nb" lang="nb" data-lang-set="nb">NO</a>
+      <a class="hud-btn" href="/en/" hreflang="en" lang="en" data-lang-set="en" aria-current="page">EN</a>
+    </div>
+    <div class="palettes" role="group" aria-label="Color palette">
+      <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
+      <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>
+      <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false">Copper</button>
+    </div>
+    <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
+      <span class="when-motion-on">Motion on</span>
+      <span class="when-motion-off">Motion off</span>
+    </button>
+    <button type="button" class="hud-btn" id="theme-toggle">
+      <span class="when-dark">Light theme</span>
+      <span class="when-light">Dark theme</span>
+    </button>
+  </div>
+</header>
+<main id="innhold">
+  <section class="hero-pin" id="hero" data-scrub aria-labelledby="hero-title">
+    <div class="hero-sticky">
+      <div class="hero-stage">
+        <div class="orb orb-a" aria-hidden="true"></div>
+        <div class="orb orb-b" aria-hidden="true"></div>
+        <figure class="node-portrait">
+          <svg class="ring ring-a" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="10 8"/>
+            <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 6"/>
+          </svg>
+          <svg class="ring ring-b" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="18 14"/>
+          </svg>
+          <span class="in-packet" aria-hidden="true"></span>
+          <span class="in-packet late" aria-hidden="true"></span>
+          <span class="in-packet later" aria-hidden="true"></span>
+          <img class="node-face" src="/img/avatar-hero.webp" width="168" height="168" alt="Profile photo of Lars (xdkurbie)" decoding="async">
+          <span class="node-glare" aria-hidden="true"></span>
+          <span class="node-scan" aria-hidden="true"></span>
+        </figure>
+        <canvas id="net" aria-hidden="true"></canvas>
+        <svg class="fallback-net" viewBox="0 0 1000 640" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.25">
+            <path d="M500 330 L230 150"/>
+            <path d="M500 330 L790 170"/>
+            <path d="M500 330 L540 530"/>
+            <path d="M230 150 L170 430"/>
+            <path d="M790 170 L840 460"/>
+            <path d="M540 530 L280 560"/>
+            <path d="M170 430 L280 560"/>
+            <path d="M840 460 L540 530"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="500" cy="330" r="8"/>
+            <circle cx="230" cy="150" r="5"/>
+            <circle cx="790" cy="170" r="5"/>
+            <circle cx="540" cy="530" r="5"/>
+            <circle cx="170" cy="430" r="4"/>
+            <circle cx="840" cy="460" r="4"/>
+            <circle cx="280" cy="560" r="4"/>
+          </g>
+          <circle class="fb-packet p1" r="4"/>
+          <circle class="fb-packet p2" r="3.5"/>
+          <circle class="fb-packet p3" r="3.5"/>
+          <circle class="fb-packet p4" r="3"/>
+        </svg>
+        <p id="node-label" class="node-label" hidden></p>
+        <span class="hud hud-tl" aria-hidden="true"></span>
+        <span class="hud hud-tr" aria-hidden="true"></span>
+        <span class="hud hud-bl" aria-hidden="true"></span>
+        <span class="hud hud-br" aria-hidden="true"></span>
+      </div>
+      <div class="hero-copy">
+        <p class="sr-only">A network of nodes for the projects. Packets travel the links between Topologi Studio, CS2 Clips, TinkerLARS and the rest.</p>
+        <p class="kicker">
+          <span class="sr-only">Port 01 · Vg3 information technology · Østfold</span>
+          <span aria-hidden="true" data-scramble data-text="PORT 01 · VG3 INFORMATION TECHNOLOGY · ØSTFOLD">PORT 01 · VG3 INFORMATION TECHNOLOGY · ØSTFOLD</span>
+        </p>
+        <h1 class="hero-title" id="hero-title">Lars</h1>
+        <p class="signal-line">
+          <span class="sr-only">Rust · Networks · CS2 · Electronics</span>
+          <span aria-hidden="true" data-scramble data-text="Rust · Networks · CS2 · Electronics">Rust · Networks · CS2 · Electronics</span>
+        </p>
+        <p class="lede">Hi, I'm Lars. I study Vg3 Datateknologi in Østfold, and I build Rust programs, network diagrams and tools for the games I play.</p>
+        <nav class="route" aria-label="Stations">
+          <a href="#topologi-studio">01 Topologi</a>
+          <a href="#cs2-clips">02 CS2</a>
+          <a href="#tinkerlars">03 Tinker</a>
+        </nav>
+        <div class="hero-cta hero-end">
+          <div class="actions">
+            <a class="btn primary" href="#prosjekter">See projects <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn" href="https://github.com/xdkurbie">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn" href="mailto:xkurbie@gmail.com">Email <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+          <a class="scroll-ind" href="#topologi-studio">
+            <span class="scroll-box" aria-hidden="true"></span>
+            Scroll
+          </a>
+        </div>
+        <p class="coord" id="coord">10.0.20.48</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Rust · Networks · CS2 · Electronics · UniFi · KiCad · VLAN · Tauri · </span>
+      <span>Rust · Networks · CS2 · Electronics · UniFi · KiCad · VLAN · Tauri · </span>
+    </div>
+  </div>
+  <div class="rail-wrap">
+    <div class="rail" tabindex="0" aria-label="Project strip">
+      <a class="rail-card" href="#topologi-studio"><span>01</span><strong>Topologi Studio</strong></a>
+      <a class="rail-card" href="#cs2-clips"><span>02</span><strong>CS2 Clips</strong></a>
+      <a class="rail-card" href="#tinkerlars"><span>03</span><strong>TinkerLARS</strong></a>
+      <a class="rail-card" href="#dune-overlay"><span>04</span><strong>Dune Overlay</strong></a>
+      <a class="rail-card" href="#gaming-companion"><span>05</span><strong>Gaming Companion</strong></a>
+      <a class="rail-card" href="#snake-game"><span>06</span><strong>Snake</strong></a>
+      <a class="rail-card" href="#om-meg"><span>07</span><strong>About</strong></a>
+    </div>
+  </div>
+
+  <div class="slit" data-scrub aria-hidden="true">
+    <div class="clip-slot">
+      <img class="clip-still" src="/img/clips/eye-poster.webp" alt="" width="800" height="370" loading="lazy" decoding="async">
+      <video class="clip" data-src="/img/clips/eye.mp4" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+
+  <section class="section" id="prosjekter" aria-labelledby="prosjekter-tittel">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-index">Node 02–04</p>
+        <h2 id="prosjekter-tittel">Selected projects</h2>
+        <p>The text below is what the repositories actually say. Versions and downloads update from GitHub when the browser gets a response. Without JavaScript, this is what was current on 20 October 2026.</p>
+      </div>
+    </div>
+
+    <article class="station" data-tone="signal" id="topologi-studio" data-scrub data-repo="topologi-studio" data-version="v0.1.1">
+      <div class="station-sticky">
+        <div class="visual">
+          <svg class="schematic" viewBox="0 0 360 240" aria-hidden="true">
+            <path class="cable" pathLength="1" d="M30 120 H120 V48 H250"/>
+            <path class="cable" pathLength="1" d="M120 120 V190 H300"/>
+            <path class="cable" pathLength="1" d="M250 48 V120 H330"/>
+            <circle cx="30" cy="120" r="4" fill="currentColor"/>
+            <circle cx="250" cy="48" r="4" fill="currentColor"/>
+            <circle cx="300" cy="190" r="4" fill="currentColor"/>
+            <circle cx="330" cy="120" r="4" fill="currentColor"/>
+            <circle class="flow f1" r="3.5"/>
+            <circle class="flow f2" r="3"/>
+          </svg>
+          <div class="shot-frame">
+            <img
+              class="shot"
+              src="/img/projects/topologi-redigering.webp"
+              srcset="/img/projects/topologi-redigering-800.webp 800w, /img/projects/topologi-redigering.webp 1280w"
+              sizes="(min-width: 980px) 560px, 100vw"
+              width="1280"
+              height="800"
+              alt="Topologi Studio with the UniFi template open. A dark canvas with device cards and links, a library on the left and an inspector on the right."
+              decoding="async">
+          </div>
+          <div class="shot-row" tabindex="0" aria-label="More screenshots from Topologi Studio">
+            <figure>
+              <img src="/img/projects/topologi-mal-topp.webp" width="960" height="600" alt="Upper part of the UniFi template, with the gateway, ONT and VLAN tags." loading="lazy" decoding="async">
+              <figcaption>Top of the template</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/topologi-vlan.webp" width="960" height="600" alt="VLAN table and firewall matrix in Topologi Studio." loading="lazy" decoding="async">
+              <figcaption>VLAN and firewall</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/topologi-inspektor.webp" width="960" height="600" alt="The inspector for a selected card in Topologi Studio." loading="lazy" decoding="async">
+              <figcaption>Inspector</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/topologi-eksport.webp" width="800" height="876" alt="PNG exported from the UniFi template in Topologi Studio." loading="lazy" decoding="async">
+              <figcaption>Exported PNG</figcaption>
+            </figure>
+          </div>
+          <ul class="pills" aria-label="Parts of the UniFi template">
+            <li>Gateway</li>
+            <li>VLAN</li>
+            <li>Firewall</li>
+          </ul>
+        </div>
+        <div class="feature-copy">
+          <p class="meta"><span class="version">v0.1.1</span> · updated <time class="repo-time" datetime="2026-10-20">20 October 2026</time></p>
+          <h3>Topologi Studio</h3>
+          <p>A macOS and Windows app for drawing network topology. Built with Tauri 2 and a TypeScript front end that draws on an SVG canvas. The interface is in Norwegian Bokmål, and the built-in template recreates the sketch “Network topology – UniFi Dream Machine SE”.</p>
+          <p>The library has cards, text, pills, a table, a matrix, images and device icons. Links follow the ports. Files are saved as <span lang="en">.topo</span>, and you can export PNG, SVG and PDF.</p>
+          <p class="note">v0.1.1 is unsigned. macOS requires version 11 or newer, and Gatekeeper blocks a normal double-click the first time. Windows builds exist for x64 and ARM64. The PDF export is an image, so the text cannot be selected. Orthogonal routing does not go around other elements.</p>
+          <ul class="tags">
+            <li>Tauri</li>
+            <li>Rust</li>
+            <li>TypeScript</li>
+            <li>SVG</li>
+          </ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn primary" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_universal.dmg">macOS universal .dmg <span class="size">4.4 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_x64-setup.exe">Windows x64 .exe <span class="size">3.6 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn" href="https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.1/Topologi.Studio_0.1.1_arm64-setup.exe">Windows ARM64 .exe <span class="size">3.5 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/topologi-studio/releases/tag/v0.1.1">All files <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+            <a class="btn ghost" href="https://github.com/xdkurbie/topologi-studio">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="station" data-tone="packet" id="cs2-clips" data-scrub data-repo="cs2-clips" data-version="v0.2.0">
+      <div class="station-sticky">
+        <div class="visual">
+          <div class="killfeed" aria-hidden="true">
+            <span>2K</span><span>5K</span><span>ACE</span><span>CLUTCH</span><span>NOSCOPE</span><span>WALLBANG</span>
+          </div>
+          <div class="shot-frame">
+            <img
+              class="shot"
+              src="/img/projects/cs2-highlights.webp"
+              srcset="/img/projects/cs2-highlights-800.webp 800w, /img/projects/cs2-highlights.webp 1280w"
+              sizes="(min-width: 980px) 560px, 100vw"
+              width="1280"
+              height="800"
+              alt="CS2 Clips on the Highlights tab, with hits from a de_mirage demo."
+              loading="lazy"
+              decoding="async">
+          </div>
+          <div class="shot-row" tabindex="0" aria-label="More screenshots from CS2 Clips">
+            <figure>
+              <img src="/img/projects/cs2-matches.webp" width="960" height="600" alt="The Matches tab in CS2 Clips." loading="lazy" decoding="async">
+              <figcaption>Matches</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/cs2-clips.webp" width="960" height="600" alt="The Clips tab in CS2 Clips. The thumbnails are generated sample videos." loading="lazy" decoding="async">
+              <figcaption>Clips</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/cs2-montage.webp" width="960" height="600" alt="The Montage tab in CS2 Clips." loading="lazy" decoding="async">
+              <figcaption>Montage</figcaption>
+            </figure>
+            <figure>
+              <img src="/img/projects/cs2-settings.webp" width="960" height="600" alt="The Settings tab in CS2 Clips." loading="lazy" decoding="async">
+              <figcaption>Settings</figcaption>
+            </figure>
+          </div>
+          <p class="meta">The screenshots show the app on Linux with a public CS2 test demo (de_mirage). The thumbnails on the clips tab are generated sample videos, not real recordings.</p>
+        </div>
+        <div class="feature-copy">
+          <p class="meta"><span class="version">v0.2.0</span> · updated <time class="repo-time" datetime="2026-10-14">14 October 2026</time></p>
+          <h3>CS2 Clips</h3>
+          <p>Finds highlights in Counter-Strike 2 demos, records them through the game's own demo playback and edits the clips into a montage. It runs locally. The desktop app is Rust with egui. The website is Leptos and WebAssembly.</p>
+          <p>It finds 2K–5K, aces, clutches, noscopes, wallbangs, and smoke and flash kills, among other things. The Windows zip also includes the command-line tool. Recording needs ffmpeg.</p>
+          <p class="note">On macOS you can view matches, analyse demos and build a montage. Recording requires CS2 on Windows and is implemented, but not tested end to end yet. Steam history is tested against a fake HTTP service, not the real API. The macOS app is ad-hoc signed, not notarised.</p>
+          <ul class="tags">
+            <li>Rust</li>
+            <li>egui</li>
+            <li>Leptos</li>
+            <li>WebAssembly</li>
+          </ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn primary" href="https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-windows-x64.exe">Windows x64 .exe <span class="size">10.4 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn" href="https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-macos-universal.zip">macOS .zip <span class="size">9.2 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/cs2-clips/releases/tag/v0.2.0">All files <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+            <a class="btn ghost" href="https://xdkurbie.github.io/cs2-clips/">Website <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/cs2-clips">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="station" data-tone="flare" id="tinkerlars" data-scrub data-repo="tinkerlars" data-version="v0.1.0">
+      <div class="station-sticky">
+        <div class="visual">
+          <svg class="pcb" viewBox="0 0 360 220" aria-hidden="true">
+            <rect x="8" y="8" width="344" height="204" rx="16" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path class="cable" pathLength="1" d="M40 40 H160 V110 H300"/>
+            <path class="cable" pathLength="1" d="M40 70 H90 V170 H240"/>
+            <path class="cable" pathLength="1" d="M160 40 V180 H320"/>
+            <circle class="led" cx="300" cy="110" r="8"/>
+            <circle cx="40" cy="40" r="3" fill="currentColor"/>
+            <circle cx="40" cy="70" r="3" fill="currentColor"/>
+            <circle cx="240" cy="170" r="3" fill="currentColor"/>
+            <circle class="flow f3" r="3.5"/>
+            <circle class="flow f4" r="3"/>
+          </svg>
+          <ul class="spec">
+            <li><span>3D</span> Box, cylinder, sphere, cone and torus. Holes, a CSG group and binary STL.</li>
+            <li><span>Circuit</span> Arduino Uno, resistor, LED, button and wire. The DC solver shows current and burnt LEDs.</li>
+            <li><span>Code</span> Blockly writes Arduino C++ and runs the blink example in the simulator.</li>
+          </ul>
+        </div>
+        <div class="feature-copy">
+          <p class="meta"><span class="version">v0.1.0</span> · updated <time class="repo-time" datetime="2026-10-13">13 October 2026</time></p>
+          <h3>TinkerLARS</h3>
+          <p>A browser app for 3D design, simple circuits and code blocks, made as a Vg3 project. Inspired by the idea behind beginner tools such as Tinkercad, but written from scratch on open libraries. Not affiliated with Autodesk. The interface is available in Norwegian and English.</p>
+          <p class="note">3D scenes are not saved yet. Shift-click is the only way to select shapes for grouping. The circuit solver is DC only, and components are placed with dropdowns, not by dragging.</p>
+          <ul class="tags">
+            <li>three.js</li>
+            <li>Blockly</li>
+            <li>JavaScript</li>
+          </ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn" href="https://github.com/xdkurbie/tinkerlars/releases/download/v0.1.0/tinkerlars-0.1.0-web.zip">Web-zip <span class="size">368 KB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/tinkerlars/releases/tag/v0.1.0">All files <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+            <a class="btn primary" href="https://xdkurbie.github.io/tinkerlars/">Open the app <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/tinkerlars">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <div class="sakura-break" data-scrub aria-hidden="true">
+    <div class="sakura-frame">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/sakura-poster.webp" alt="" width="480" height="200" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/sakura.mp4" muted loop playsinline preload="none"></video>
+      </div>
+    </div>
+    <div class="petal-field"></div>
+  </div>
+
+  <section class="section" id="flere" data-scrub aria-labelledby="flere-tittel">
+    <div class="peek" aria-hidden="true">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/tree-poster.webp" alt="" width="560" height="276" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/tree.mp4" muted loop playsinline preload="none"></video>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-index">Node 05+</p>
+        <h2 id="flere-tittel">More projects</h2>
+        <p>New public repositories that are not listed here are added at the bottom when GitHub responds.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filter projects">
+        <button type="button" class="filter" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="filter" data-filter="verktoy" aria-pressed="false">Tools</button>
+        <button type="button" class="filter" data-filter="web" aria-pressed="false">Web</button>
+        <button type="button" class="filter" data-filter="spill" aria-pressed="false">Games</button>
+        <button type="button" class="filter" data-filter="skole" aria-pressed="false">School</button>
+      </div>
+      <div class="cards" id="more-grid">
+        <article class="card" id="dune-overlay" data-repo="dune-overlay" data-version="v0.1.0" data-category="verktoy">
+          <p class="meta"><span class="version">v0.1.0</span> · <time class="repo-time" datetime="2026-10-12">12 October 2026</time></p>
+          <h3><span class="title-real">Dune Overlay</span><span class="title-ghost" aria-hidden="true" data-text="Dune Overlay">Dune Overlay</span></h3>
+          <p>A transparent map overlay for Dune: Awakening, built with Electron. Custom markers, hotkeys and optional OCR of coordinates on screen. No map artwork is included. You add an image you have the right to use.</p>
+          <p class="note">Works over a window and borderless mode, not exclusive fullscreen. OCR depends on the game showing coordinates. v0.1.0 is a portable Windows .exe.</p>
+          <ul class="tags"><li>Electron</li><li>JavaScript</li></ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn primary" href="https://github.com/xdkurbie/dune-overlay/releases/download/v0.1.0/DuneOverlay-0.1.0-portable.exe">Windows .exe <span class="size">72.9 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/dune-overlay/releases/tag/v0.1.0">All files <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+            <a class="btn ghost" href="https://github.com/xdkurbie/dune-overlay">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="gaming-companion" data-repo="gaming-companion" data-version="v1.0.0" data-category="verktoy">
+          <p class="meta"><span class="version">v1.0.0</span> · <time class="repo-time" datetime="2026-10-12">12 October 2026</time></p>
+          <h3><span class="title-real">Gaming Companion</span><span class="title-ghost" aria-hidden="true" data-text="Gaming Companion">Gaming Companion</span></h3>
+          <p>An AI game assistant for Windows that reads the screen, can send keyboard and mouse input, and has skills for Elden Ring, Dune: Awakening and Rocket League. It can use an OpenAI-compatible model and MCP add-ons. Dry-run is on by default. The emergency stop is F12.</p>
+          <p class="note">The skills are unit-tested, but not verified against the real games. The key binds are suggestions. Automatic input in online games can break the terms of service and trigger anti-cheat. The README says it is for fun, learning and offline play.</p>
+          <ul class="tags"><li>Python</li><li>Windows</li></ul>
+          <div class="actions">
+            <div class="downloads" data-downloads>
+              <a class="btn primary" href="https://github.com/xdkurbie/gaming-companion/releases/download/v1.0.0/GamingCompanion.exe">Windows .exe <span class="size">32.4 MB</span><span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn ghost" data-release-page href="https://github.com/xdkurbie/gaming-companion/releases/tag/v1.0.0">All files <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+            <a class="btn ghost" href="https://github.com/xdkurbie/gaming-companion">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="norsk-stream-hub" data-repo="norsk-stream-hub" data-category="web">
+          <p class="meta"><time class="repo-time" datetime="2026-05-08">8 May 2026</time></p>
+          <h3><span class="title-real">Norsk Stream Hub</span><span class="title-ghost" aria-hidden="true" data-text="Norsk Stream Hub">Norsk Stream Hub</span></h3>
+          <p>A Stremio add-on (NORGE-HUB) that looks up Norwegian streaming links for films and series: NRK, TV 2 Play, Max, Strim, Viaplay, Prime Video and SkyShowtime, via JustWatch. It runs on Vercel.</p>
+          <p class="note">The Vercel root returns 404. The manifest, which Stremio uses, responds.</p>
+          <ul class="tags"><li>JavaScript</li><li>Stremio</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="https://norsk-stream-hub.vercel.app/manifest.json">Stremio manifest <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/norsk-stream-hub">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="bookmarked" data-repo="bookmarked" data-category="skole">
+          <p class="meta"><time class="repo-time" datetime="2026-09-23">23 September 2026</time></p>
+          <h3><span class="title-real">Bookmarked</span><span class="title-ghost" aria-hidden="true" data-text="Bookmarked">Bookmarked</span></h3>
+          <p>A collection of Vg3 resources: the bookmark page “Lars's bookmarks”, network documentation, topology SVGs and a guide for Windows Server 2025. The repository has no README.</p>
+          <ul class="tags"><li>HTML</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/xdkurbie/bookmarked">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="snake-game" data-repo="snake-game" data-category="spill">
+          <p class="meta"><time class="repo-time" datetime="2026-01-16">16 January 2026</time></p>
+          <h3><span class="title-real">Snake Game</span><span class="title-ghost" aria-hidden="true" data-text="Snake Game">Snake Game</span></h3>
+          <p>Classic Snake with HTML5 Canvas and a Firebase leaderboard. You can play it here. The README also points to a separate Firebase host.</p>
+          <ul class="tags"><li>HTML</li><li>JavaScript</li><li>Firebase</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="/snake-game/">Play <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="https://github.com/xdkurbie/snake-game">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="flappy-student" data-category="spill">
+          <h3><span class="title-real">Flappy Student</span><span class="title-ghost" aria-hidden="true" data-text="Flappy Student">Flappy Student</span></h3>
+          <p>A Flappy-style reaction game, made as a school project. It lives only on this site, not as its own GitHub repository.</p>
+          <ul class="tags"><li>HTML</li><li>JavaScript</li><li>Canvas</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="/flappy-student/">Play <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="cs2-config-manager" data-repo="cs2-config-manager" data-category="web">
+          <p class="meta"><time class="repo-time" datetime="2026-01-12">12 January 2026</time></p>
+          <h3><span class="title-real">CS2 Config Manager</span><span class="title-ghost" aria-hidden="true" data-text="CS2 Config Manager">CS2 Config Manager</span></h3>
+          <p>A web app for CS2 configs: video, audio, gameplay, crosshair, viewmodel, network, HUD and radar, import and export of .cfg files, pro presets and a case opener. React, TypeScript and Vite. No finished release. Run it locally with npm.</p>
+          <ul class="tags"><li>React</li><li>TypeScript</li><li>Vite</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/xdkurbie/cs2-config-manager">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="cs2-config-webapp" data-repo="cs2-config-manager-webapp-" data-category="web">
+          <p class="meta"><time class="repo-time" datetime="2026-01-10">10 January 2026</time></p>
+          <h3><span class="title-real">CS2 Settings Manager</span><span class="title-ghost" aria-hidden="true" data-text="CS2 Settings Manager">CS2 Settings Manager</span></h3>
+          <p>A single HTML file that reads CS2 .cfg files, with React and Tailwind from a CDN. The README describes it as a quick sketch and points to the zip file as the project itself.</p>
+          <ul class="tags"><li>HTML</li><li>React</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/xdkurbie/cs2-config-manager-webapp-">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="imgui-csco-chair" data-repo="imgui-csco-chair" data-category="annet">
+          <p class="meta"><time class="repo-time" datetime="2025-06-14">14 June 2025</time></p>
+          <h3><span class="title-real">imgui-csco-chair</span><span class="title-ghost" aria-hidden="true" data-text="imgui-csco-chair">imgui-csco-chair</span></h3>
+          <p>The repository contains no source code. The README is only the line “very comfy chair for csco”.</p>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/xdkurbie/imgui-csco-chair">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="card" id="denne-siden" data-repo="xdkurbie.github.io" data-category="web">
+          <p class="meta"><time class="repo-time" datetime="2026-10-20">20 October 2026</time></p>
+          <h3><span class="title-real">This website</span><span class="title-ghost" aria-hidden="true" data-text="Denne nettsiden">This website</span></h3>
+          <p>The portfolio you are looking at. Static HTML, CSS and JavaScript, published with GitHub Pages.</p>
+          <ul class="tags"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/xdkurbie/xdkurbie.github.io">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      </div>
+      <p class="empty" id="filter-empty" hidden>No projects in this category.</p>
+    </div>
+  </section>
+
+  <div class="grove" aria-hidden="true">
+    <div class="grove-frame">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/forest-poster.webp" alt="" width="400" height="225" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/forest.mp4" muted loop playsinline preload="none"></video>
+      </div>
+      <span class="duotone"></span>
+    </div>
+  </div>
+
+  <section class="section corridor-section" id="om-meg" data-scrub aria-labelledby="om-tittel">
+    <div class="corridor" aria-hidden="true">
+      <div class="clip-slot">
+        <img class="clip-still" src="/img/clips/walk-poster.webp" alt="" width="720" height="404" loading="lazy" decoding="async">
+        <video class="clip" data-src="/img/clips/walk.mp4" muted loop playsinline preload="none"></video>
+      </div>
+      <span class="duotone"></span>
+    </div>
+    <div class="wrap about-panel">
+      <div class="section-head">
+        <p class="section-index">Traceroute</p>
+        <h2 id="om-tittel">About</h2>
+      </div>
+      <div class="about-grid">
+        <div>
+          <img class="portrait" src="/img/avatar.webp" width="96" height="96" alt="Profile photo of Lars (xdkurbie)" loading="lazy" decoding="async">
+          <p>I am a Vg3 Datateknologi student in Østfold. At school and in my spare time I work on programming, networks and electronics.</p>
+          <p>I learn most by building things and trying them out. That turns into desktop apps, network diagrams and small tools for games.</p>
+          <ol class="trace">
+            <li><span>1</span> <code>vg1.datateknologi</code> <em>start</em></li>
+            <li><span>2</span> <code>vg2.datateknologi</code> <em>next</em></li>
+            <li><span>3</span> <code>vg3.datateknologi.ostfold</code> <em>now · VGMALA</em></li>
+          </ol>
+        </div>
+        <div>
+          <table class="ports">
+            <caption class="sr-only">Skills, shown as ports on the network. This is not a real switch configuration.</caption>
+            <thead>
+              <tr><th scope="col">Port</th><th scope="col">Layer</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">01</th><td>Rust</td></tr>
+              <tr><th scope="row">02</th><td>TypeScript</td></tr>
+              <tr><th scope="row">03</th><td>JavaScript</td></tr>
+              <tr><th scope="row">04</th><td>Python</td></tr>
+              <tr><th scope="row">05</th><td>HTML and CSS</td></tr>
+              <tr><th scope="row">06</th><td>Tauri</td></tr>
+              <tr><th scope="row">07</th><td>KiCad</td></tr>
+              <tr><th scope="row">08</th><td>Git</td></tr>
+              <tr><th scope="row">09</th><td>UniFi</td></tr>
+              <tr><th scope="row">10</th><td>RouterOS</td></tr>
+            </tbody>
+          </table>
+          <ul class="interests" aria-label="Interests">
+            <li>Programming in Rust</li>
+            <li>Networks, UniFi and VLAN</li>
+            <li>Electronics and KiCad</li>
+            <li>CS2 and gaming</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact" id="kontakt" data-scrub aria-labelledby="kontakt-tittel">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-index">Port 443</p>
+        <h2 id="kontakt-tittel">Contact</h2>
+      </div>
+      <p class="intro">Questions about the projects? Send an email. On Steam my name is rasu420.</p>
+      <a class="giant" href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a>
+      <a class="ping" href="mailto:xkurbie@gmail.com"><span aria-hidden="true">&gt; </span>ping xkurbie@gmail.com</a>
+      <div class="actions">
+        <a class="btn" href="https://github.com/xdkurbie" rel="me">GitHub <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="https://steamcommunity.com/id/rasu420" rel="me">Steam <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <figure class="thanks">
+        <div class="clip-frame">
+          <div class="clip-slot">
+            <img class="clip-still" src="/img/clips/smile-poster.webp" width="480" height="270" alt="Lars smiling with closed eyes, as a thank-you for the visit." loading="lazy" decoding="async">
+            <video class="clip" data-src="/img/clips/smile.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+          </div>
+        </div>
+        <figcaption>Thanks for stopping by.</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="mascot" aria-hidden="true">
+    <div class="clip-slot">
+      <img class="clip-still" src="/img/clips/dance-poster.webp" alt="" width="360" height="202" loading="lazy" decoding="async">
+      <video class="clip" data-src="/img/clips/dance.mp4" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
+  <div class="wrap">
+    <p>© <span id="year">2026</span> Lars (xdkurbie)</p>
+    <p>Built from scratch, no templates.</p>
+    <p>Last updated <time id="updated" datetime="2026-10-20">20 October 2026</time></p>
+    <p>Commit <a id="commit" href="https://github.com/xdkurbie/xdkurbie.github.io/commits/main">main</a></p>
+    <p><a href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a> · <a href="https://github.com/xdkurbie">GitHub</a></p>
+    <button type="button" class="hud-btn" id="sound-toggle" aria-pressed="false">
+      <span class="when-sound-off">Sound off</span>
+      <span class="when-sound-on">Sound on</span>
+    </button>
+    <p id="live-status" class="sr-only" aria-live="polite"></p>
+  </div>
+</footer>
+<div id="fish-egg" class="fish-egg" hidden>
+  <div class="fish-card" role="dialog" aria-modal="true" aria-labelledby="fish-title">
+    <p class="kicker" id="fish-title">NODE · FISH</p>
+    <div class="clip-frame">
+      <div class="clip-slot">
+        <img class="clip-still" alt="The character holding a fish in her mouth." data-src="/img/clips/fish-poster.webp" width="540" height="226" decoding="async">
+        <video class="clip" data-src="/img/clips/fish.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+      </div>
+    </div>
+    <p>You found a hidden clip.</p>
+    <button type="button" class="hud-btn" id="fish-close">Close</button>
+  </div>
+</div>
+</body>
+</html>

@@ -68,7 +68,9 @@ var PACKET_MOTION = (function () {
     document.documentElement.style.setProperty("--shift", page.toFixed(3));
     var label = document.getElementById("progress-label");
     if (label) {
-      var names = ["01 HERO", "02 TOPOLOGI", "03 CS2", "04 TINKER", "05 NODER", "06 OM", "07 PING"];
+      var names = document.documentElement.lang === "en"
+        ? ["01 HERO", "02 TOPOLOGY", "03 CS2", "04 TINKER", "05 NODES", "06 ABOUT", "07 PING"]
+        : ["01 HERO", "02 TOPOLOGI", "03 CS2", "04 TINKER", "05 NODER", "06 OM", "07 PING"];
       label.textContent = names[Math.min(names.length - 1, Math.floor(page * names.length))];
     }
     var hero = document.querySelector(".hero-pin");
@@ -98,7 +100,7 @@ var PACKET_MOTION = (function () {
     ring.setAttribute("aria-hidden", "true");
     var tag = document.createElement("span");
     tag.className = "cursor-tag";
-    tag.textContent = "ÅPNE";
+    tag.textContent = document.documentElement.lang === "en" ? "OPEN" : "ÅPNE";
     ring.appendChild(tag);
     document.body.appendChild(ring);
     document.documentElement.classList.add("has-cursor");
@@ -409,6 +411,8 @@ var PACKET_MOTION = (function () {
       var title = document.querySelector(".hero-title");
       if (title) title.classList.add("is-live");
       portraitTilt();
+      langSwitch();
+      document.addEventListener("packet-lang", langSwitch);
       armAvatar();
       armClips();
       armPetals();
@@ -443,6 +447,26 @@ var PACKET_MOTION = (function () {
       armPetals();
     }
     scrub();
+  }
+
+  function langSwitch() {
+    if (reduced) {
+      try { sessionStorage.removeItem("packet-lang-switch"); } catch (e) {}
+      return;
+    }
+    var flag = false;
+    try { flag = sessionStorage.getItem("packet-lang-switch") === "1"; } catch (e) {}
+    if (!flag) return;
+    try { sessionStorage.removeItem("packet-lang-switch"); } catch (e) {}
+    var nodes = document.querySelectorAll(".nav-links a, h2, .section-index, .filter, .thanks figcaption, .miss h1 span, .lost-fish figcaption span, [data-scramble]");
+    var delay = 0;
+    nodes.forEach(function (el) {
+      if (el.closest("[hidden], .only-nb, .only-en") && el.offsetParent === null) return;
+      if (el.children.length && !el.hasAttribute("data-scramble")) return;
+      var wait = delay;
+      delay += 28;
+      setTimeout(function () { if (!reduced) scramble(el); }, wait);
+    });
   }
 
   function start() {

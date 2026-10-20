@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://xdkurbie.github.io/</loc>
-    <lastmod>2026-10-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="nb" href="https://xdkurbie.github.io/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xdkurbie.github.io/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xdkurbie.github.io/"/>
   </url>
   <url>
-    <loc>https://xdkurbie.github.io/snake-game/</loc>
-    <lastmod>2026-01-16</lastmod>
-  </url>
-  <url>
-    <loc>https://xdkurbie.github.io/flappy-student/</loc>
-    <lastmod>2026-01-16</lastmod>
+    <loc>https://xdkurbie.github.io/en/</loc>
+    <xhtml:link rel="alternate" hreflang="nb" href="https://xdkurbie.github.io/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xdkurbie.github.io/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xdkurbie.github.io/"/>
   </url>
 </urlset>

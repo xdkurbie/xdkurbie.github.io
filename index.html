@@ -9,8 +9,12 @@
 <meta name="robots" content="index, follow">
 <meta name="color-scheme" content="dark light">
 <link rel="canonical" href="https://xdkurbie.github.io/">
+<link rel="alternate" hreflang="nb" href="https://xdkurbie.github.io/">
+<link rel="alternate" hreflang="en" href="https://xdkurbie.github.io/en/">
+<link rel="alternate" hreflang="x-default" href="https://xdkurbie.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="nb_NO">
+<meta property="og:locale:alternate" content="en_US">
 <meta property="og:site_name" content="xdkurbie">
 <meta property="og:title" content="Lars (xdkurbie) – Vg3 Datateknologi i Østfold">
 <meta property="og:description" content="Portefølje for Lars. Topologi Studio, CS2 Clips, TinkerLARS og andre prosjekter.">
@@ -33,6 +37,23 @@
 <link rel="stylesheet" href="/styles.css">
 <script>
 (function () {
+  try {
+    var path = location.pathname.replace(/\/index\.html$/, "/");
+    if (path.length > 1 && path.charAt(path.length - 1) === "/") path = path.slice(0, -1);
+    var onEn = path === "/en";
+    var q = new URLSearchParams(location.search).get("lang") || "";
+    if (q === "en" || q === "nb") localStorage.setItem("lang", q);
+    var savedLang = localStorage.getItem("lang") || "";
+    var hash = location.hash || "";
+    if (!onEn && (path === "/" || path === "") && q !== "nb" && (q === "en" || savedLang === "en")) {
+      location.replace("/en/" + hash);
+      return;
+    }
+    if (onEn && q === "nb") {
+      location.replace("/" + hash);
+      return;
+    }
+  } catch (e) {}
   try {
     var saved = localStorage.getItem("theme");
     var theme = saved === "light" || saved === "dark"
@@ -102,6 +123,10 @@
     <a href="#kontakt">Kontakt</a>
   </nav>
   <div class="nav-controls">
+    <div class="langs" role="group" aria-label="Språk">
+      <a class="hud-btn" href="/" hreflang="nb" lang="nb" data-lang-set="nb" aria-current="page">NO</a>
+      <a class="hud-btn" href="/en/" hreflang="en" lang="en" data-lang-set="en">EN</a>
+    </div>
     <div class="palettes" role="group" aria-label="Fargepalett">
       <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
       <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>

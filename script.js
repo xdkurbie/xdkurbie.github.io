@@ -2,6 +2,30 @@
   "use strict";
 
   var root = document.documentElement;
+  var lang = root.lang === "en" ? "en" : "nb";
+  var copy = lang === "en" ? {
+    locale: "en-GB",
+    fetched: "Fetched from GitHub",
+    archived: "archived",
+    noDesc: "No description on GitHub.",
+    site: "Website",
+    allFiles: "All files",
+    drift: "GitHub has a newer release than the text on this card. Read the README before you install.",
+    updated: "The project list was updated from GitHub.",
+    skip: "Skip",
+    phrases: ["Connecting …", "DHCP →", "IP 10.0.20.48 →", "OK"]
+  } : {
+    locale: "nb-NO",
+    fetched: "Hentet fra GitHub",
+    archived: "arkivert",
+    noDesc: "Ingen beskrivelse på GitHub.",
+    site: "Nettsted",
+    allFiles: "Alle filer",
+    drift: "GitHub har en nyere utgivelse enn teksten på kortet. Les README-en før du installerer.",
+    updated: "Prosjektlisten er oppdatert fra GitHub.",
+    skip: "Hopp over",
+    phrases: ["Kobler til …", "DHCP →", "IP 10.0.20.48 →", "OK"]
+  };
   var themeBtn = document.getElementById("theme-toggle");
   var year = document.getElementById("year");
   var status = document.getElementById("live-status");
@@ -84,7 +108,7 @@
   function formatDate(iso) {
     var date = new Date(iso);
     if (Number.isNaN(date.getTime())) return "";
-    return new Intl.DateTimeFormat("nb-NO", {
+    return new Intl.DateTimeFormat(copy.locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -95,7 +119,7 @@
   function formatSize(bytes) {
     if (!bytes || bytes < 0) return "";
     if (bytes < 900 * 1024) return Math.round(bytes / 1024) + " KB";
-    return (bytes / 1024 / 1024).toLocaleString("nb-NO", {
+    return (bytes / 1024 / 1024).toLocaleString(copy.locale, {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1
     }) + " MB";
@@ -242,8 +266,8 @@
       article.setAttribute("data-category", "annet");
       var meta = document.createElement("p");
       meta.className = "meta";
-      var bits = ["Hentet fra GitHub"];
-      if (repo.archived) bits.push("arkivert");
+      var bits = [copy.fetched];
+      if (repo.archived) bits.push(copy.archived);
       if (repo.language) bits.push(repo.language);
       if (repo.pushed_at) bits.push(formatDate(repo.pushed_at));
       meta.textContent = bits.join(" · ");
@@ -252,12 +276,12 @@
       var text = document.createElement("p");
       text.textContent = repo.description && String(repo.description).trim()
         ? repo.description
-        : "Ingen beskrivelse på GitHub.";
+        : copy.noDesc;
       var actions = document.createElement("div");
       actions.className = "actions";
       actions.appendChild(makeButton(safeGithub(repo.html_url, repo.name), "GitHub", "", true));
       var home = safeHttp(repo.homepage || "");
-      if (home) actions.appendChild(makeButton(home, "Nettsted", "", false));
+      if (home) actions.appendChild(makeButton(home, copy.site, "", false));
       article.appendChild(meta);
       article.appendChild(title);
       article.appendChild(text);
@@ -304,7 +328,7 @@
       page.className = "btn ghost";
       page.setAttribute("data-release-page", "true");
       page.href = pageHref;
-      page.textContent = "Alle filer";
+      page.textContent = copy.allFiles;
       box.appendChild(page);
     }
     var changed = false;
@@ -315,7 +339,7 @@
       if (!article.querySelector(".version-drift")) {
         var note = document.createElement("p");
         note.className = "note version-drift";
-        note.textContent = "GitHub har en nyere utgivelse enn teksten på kortet. Les README-en før du installerer.";
+        note.textContent = copy.drift;
         var copy = article.querySelector(".feature-copy") || article;
         copy.appendChild(note);
       }
@@ -363,7 +387,7 @@
         });
         writeCache({ t: Date.now(), repos: repos, releases: releases });
         if (announced && status) {
-          status.textContent = "Prosjektlisten er oppdatert fra GitHub.";
+          status.textContent = copy.updated;
         }
       });
     }
@@ -403,6 +427,42 @@
   var motionBtn = document.getElementById("motion-toggle");
   var soundBtn = document.getElementById("sound-toggle");
   var audioCtx = null;
+
+  function syncLangButtons() {
+    var current = root.lang === "en" ? "en" : "nb";
+    document.querySelectorAll("[data-lang-set]").forEach(function (el) {
+      if (el.getAttribute("data-lang-set") === current) el.setAttribute("aria-current", "page");
+      else el.removeAttribute("aria-current");
+    });
+    var group = document.querySelector(".langs");
+    if (group) group.setAttribute("aria-label", current === "en" ? "Language" : "Språk");
+    document.querySelectorAll(".nav-links").forEach(function (nav) {
+      if (!nav.querySelector(".only-en")) return;
+      nav.setAttribute("aria-label", current === "en" ? "Main menu" : "Hovedmeny");
+    });
+    if (current === "en") {
+      document.querySelectorAll("[data-alt-en]").forEach(function (img) {
+        img.alt = img.getAttribute("data-alt-en");
+      });
+    }
+  }
+
+  syncLangButtons();
+  document.querySelectorAll("[data-lang-set]").forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      var next = link.getAttribute("data-lang-set") === "en" ? "en" : "nb";
+      try { localStorage.setItem("lang", next); } catch (e) {}
+      if (next === (root.lang === "en" ? "en" : "nb")) return;
+      try { sessionStorage.setItem("packet-lang-switch", "1"); } catch (e) {}
+      if (link.tagName === "BUTTON") {
+        event.preventDefault();
+        root.lang = next;
+        lang = next;
+        syncLangButtons();
+        document.dispatchEvent(new CustomEvent("packet-lang"));
+      }
+    });
+  });
 
   function syncMotionButton() {
     if (!motionBtn) return;
@@ -546,14 +606,14 @@
     var skip = document.createElement("button");
     skip.type = "button";
     skip.className = "hud-btn";
-    skip.textContent = "Hopp over";
-    text.textContent = "Kobler til …";
+    skip.textContent = copy.skip;
+    text.textContent = copy.phrases[0];
     ascii.textContent = "[          ]";
     bar.appendChild(text);
     bar.appendChild(ascii);
     bar.appendChild(skip);
     document.body.appendChild(bar);
-    var phrases = ["Kobler til …", "DHCP →", "IP 10.0.20.48 →", "OK"];
+    var phrases = copy.phrases;
     var step = 0;
     var timer = setInterval(function () {
       step += 1;

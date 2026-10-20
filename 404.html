@@ -8,6 +8,8 @@
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#07090a">
+<link rel="alternate" hreflang="nb" href="https://xdkurbie.github.io/">
+<link rel="alternate" hreflang="en" href="https://xdkurbie.github.io/en/">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/img/icon-180.png">
@@ -17,6 +19,14 @@
 <script>
 (function () {
   try {
+    var q = new URLSearchParams(location.search).get("lang") || "";
+    if (q === "en" || q === "nb") localStorage.setItem("lang", q);
+    var savedLang = localStorage.getItem("lang") || "";
+    var path = location.pathname;
+    var underEn = path === "/en" || path.indexOf("/en/") === 0;
+    var useEn = q === "en" || (q !== "nb" && (underEn || savedLang === "en"));
+    document.documentElement.lang = useEn ? "en" : "nb";
+    document.title = useEn ? "Page not found – xdkurbie" : "Siden finnes ikke – xdkurbie";
     var saved = localStorage.getItem("theme");
     var theme = saved === "light" || saved === "dark"
       ? saved
@@ -42,47 +52,61 @@
 </script>
 </head>
 <body>
-<a class="skip" href="#innhold">Hopp til innhold</a>
+<a class="skip" href="#innhold"><span class="only-nb">Hopp til innhold</span><span class="only-en">Skip to content</span></a>
 <header class="nav">
-  <a class="logo" href="/">xdkurbie<span>.</span></a>
+  <a class="logo only-nb" href="/">xdkurbie<span>.</span></a>
+  <a class="logo only-en" href="/en/">xdkurbie<span>.</span></a>
   <nav class="nav-links" aria-label="Hovedmeny">
-    <a href="/#prosjekter">Prosjekter</a>
-    <a href="/#om-meg">Om meg</a>
-    <a href="/#kontakt">Kontakt</a>
+    <a class="only-nb" href="/#prosjekter">Prosjekter</a>
+    <a class="only-en" href="/en/#prosjekter">Projects</a>
+    <a class="only-nb" href="/#om-meg">Om meg</a>
+    <a class="only-en" href="/en/#om-meg">About</a>
+    <a class="only-nb" href="/#kontakt">Kontakt</a>
+    <a class="only-en" href="/en/#kontakt">Contact</a>
   </nav>
   <div class="nav-controls">
+    <div class="langs" role="group" aria-label="Språk">
+      <button type="button" class="hud-btn" data-lang-set="nb" lang="nb">NO</button>
+      <button type="button" class="hud-btn" data-lang-set="en" lang="en">EN</button>
+    </div>
     <div class="palettes" role="group" aria-label="Fargepalett">
       <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
       <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>
-      <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false">Kobber</button>
+      <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false"><span class="only-nb">Kobber</span><span class="only-en">Copper</span></button>
     </div>
     <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
-      <span class="when-motion-on">Bevegelse på</span>
-      <span class="when-motion-off">Bevegelse av</span>
+      <span class="when-motion-on only-nb">Bevegelse på</span>
+      <span class="when-motion-on only-en">Motion on</span>
+      <span class="when-motion-off only-nb">Bevegelse av</span>
+      <span class="when-motion-off only-en">Motion off</span>
     </button>
     <button type="button" class="hud-btn" id="theme-toggle">
-      <span class="when-dark">Lyst tema</span>
-      <span class="when-light">Mørkt tema</span>
+      <span class="when-dark only-nb">Lyst tema</span>
+      <span class="when-dark only-en">Light theme</span>
+      <span class="when-light only-nb">Mørkt tema</span>
+      <span class="when-light only-en">Dark theme</span>
     </button>
   </div>
 </header>
 <main id="innhold" class="miss">
   <div class="wrap">
     <p class="kicker">ICMP · dest unreachable</p>
-    <h1>Siden finnes ikke</h1>
-    <p class="lede">Lenken er feil, eller siden er flyttet. Ruten stopper her.</p>
+    <h1><span class="only-nb">Siden finnes ikke</span><span class="only-en">Page not found</span></h1>
+    <p class="lede"><span class="only-nb">Lenken er feil, eller siden er flyttet. Ruten stopper her.</span><span class="only-en">The link is wrong, or the page has moved. The route stops here.</span></p>
     <div class="actions">
-      <a class="btn primary" href="/">Til forsiden <span class="arrow" aria-hidden="true">→</span></a>
-      <a class="btn" href="/#prosjekter">Se prosjekter <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn primary only-nb" href="/">Til forsiden <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn primary only-en" href="/en/">Home <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn only-nb" href="/#prosjekter">Se prosjekter <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn only-en" href="/en/#prosjekter">See projects <span class="arrow" aria-hidden="true">→</span></a>
     </div>
     <figure class="lost-fish">
       <div class="clip-frame">
         <div class="clip-slot">
-          <img class="clip-still" src="/img/clips/fish-poster.webp" width="540" height="226" alt="Figuren holder en fisk i munnen på en side som ikke finnes." loading="lazy" decoding="async">
+          <img class="clip-still" src="/img/clips/fish-poster.webp" width="540" height="226" alt="Figuren holder en fisk i munnen på en side som ikke finnes." data-alt-en="The character holding a fish in her mouth on a page that does not exist." loading="lazy" decoding="async">
           <video class="clip" data-src="/img/clips/fish.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
         </div>
       </div>
-      <figcaption>Feil rute.</figcaption>
+      <figcaption><span class="only-nb">Feil rute.</span><span class="only-en">Wrong route.</span></figcaption>
     </figure>
   </div>
 </main>

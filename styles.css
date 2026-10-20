@@ -238,6 +238,21 @@ a { color: inherit; }
 
 .nav-controls { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: flex-end; }
 
+.langs { display: flex; gap: 0.3rem; }
+
+.langs .hud-btn { text-decoration: none; }
+
+.langs .hud-btn[aria-current="page"] {
+  background: #d2ff00;
+  color: #141800;
+  border-color: #d2ff00;
+}
+
+.langs .hud-btn[aria-current="page"]:hover { color: #141800; }
+
+html:not([lang="en"]) .only-en { display: none !important; }
+html[lang="en"] .only-nb { display: none !important; }
+
 .palettes { display: flex; gap: 0.3rem; }
 
 .hud-btn[aria-pressed="true"] {
