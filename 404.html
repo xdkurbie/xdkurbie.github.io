@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nb" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siden finnes ikke – xdkurbie</title>
+<meta name="description" content="Siden finnes ikke på xdkurbie.github.io.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0a0d00">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/img/icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/styles.css">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("theme");
+    var theme = saved === "light" || saved === "dark"
+      ? saved
+      : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f5ef" : "#0a0d00");
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#innhold">Hopp til innhold</a>
+<header class="nav">
+  <a class="logo" href="/">xdkurbie<span>.</span></a>
+  <nav class="nav-links" aria-label="Hovedmeny">
+    <a href="/#prosjekter">Prosjekter</a>
+    <a href="/#om-meg">Om meg</a>
+    <a href="/#kontakt">Kontakt</a>
+  </nav>
+  <button type="button" class="theme-btn" id="theme-toggle" aria-label="Bytt til lyst tema">
+    <span class="when-dark">Lys</span>
+    <span class="when-light">Mørk</span>
+  </button>
+</header>
+<main id="innhold" class="section">
+  <div class="wrap">
+    <p class="kicker">404</p>
+    <h1>Siden finnes ikke</h1>
+    <p class="lede">Lenken er feil, eller siden er flyttet.</p>
+    <div class="hero-cta">
+      <a class="btn primary" href="/">Til forsiden</a>
+      <a class="btn" href="/#prosjekter">Se prosjekter</a>
+    </div>
+  </div>
+</main>
+<script src="/script.js" defer></script>
+</body>
+</html>

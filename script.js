@@ -1,42 +1,371 @@
-(function(){
-  'use strict';
-  const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-  const root=document.documentElement;
-  // Preloader
-  const pre=$('#preloader'), bar=$('#preloader-bar'); let p=0;
-  const tick=setInterval(()=>{p=Math.min(100,p+Math.random()*25);bar.style.width=p+'%';if(p>=100){clearInterval(tick);setTimeout(()=>pre.classList.add('done'),250);}},80);
-  window.addEventListener('load',()=>{p=100;});
-  // Theme
-  const savedTheme=localStorage.getItem('theme'); if(savedTheme) root.dataset.theme=savedTheme;
-  $('#theme-toggle').addEventListener('click',()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem('theme',root.dataset.theme);});
-  // Language (Norwegian default)
-  function setLang(l){root.lang=l;$$('[data-no]').forEach(el=>{el.textContent=el.dataset[l];});$('#lang-toggle').textContent=l==='no'?'EN':'NO';localStorage.setItem('lang',l);}
-  setLang(localStorage.getItem('lang')==='en'?'en':'no');
-  $('#lang-toggle').addEventListener('click',()=>setLang(root.lang==='no'?'en':'no'));
-  // Mobile menu
-  const links=$('#nav-links');
-  $('#menu-toggle').addEventListener('click',()=>links.classList.toggle('open'));
-  links.addEventListener('click',e=>{if(e.target.tagName==='A')links.classList.remove('open');});
-  // Custom cursor
-  const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
-  if(fine){const c=$('#cursor'),d=$('#cursor-dot');let mx=0,my=0,cx=0,cy=0;
-    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;d.style.left=mx+'px';d.style.top=my+'px';});
-    (function loop(){cx+=(mx-cx)*.15;cy+=(my-cy)*.15;c.style.left=cx+'px';c.style.top=cy+'px';requestAnimationFrame(loop);})();
-    $$('a,button,[data-tilt]').forEach(el=>{el.addEventListener('mouseenter',()=>c.classList.add('hover'));el.addEventListener('mouseleave',()=>c.classList.remove('hover'));});
-    // Magnetic
-    $$('[data-magnetic]').forEach(el=>{el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();el.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.3}px,${(e.clientY-r.top-r.height/2)*.3}px)`;});el.addEventListener('mouseleave',()=>el.style.transform='');});
-    // 3D tilt
-    $$('[data-tilt]').forEach(el=>{el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(1000px) rotateX(${-y*8}deg) rotateY(${x*8}deg) translateZ(4px)`;});el.addEventListener('mouseleave',()=>el.style.transform='');});
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  var themeBtn = document.getElementById("theme-toggle");
+  var year = document.getElementById("year");
+  var status = document.getElementById("live-status");
+  var CACHE = "xdkurbie-gh-cache-v1";
+  var BASELINE = Date.parse("2026-10-20T10:48:03Z");
+
+  if (year) year.textContent = String(new Date().getFullYear());
+
+  function syncThemeButton() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeBtn.setAttribute("aria-label", light ? "Bytt til mørkt tema" : "Bytt til lyst tema");
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", light ? "#f4f5ef" : "#0a0d00");
   }
-  // Scroll progress + navbar hide/show
-  const prog=$('#scroll-progress'), nav=$('#nav'); let last=0;
-  window.addEventListener('scroll',()=>{const y=scrollY,h=document.documentElement.scrollHeight-innerHeight;prog.style.width=(h>0?y/h*100:0)+'%';
-    nav.classList.toggle('scrolled',y>50);nav.classList.toggle('hidden',y>last&&y>300&&!links.classList.contains('open'));last=y;},{passive:true});
-  // Scroll reveal
-  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}}),{threshold:.12});
-  $$('[data-animate]').forEach(el=>io.observe(el));
-  // Project filter
-  $$('.filter').forEach(b=>b.addEventListener('click',()=>{$$('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');const f=b.dataset.filter;
-    $$('.card').forEach(c=>c.classList.toggle('hide',f!=='all'&&c.dataset.category!==f));}));
-  $('#year').textContent=new Date().getFullYear();
+
+  syncThemeButton();
+
+  if (themeBtn) {
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("theme", next); } catch (e) {}
+      syncThemeButton();
+    });
+  }
+
+  try {
+    if (!localStorage.getItem("theme")) {
+      matchMedia("(prefers-color-scheme: light)").addEventListener("change", function (event) {
+        if (localStorage.getItem("theme")) return;
+        root.setAttribute("data-theme", event.matches ? "light" : "dark");
+        syncThemeButton();
+      });
+    }
+  } catch (e) {}
+
+  var filters = document.querySelectorAll(".filter");
+  var cards = function () { return document.querySelectorAll("#more-grid .card"); };
+  var empty = document.getElementById("filter-empty");
+
+  function applyFilter(name) {
+    var visible = 0;
+    cards().forEach(function (card) {
+      var show = name === "all" || card.getAttribute("data-category") === name;
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  filters.forEach(function (button) {
+    button.addEventListener("click", function () {
+      filters.forEach(function (other) { other.setAttribute("aria-pressed", "false"); });
+      button.setAttribute("aria-pressed", "true");
+      applyFilter(button.getAttribute("data-filter") || "all");
+    });
+  });
+
+  function formatDate(iso) {
+    var date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat("nb-NO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "Europe/Oslo"
+    }).format(date);
+  }
+
+  function formatSize(bytes) {
+    if (!bytes || bytes < 0) return "";
+    if (bytes < 900 * 1024) return Math.round(bytes / 1024) + " KB";
+    return (bytes / 1024 / 1024).toLocaleString("nb-NO", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    }) + " MB";
+  }
+
+  function safeGithub(url, repo) {
+    try {
+      var parsed = new URL(url);
+      if (parsed.protocol !== "https:" || parsed.hostname !== "github.com") return "";
+      var base = "/xdkurbie/" + repo;
+      if (parsed.pathname !== base && parsed.pathname.indexOf(base + "/") !== 0) return "";
+      return parsed.href;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function safeHttp(url) {
+    try {
+      var parsed = new URL(url);
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return "";
+      return parsed.href;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function classify(name) {
+    var n = name.toLowerCase();
+    if (n.endsWith(".blockmap") || n.endsWith(".sig")) return null;
+    if (n.indexOf("cli") !== -1 && (n.endsWith(".tar.gz") || n.endsWith(".zip"))) return null;
+    if (n.endsWith(".dmg")) {
+      return { order: 1, label: n.indexOf("universal") !== -1 ? "macOS universal" : "macOS", ext: ".dmg" };
+    }
+    if ((n.indexOf("macos") !== -1 || n.indexOf("darwin") !== -1) && n.endsWith(".zip")) {
+      return { order: 2, label: "macOS", ext: ".zip" };
+    }
+    if (n.indexOf("arm64") !== -1 && n.endsWith(".exe")) return { order: 4, label: "Windows ARM64", ext: ".exe" };
+    if (n.endsWith(".exe") && (n.indexOf("x64") !== -1 || n.indexOf("win") !== -1)) {
+      return { order: 3, label: "Windows x64", ext: ".exe" };
+    }
+    if (n.endsWith(".exe")) return { order: 3, label: "Windows", ext: ".exe" };
+    if (n.indexOf("arm64") !== -1 && n.endsWith(".msi")) return { order: 6, label: "Windows ARM64", ext: ".msi" };
+    if (n.endsWith(".msi")) return { order: 6, label: "Windows x64", ext: ".msi" };
+    if (n.indexOf("windows") !== -1 && n.endsWith(".zip")) return { order: 5, label: "Windows", ext: ".zip" };
+    if (n.endsWith(".zip") && n.indexOf("web") !== -1) return { order: 7, label: "Web-zip", ext: ".zip" };
+    if (n.endsWith(".zip")) return { order: 7, label: "Zip", ext: ".zip" };
+    return null;
+  }
+
+  function makeButton(href, label, size, primary) {
+    var link = document.createElement("a");
+    link.className = primary ? "btn primary" : "btn";
+    link.href = href;
+    link.appendChild(document.createTextNode(label + " "));
+    if (size) {
+      var span = document.createElement("span");
+      span.className = "size";
+      span.textContent = size;
+      link.appendChild(span);
+    }
+    return link;
+  }
+
+  function readCache() {
+    try {
+      var raw = sessionStorage.getItem(CACHE);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (!data || Date.now() - data.t > 60 * 60 * 1000) return null;
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeCache(data) {
+    try { sessionStorage.setItem(CACHE, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function getJson(url) {
+    return fetch(url, {
+      headers: { Accept: "application/vnd.github+json" },
+      signal: AbortSignal.timeout(8000)
+    }).then(function (res) {
+      if (!res.ok) throw new Error(String(res.status));
+      return res.json();
+    });
+  }
+
+  function knownRepos() {
+    var names = {};
+    document.querySelectorAll("[data-repo]").forEach(function (el) {
+      names[el.getAttribute("data-repo")] = true;
+    });
+    names.xdkurbie = true;
+    return names;
+  }
+
+  function updateDates(repos) {
+    var byName = {};
+    repos.forEach(function (repo) { byName[repo.name] = repo; });
+    document.querySelectorAll("[data-repo]").forEach(function (article) {
+      var repo = byName[article.getAttribute("data-repo")];
+      var time = article.querySelector(".repo-time");
+      if (!repo || !time || !repo.pushed_at) return;
+      time.setAttribute("datetime", repo.pushed_at.slice(0, 10));
+      time.textContent = formatDate(repo.pushed_at);
+    });
+    var newest = BASELINE;
+    repos.forEach(function (repo) {
+      var stamp = Date.parse(repo.pushed_at || "");
+      if (stamp > newest) newest = stamp;
+    });
+    var updated = document.getElementById("updated");
+    if (updated && newest > BASELINE) {
+      var iso = new Date(newest).toISOString().slice(0, 10);
+      updated.setAttribute("datetime", iso);
+      updated.textContent = formatDate(iso);
+    }
+  }
+
+  function addNewRepos(repos) {
+    var known = knownRepos();
+    var grid = document.getElementById("more-grid");
+    if (!grid) return false;
+    var fresh = repos.filter(function (repo) {
+      return repo && repo.name && !repo.private && !repo.fork && !known[repo.name] && safeGithub(repo.html_url, repo.name);
+    });
+    fresh.sort(function (a, b) {
+      return Date.parse(b.pushed_at || 0) - Date.parse(a.pushed_at || 0);
+    });
+    var active = document.querySelector('.filter[aria-pressed="true"]');
+    var filter = active ? active.getAttribute("data-filter") : "all";
+    fresh.forEach(function (repo) {
+      var article = document.createElement("article");
+      article.className = "card";
+      article.setAttribute("data-repo", repo.name);
+      article.setAttribute("data-category", "annet");
+      var meta = document.createElement("p");
+      meta.className = "meta";
+      var bits = ["Hentet fra GitHub"];
+      if (repo.archived) bits.push("arkivert");
+      if (repo.language) bits.push(repo.language);
+      if (repo.pushed_at) bits.push(formatDate(repo.pushed_at));
+      meta.textContent = bits.join(" · ");
+      var title = document.createElement("h3");
+      title.textContent = repo.name;
+      var text = document.createElement("p");
+      text.textContent = repo.description && String(repo.description).trim()
+        ? repo.description
+        : "Ingen beskrivelse på GitHub.";
+      var actions = document.createElement("div");
+      actions.className = "actions";
+      actions.appendChild(makeButton(safeGithub(repo.html_url, repo.name), "GitHub", "", true));
+      var home = safeHttp(repo.homepage || "");
+      if (home) actions.appendChild(makeButton(home, "Nettsted", "", false));
+      article.appendChild(meta);
+      article.appendChild(title);
+      article.appendChild(text);
+      article.appendChild(actions);
+      if (filter !== "all") article.hidden = true;
+      grid.appendChild(article);
+    });
+    return fresh.length > 0;
+  }
+
+  function applyRelease(repoName, release) {
+    var article = document.querySelector('[data-repo="' + CSS.escape(repoName) + '"]');
+    var box = article && article.querySelector("[data-downloads]");
+    if (!article || !box || !release) return false;
+    var assets = Array.isArray(release.assets) ? release.assets : [];
+    var items = assets.map(function (asset) {
+      var kind = classify(asset.name || "");
+      var href = safeGithub(asset.browser_download_url || "", repoName);
+      if (!kind || !href) return null;
+      return {
+        order: kind.order,
+        label: kind.label,
+        ext: kind.ext,
+        href: href,
+        size: asset.size
+      };
+    }).filter(Boolean);
+    if (items.some(function (item) { return item.ext === ".exe"; })) {
+      items = items.filter(function (item) { return item.ext !== ".msi"; });
+    }
+    items.sort(function (a, b) { return a.order - b.order; });
+    if (!items.length) return false;
+    var outsidePrimary = false;
+    article.querySelectorAll(".btn.primary").forEach(function (button) {
+      if (!box.contains(button)) outsidePrimary = true;
+    });
+    var pageHref = safeGithub(release.html_url || "", repoName);
+    box.replaceChildren();
+    items.forEach(function (item, index) {
+      box.appendChild(makeButton(item.href, item.label + " " + item.ext, formatSize(item.size), index === 0 && !outsidePrimary));
+    });
+    if (pageHref) {
+      var page = document.createElement("a");
+      page.className = "btn ghost";
+      page.setAttribute("data-release-page", "true");
+      page.href = pageHref;
+      page.textContent = "Alle filer";
+      box.appendChild(page);
+    }
+    var changed = false;
+    var version = article.querySelector(".version");
+    if (release.tag_name && version && release.tag_name !== article.getAttribute("data-version")) {
+      version.textContent = release.tag_name;
+      article.setAttribute("data-version", release.tag_name);
+      if (!article.querySelector(".version-drift")) {
+        var note = document.createElement("p");
+        note.className = "note version-drift";
+        note.textContent = "GitHub har en nyere utgivelse enn teksten på kortet. Les README-en før du installerer.";
+        var copy = article.querySelector(".feature-copy") || article;
+        copy.appendChild(note);
+      }
+      changed = true;
+    }
+    return changed;
+  }
+
+  function refresh() {
+    if (!document.getElementById("more-grid")) return;
+    var cached = readCache();
+    var releases = cached && cached.releases ? cached.releases : {};
+    var announced = false;
+
+    function finish(repos) {
+      if (!Array.isArray(repos)) return;
+      updateDates(repos);
+      if (addNewRepos(repos)) announced = true;
+      var wanted = [];
+      document.querySelectorAll("[data-version]").forEach(function (el) {
+        var name = el.getAttribute("data-repo");
+        if (name) wanted.push(name);
+      });
+      Promise.all(wanted.map(function (name) {
+        if (releases[name]) return Promise.resolve(releases[name]);
+        return getJson("https://api.github.com/repos/xdkurbie/" + encodeURIComponent(name) + "/releases/latest")
+          .then(function (data) {
+            releases[name] = {
+              tag_name: data.tag_name,
+              html_url: data.html_url,
+              assets: (data.assets || []).map(function (asset) {
+                return {
+                  name: asset.name,
+                  browser_download_url: asset.browser_download_url,
+                  size: asset.size
+                };
+              })
+            };
+            return releases[name];
+          })
+          .catch(function () { return null; });
+      })).then(function () {
+        wanted.forEach(function (name) {
+          if (releases[name] && applyRelease(name, releases[name])) announced = true;
+        });
+        writeCache({ t: Date.now(), repos: repos, releases: releases });
+        if (announced && status) {
+          status.textContent = "Prosjektlisten er oppdatert fra GitHub.";
+        }
+      });
+    }
+
+    if (cached && Array.isArray(cached.repos)) {
+      finish(cached.repos);
+      return;
+    }
+
+    getJson("https://api.github.com/users/xdkurbie/repos?per_page=100&sort=pushed")
+      .then(function (repos) {
+        finish(repos.map(function (repo) {
+          return {
+            name: repo.name,
+            private: repo.private,
+            fork: repo.fork,
+            archived: repo.archived,
+            description: repo.description,
+            html_url: repo.html_url,
+            homepage: repo.homepage,
+            language: repo.language,
+            pushed_at: repo.pushed_at
+          };
+        }));
+      })
+      .catch(function () {});
+  }
+
+  refresh();
 })();
