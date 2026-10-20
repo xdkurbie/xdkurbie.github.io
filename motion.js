@@ -79,8 +79,6 @@ var PACKET_MOTION = (function () {
       hero.style.setProperty("--py", heroP.toFixed(3));
       if (window.__packetGL) window.__packetGL.setRoute(heroP);
     }
-    var mascot = document.querySelector(".mascot");
-    if (mascot) mascot.style.setProperty("--mr", ((page - 0.85) * 8).toFixed(2) + "deg");
     var cs2 = document.getElementById("cs2-clips");
     if (cs2 && !cs2.dataset.glitched && progress(cs2) > 0.28) {
       cs2.dataset.glitched = "1";
@@ -121,16 +119,6 @@ var PACKET_MOTION = (function () {
         var px = Math.round(event.clientX / 10);
         var py = Math.round(event.clientY / 10);
         coord.textContent = "10.0." + (px % 250) + "." + (py % 250);
-      }
-      var mascot = document.querySelector(".mascot");
-      if (mascot) {
-        var box = mascot.getBoundingClientRect();
-        if (box.width) {
-          var dx = (event.clientX - (box.left + box.width / 2)) / window.innerWidth;
-          var dy = (event.clientY - (box.top + box.height / 2)) / window.innerHeight;
-          mascot.style.setProperty("--mx", (dx * -16).toFixed(1) + "px");
-          mascot.style.setProperty("--my", (dy * -8).toFixed(1) + "px");
-        }
       }
     }, { passive: true });
     document.querySelectorAll("a, button").forEach(function (el) {
@@ -289,11 +277,19 @@ var PACKET_MOTION = (function () {
 
   var clipIO = null;
 
+  function pickSrc(video) {
+    var narrow = window.matchMedia("(max-width: 720px)").matches;
+    if (narrow && video.dataset.srcSm) return video.dataset.srcSm;
+    return video.dataset.src || "";
+  }
+
   function startClip(video) {
     if (reduced || !video) return;
     if (navigator.connection && navigator.connection.saveData) return;
     if (video.closest("[hidden]")) return;
-    if (!video.getAttribute("src") && video.dataset.src) video.src = video.dataset.src;
+    var next = pickSrc(video);
+    if (!next) return;
+    if (video.getAttribute("src") !== next) video.src = next;
     var pending = video.play();
     if (pending && pending.catch) pending.catch(function () {});
   }
@@ -362,12 +358,152 @@ var PACKET_MOTION = (function () {
     });
     var field = document.querySelector(".petal-field");
     if (field) field.classList.remove("is-live");
-    var mascot = document.querySelector(".mascot");
-    if (mascot) {
-      mascot.style.removeProperty("--mx");
-      mascot.style.removeProperty("--my");
-      mascot.style.removeProperty("--mr");
+  }
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector("script[src='" + src + "']");
+      if (existing && existing.dataset.ready === "1") { resolve(); return; }
+      var script = existing || document.createElement("script");
+      script.src = src;
+      script.onload = function () { script.dataset.ready = "1"; resolve(); };
+      script.onerror = reject;
+      if (!existing) document.body.appendChild(script);
+    });
+  }
+
+  function clearReelInline() {
+    document.querySelectorAll(".reel-media, .layer, .reel-forest .duotone, .slit .clip-slot, .corridor .clip-slot, .corridor .duotone, .sakura-frame, .reel-tree .clip-slot, .thanks .clip-frame").forEach(function (el) {
+      el.style.clipPath = "";
+      el.style.transform = "";
+      el.style.opacity = "";
+      el.style.filter = "";
+    });
+    document.querySelectorAll(".is-gsap, .is-glitch").forEach(function (el) {
+      el.classList.remove("is-gsap");
+      el.classList.remove("is-glitch");
+    });
+    if (window.ScrollTrigger) window.ScrollTrigger.getAll().forEach(function (trigger) { trigger.kill(); });
+  }
+
+  function initReels() {
+    if (reduced || !window.gsap || !window.ScrollTrigger) return;
+    clearReelInline();
+    var gsap = window.gsap;
+    gsap.registerPlugin(window.ScrollTrigger);
+    var fish = document.querySelector(".reel-fish");
+    var media = fish && fish.querySelector(".reel-media");
+    if (fish && media) {
+      fish.classList.add("is-gsap");
+      gsap.fromTo(media, {
+        scale: 1.15,
+        clipPath: "polygon(14% 36%, 32% 36%, 32% 18%, 68% 18%, 68% 36%, 86% 36%, 86% 78%, 14% 78%)"
+      }, {
+        scale: 1,
+        clipPath: "polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        ease: "none",
+        scrollTrigger: {
+          trigger: fish,
+          start: "top 88%",
+          end: "center 58%",
+          scrub: 0.45,
+          onEnter: function () {
+            fish.classList.add("is-glitch");
+            setTimeout(function () { fish.classList.remove("is-glitch"); }, 480);
+          }
+        }
+      });
     }
+    var forest = document.querySelector(".reel-forest");
+    if (forest) {
+      forest.classList.add("is-gsap");
+      var back = forest.querySelector(".layer-back");
+      var mid = forest.querySelector(".layer-mid");
+      var duo = forest.querySelector(".duotone");
+      if (back) gsap.fromTo(back, { yPercent: 16, scale: 1.2 }, {
+        yPercent: -16, scale: 1.06, ease: "none",
+        scrollTrigger: { trigger: forest, start: "top bottom", end: "bottom top", scrub: true }
+      });
+      if (mid) gsap.fromTo(mid, { yPercent: 8, scale: 1.1 }, {
+        yPercent: -6, scale: 1, ease: "none",
+        scrollTrigger: { trigger: forest, start: "top bottom", end: "bottom top", scrub: true }
+      });
+      if (duo) gsap.fromTo(duo, { opacity: 0.92 }, {
+        opacity: 0, ease: "none",
+        scrollTrigger: { trigger: forest, start: "top 75%", end: "center center", scrub: true }
+      });
+    }
+    var slit = document.querySelector(".slit");
+    var slitSlot = slit && slit.querySelector(".clip-slot");
+    if (slit && slitSlot) {
+      slit.classList.add("is-gsap");
+      gsap.fromTo(slitSlot, { clipPath: "inset(46% 0% 46% 0%)" }, {
+        clipPath: "inset(0% 0% 0% 0%)", ease: "none",
+        scrollTrigger: { trigger: slit, start: "top 90%", end: "center 62%", scrub: 0.4 }
+      });
+    }
+    var sakura = document.querySelector(".sakura-break");
+    var sakuraFrame = sakura && sakura.querySelector(".sakura-frame");
+    if (sakura && sakuraFrame) {
+      sakura.classList.add("is-gsap");
+      gsap.fromTo(sakuraFrame, { scale: 1.14, yPercent: 6 }, {
+        scale: 1, yPercent: -4, ease: "none",
+        scrollTrigger: { trigger: sakura, start: "top bottom", end: "bottom top", scrub: true }
+      });
+    }
+    var tree = document.querySelector(".reel-tree");
+    var treeSlot = tree && tree.querySelector(".clip-slot");
+    if (tree && treeSlot) {
+      tree.classList.add("is-gsap");
+      gsap.fromTo(treeSlot, { clipPath: "inset(8% 62% 8% 0%)", scale: 1.08 }, {
+        clipPath: "inset(0% 0% 0% 0%)", scale: 1, ease: "none",
+        scrollTrigger: { trigger: tree, start: "top 90%", end: "center 60%", scrub: 0.45 }
+      });
+    }
+    var about = document.querySelector(".corridor-section");
+    var walk = about && about.querySelector(".corridor .clip-slot");
+    if (about && walk) {
+      about.classList.add("is-gsap");
+      gsap.fromTo(walk, { yPercent: 8 }, {
+        yPercent: -10, ease: "none",
+        scrollTrigger: { trigger: about, start: "top bottom", end: "bottom top", scrub: true }
+      });
+      var walkDuo = about.querySelector(".corridor .duotone");
+      if (walkDuo) gsap.fromTo(walkDuo, { opacity: 0.88 }, {
+        opacity: 0.28, ease: "none",
+        scrollTrigger: { trigger: about, start: "top 70%", end: "center center", scrub: true }
+      });
+    }
+    var thanks = document.querySelector(".thanks");
+    var thanksFrame = thanks && thanks.querySelector(".clip-frame");
+    if (thanks && thanksFrame) {
+      thanks.classList.add("is-gsap");
+      gsap.fromTo(thanksFrame, { y: 36, scale: 0.94 }, {
+        y: 0, scale: 1, ease: "none",
+        scrollTrigger: { trigger: thanks, start: "top 92%", end: "center 70%", scrub: 0.4 }
+      });
+    }
+    window.ScrollTrigger.refresh();
+  }
+
+  var reelsArmed = false;
+
+  function armReels() {
+    if (reduced) return;
+    if (window.gsap && window.ScrollTrigger) { initReels(); return; }
+    if (reelsArmed) return;
+    reelsArmed = true;
+    function kick() {
+      window.removeEventListener("scroll", kick);
+      if (reduced) return;
+      loadScript("/vendor/gsap.min.js").then(function () {
+        return loadScript("/vendor/ScrollTrigger.min.js");
+      }).then(function () {
+        if (!reduced) initReels();
+      }).catch(function () {});
+    }
+    window.addEventListener("scroll", kick, { passive: true });
+    if (window.scrollY > 24) kick();
   }
 
   function loadGL() {
@@ -395,6 +531,7 @@ var PACKET_MOTION = (function () {
         face.dataset.live = "0";
       }
       releaseClips();
+      clearReelInline();
       if (window.__packetGL) {
         window.__packetGL.stop();
         window.__packetGL = null;
@@ -416,6 +553,7 @@ var PACKET_MOTION = (function () {
       armAvatar();
       armClips();
       armPetals();
+      armReels();
       document.addEventListener("packet-fish", function () {
         var video = document.querySelector("#fish-egg video.clip");
         if (!video) return;
@@ -445,6 +583,7 @@ var PACKET_MOTION = (function () {
       armAvatar();
       armClips();
       armPetals();
+      armReels();
     }
     scrub();
   }
