@@ -11,9 +11,7 @@
   if (year) year.textContent = String(new Date().getFullYear());
 
   function syncThemeButton() {
-    if (!themeBtn) return;
     var light = root.getAttribute("data-theme") === "light";
-    themeBtn.setAttribute("aria-label", light ? "Bytt til mørkt tema" : "Bytt til lyst tema");
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", light ? "#f4f5ef" : "#0a0d00");
   }
