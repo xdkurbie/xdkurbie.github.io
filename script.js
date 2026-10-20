@@ -10,11 +10,33 @@
 
   if (year) year.textContent = String(new Date().getFullYear());
 
+  var darkBg = { signal: "#07090a", aurora: "#090712", kobber: "#110c09" };
+  var lightBg = { signal: "#f4f5ef", aurora: "#f7f3fb", kobber: "#fbf6f1" };
+
   function syncThemeButton() {
     var light = root.getAttribute("data-theme") === "light";
+    var palette = root.getAttribute("data-palette") || "signal";
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", light ? "#f4f5ef" : "#07090a");
+    if (meta) meta.setAttribute("content", light ? (lightBg[palette] || lightBg.signal) : (darkBg[palette] || darkBg.signal));
   }
+
+  function syncPalette() {
+    var name = root.getAttribute("data-palette") || "signal";
+    document.querySelectorAll("[data-palette-set]").forEach(function (button) {
+      button.setAttribute("aria-pressed", button.getAttribute("data-palette-set") === name ? "true" : "false");
+    });
+    syncThemeButton();
+  }
+
+  syncPalette();
+  document.querySelectorAll("[data-palette-set]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var name = button.getAttribute("data-palette-set") || "signal";
+      root.setAttribute("data-palette", name);
+      try { localStorage.setItem("palette", name); } catch (e) {}
+      syncPalette();
+    });
+  });
 
   syncThemeButton();
 

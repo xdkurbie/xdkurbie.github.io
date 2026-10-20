@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nb" data-theme="dark" data-motion="off">
+<html lang="nb" data-theme="dark" data-motion="off" data-palette="signal">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,6 +46,14 @@
       ? motionSaved
       : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
     document.documentElement.setAttribute("data-motion", motion);
+    var palette = localStorage.getItem("palette");
+    if (palette === "aurora" || palette === "kobber" || palette === "signal") {
+      document.documentElement.setAttribute("data-palette", palette);
+    }
+    var darkBg = { signal: "#07090a", aurora: "#090712", kobber: "#110c09" };
+    var lightBg = { signal: "#f4f5ef", aurora: "#f7f3fb", kobber: "#fbf6f1" };
+    var chosen = document.documentElement.getAttribute("data-palette") || "signal";
+    if (meta) meta.setAttribute("content", theme === "light" ? lightBg[chosen] : darkBg[chosen]);
   } catch (e) {}
 })();
 </script>
@@ -84,6 +92,8 @@
 </head>
 <body id="topp">
 <a class="skip" href="#innhold">Hopp til innhold</a>
+<div class="hud-progress" aria-hidden="true"><i></i></div>
+<p class="progress-label" id="progress-label" aria-hidden="true">01 HERO</p>
 <header class="nav">
   <a class="logo" href="#topp">xdkurbie<span>.</span></a>
   <nav class="nav-links" aria-label="Hovedmeny">
@@ -92,6 +102,11 @@
     <a href="#kontakt">Kontakt</a>
   </nav>
   <div class="nav-controls">
+    <div class="palettes" role="group" aria-label="Fargepalett">
+      <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
+      <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>
+      <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false">Kobber</button>
+    </div>
     <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
       <span class="when-motion-on">Bevegelse på</span>
       <span class="when-motion-off">Bevegelse av</span>
@@ -106,6 +121,8 @@
   <section class="hero-pin" id="hero" data-scrub aria-labelledby="hero-title">
     <div class="hero-sticky">
       <div class="hero-stage">
+        <div class="orb orb-a" aria-hidden="true"></div>
+        <div class="orb orb-b" aria-hidden="true"></div>
         <canvas id="net" aria-hidden="true"></canvas>
         <svg class="fallback-net" viewBox="0 0 1000 640" aria-hidden="true">
           <g fill="none" stroke="currentColor" stroke-width="1.25">
@@ -171,6 +188,24 @@
     </div>
   </section>
 
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Rust · Nettverk · CS2 · Elektronikk · UniFi · KiCad · VLAN · Tauri · </span>
+      <span>Rust · Nettverk · CS2 · Elektronikk · UniFi · KiCad · VLAN · Tauri · </span>
+    </div>
+  </div>
+  <div class="rail-wrap">
+    <div class="rail" tabindex="0" aria-label="Prosjektstripe">
+      <a class="rail-card" href="#topologi-studio"><span>01</span><strong>Topologi Studio</strong></a>
+      <a class="rail-card" href="#cs2-clips"><span>02</span><strong>CS2 Clips</strong></a>
+      <a class="rail-card" href="#tinkerlars"><span>03</span><strong>TinkerLARS</strong></a>
+      <a class="rail-card" href="#dune-overlay"><span>04</span><strong>Dune Overlay</strong></a>
+      <a class="rail-card" href="#gaming-companion"><span>05</span><strong>Gaming Companion</strong></a>
+      <a class="rail-card" href="#snake-game"><span>06</span><strong>Snake</strong></a>
+      <a class="rail-card" href="#om-meg"><span>07</span><strong>Om meg</strong></a>
+    </div>
+  </div>
+
   <section class="section" id="prosjekter" aria-labelledby="prosjekter-tittel">
     <div class="wrap">
       <div class="section-head">
@@ -180,7 +215,7 @@
       </div>
     </div>
 
-    <article class="station" id="topologi-studio" data-scrub data-repo="topologi-studio" data-version="v0.1.1">
+    <article class="station" data-tone="signal" id="topologi-studio" data-scrub data-repo="topologi-studio" data-version="v0.1.1">
       <div class="station-sticky">
         <div class="visual">
           <svg class="schematic" viewBox="0 0 360 240" aria-hidden="true">
@@ -191,6 +226,8 @@
             <circle cx="250" cy="48" r="4" fill="currentColor"/>
             <circle cx="300" cy="190" r="4" fill="currentColor"/>
             <circle cx="330" cy="120" r="4" fill="currentColor"/>
+            <circle class="flow f1" r="3.5"/>
+            <circle class="flow f2" r="3"/>
           </svg>
           <div class="shot-frame">
             <img
@@ -252,7 +289,7 @@
       </div>
     </article>
 
-    <article class="station" id="cs2-clips" data-scrub data-repo="cs2-clips" data-version="v0.2.0">
+    <article class="station" data-tone="packet" id="cs2-clips" data-scrub data-repo="cs2-clips" data-version="v0.2.0">
       <div class="station-sticky">
         <div class="visual">
           <div class="killfeed" aria-hidden="true">
@@ -315,7 +352,7 @@
       </div>
     </article>
 
-    <article class="station" id="tinkerlars" data-scrub data-repo="tinkerlars" data-version="v0.1.0">
+    <article class="station" data-tone="flare" id="tinkerlars" data-scrub data-repo="tinkerlars" data-version="v0.1.0">
       <div class="station-sticky">
         <div class="visual">
           <svg class="pcb" viewBox="0 0 360 220" aria-hidden="true">
@@ -327,6 +364,8 @@
             <circle cx="40" cy="40" r="3" fill="currentColor"/>
             <circle cx="40" cy="70" r="3" fill="currentColor"/>
             <circle cx="240" cy="170" r="3" fill="currentColor"/>
+            <circle class="flow f3" r="3.5"/>
+            <circle class="flow f4" r="3"/>
           </svg>
           <ul class="spec">
             <li><span>3D</span> Boks, sylinder, kule, kjegle og torus. Hull, CSG-gruppe og binær STL.</li>

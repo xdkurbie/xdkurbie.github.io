@@ -3,7 +3,7 @@ var PACKET_GL = (function () {
   var VERT_LINE = "#version 300 es\nlayout(location=0) in vec3 aPos;\nuniform mat4 uVP;\nuniform vec2 uMouse;\nvoid main(){\n  vec3 p=aPos;\n  vec2 m=uMouse*1.4;\n  float d=length(p.xy-m);\n  p.xy += m * (0.09 / (0.45 + d));\n  gl_Position=uVP*vec4(p,1.0);\n}";
   var FRAG_LINE = "#version 300 es\nprecision mediump float;\nuniform vec3 uColor;\nout vec4 o;\nvoid main(){ vec3 c=uColor*0.62; o=vec4(c,0.62); }";
   var VERT_POINT = "#version 300 es\nlayout(location=0) in vec3 aPos;\nlayout(location=1) in float aSize;\nlayout(location=2) in float aKind;\nuniform mat4 uVP;\nuniform vec2 uMouse;\nuniform float uDpr;\nout float vKind;\nvoid main(){\n  vec3 p=aPos;\n  vec2 m=uMouse*1.4;\n  float d=length(p.xy-m);\n  p.xy += m * (0.14 / (0.4 + d));\n  gl_Position=uVP*vec4(p,1.0);\n  float atten=clamp(1.15 / max(0.35, gl_Position.w), 0.35, 2.2);\n  gl_PointSize=aSize * uDpr * atten;\n  vKind=aKind;\n}";
-  var FRAG_POINT = "#version 300 es\nprecision mediump float;\nin float vKind;\nuniform vec3 uNode;\nuniform vec3 uPacket;\nout vec4 o;\nvoid main(){\n  vec2 uv=gl_PointCoord*2.0-1.0;\n  float d=dot(uv,uv);\n  if(d>1.0) discard;\n  float core=smoothstep(1.0,0.15,d);\n  float halo=pow(1.0-d,1.7)*0.55;\n  vec3 col=mix(uNode,uPacket,vKind);\n  float a=(core+halo)*mix(0.9,1.0,vKind);\n  o=vec4(col*a,a);\n}";
+  var FRAG_POINT = "#version 300 es\nprecision mediump float;\nin float vKind;\nuniform vec3 uNode;\nuniform vec3 uPacket;\nuniform float uShift;\nout vec4 o;\nvoid main(){\n  vec2 uv=gl_PointCoord*2.0-1.0;\n  float d=dot(uv,uv);\n  if(d>1.0) discard;\n  float glow=pow(1.0-d,1.55);\n  float core=smoothstep(1.0,0.12,d);\n  float halo=step(1.5,vKind);\n  vec3 col=mix(uNode,uPacket,max(clamp(vKind,0.0,1.0),uShift));\n  float a=halo>0.5?glow*0.32:(core*0.82+glow*0.5);\n  o=vec4(col*a,a);\n}";
 
   function hexToRgb(hex, fallback) {
     var h = (hex || "").trim();
@@ -130,9 +130,10 @@ var PACKET_GL = (function () {
     var raf = 0;
     var last = performance.now();
     var colors = { node: [0.82, 1, 0], packet: [0.36, 0.95, 1] };
+    var lineTint = [0.82, 1, 0];
     var dprCap = 1.5;
     var lineData = new Float32Array(edges.length * 6);
-    var pointData = new Float32Array((nodes.length + packets.length) * 5);
+    var pointData = new Float32Array((nodes.length * 2 + packets.length) * 5);
     var uLine = {
       vp: gl.getUniformLocation(lineProg, "uVP"),
       mouse: gl.getUniformLocation(lineProg, "uMouse"),
@@ -143,7 +144,8 @@ var PACKET_GL = (function () {
       mouse: gl.getUniformLocation(pointProg, "uMouse"),
       dpr: gl.getUniformLocation(pointProg, "uDpr"),
       node: gl.getUniformLocation(pointProg, "uNode"),
-      packet: gl.getUniformLocation(pointProg, "uPacket")
+      packet: gl.getUniformLocation(pointProg, "uPacket"),
+      shift: gl.getUniformLocation(pointProg, "uShift")
     };
 
     var lineBuf = gl.createBuffer();
@@ -217,6 +219,13 @@ var PACKET_GL = (function () {
         pointData[pi++] = 16 + Math.sin(now * 0.003 + i) * 2;
         pointData[pi++] = 0;
       });
+      nodes.forEach(function (node) {
+        pointData[pi++] = node.p[0];
+        pointData[pi++] = node.p[1];
+        pointData[pi++] = node.p[2];
+        pointData[pi++] = 34;
+        pointData[pi++] = 2;
+      });
       for (var ip = 0; ip < packetCount; ip++) {
         var packet = packets[ip];
         packet.t = (packet.t + packet.speed * dt) % 1;
@@ -239,7 +248,10 @@ var PACKET_GL = (function () {
       gl.useProgram(lineProg);
       gl.uniformMatrix4fv(uLine.vp, false, vp);
       gl.uniform2f(uLine.mouse, mouse[0], mouse[1]);
-      gl.uniform3fv(uLine.color, colors.node);
+      lineTint[0] = colors.node[0] + (colors.packet[0] - colors.node[0]) * route;
+      lineTint[1] = colors.node[1] + (colors.packet[1] - colors.node[1]) * route;
+      lineTint[2] = colors.node[2] + (colors.packet[2] - colors.node[2]) * route;
+      gl.uniform3fv(uLine.color, lineTint);
       gl.bindVertexArray(lineVao);
       gl.bindBuffer(gl.ARRAY_BUFFER, lineBuf);
       gl.bufferData(gl.ARRAY_BUFFER, lineData, gl.DYNAMIC_DRAW);
@@ -251,10 +263,11 @@ var PACKET_GL = (function () {
       gl.uniform1f(uPoint.dpr, Math.min(window.devicePixelRatio || 1, dprCap));
       gl.uniform3fv(uPoint.node, colors.node);
       gl.uniform3fv(uPoint.packet, colors.packet);
+      gl.uniform1f(uPoint.shift, route);
       gl.bindVertexArray(pointVao);
       gl.bindBuffer(gl.ARRAY_BUFFER, pointBuf);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, pointData.subarray(0, pi));
-      gl.drawArrays(gl.POINTS, 0, nodes.length + packetCount);
+      gl.drawArrays(gl.POINTS, 0, nodes.length * 2 + packetCount);
 
       if (label) {
         var rect = canvas.getBoundingClientRect();
@@ -299,7 +312,7 @@ var PACKET_GL = (function () {
 
     window.addEventListener("pointermove", onPointer, { passive: true });
     var observer = new MutationObserver(readColors);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-palette"] });
 
     return {
       setRoute: function (value) { route = value; },

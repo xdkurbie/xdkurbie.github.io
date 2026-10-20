@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nb" data-theme="dark" data-motion="off">
+<html lang="nb" data-theme="dark" data-motion="off" data-palette="signal">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +29,14 @@
       ? motionSaved
       : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
     document.documentElement.setAttribute("data-motion", motion);
+    var palette = localStorage.getItem("palette");
+    if (palette === "aurora" || palette === "kobber" || palette === "signal") {
+      document.documentElement.setAttribute("data-palette", palette);
+    }
+    var darkBg = { signal: "#07090a", aurora: "#090712", kobber: "#110c09" };
+    var lightBg = { signal: "#f4f5ef", aurora: "#f7f3fb", kobber: "#fbf6f1" };
+    var chosen = document.documentElement.getAttribute("data-palette") || "signal";
+    if (meta) meta.setAttribute("content", theme === "light" ? lightBg[chosen] : darkBg[chosen]);
   } catch (e) {}
 })();
 </script>
@@ -43,6 +51,11 @@
     <a href="/#kontakt">Kontakt</a>
   </nav>
   <div class="nav-controls">
+    <div class="palettes" role="group" aria-label="Fargepalett">
+      <button type="button" class="hud-btn" data-palette-set="signal" aria-pressed="true">Signal</button>
+      <button type="button" class="hud-btn" data-palette-set="aurora" aria-pressed="false">Aurora</button>
+      <button type="button" class="hud-btn" data-palette-set="kobber" aria-pressed="false">Kobber</button>
+    </div>
     <button type="button" class="hud-btn" id="motion-toggle" aria-pressed="false">
       <span class="when-motion-on">Bevegelse på</span>
       <span class="when-motion-off">Bevegelse av</span>
