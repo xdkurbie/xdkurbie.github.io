@@ -39,7 +39,14 @@ const camPts = [
   [0, 28.2, 0.1],
   [0.35, 30.6, 0.0],
   [0.6, 41.0, 0.2],
-  [0, 43.4, 0.05]
+  [0.25, 49.0, 0.12],
+  [0.2, 58.0, 0.12],
+  [0.2, 67.0, 0.12],
+  [0.2, 76.0, 0.12],
+  [0.2, 85.0, 0.12],
+  [0.2, 94.0, 0.12],
+  [0, 104.0, 0.08],
+  [0, 107.2, 0.05]
 ].map((p) => b2t(p[0], p[1], p[2]));
 
 const lookPts = [
@@ -51,8 +58,15 @@ const lookPts = [
   [0, 30, 0],
   [0, 35.5, 0.2],
   [0, 35.5, 0.3],
-  [0, 48, 0],
-  [0, 48, 0]
+  [0, 42, 0.15],
+  [0, 54, 0.15],
+  [0, 63, 0.15],
+  [0, 72, 0.15],
+  [0, 81, 0.15],
+  [0, 90, 0.15],
+  [0, 99, 0.15],
+  [0, 112, 0],
+  [0, 112, 0]
 ].map((p) => b2t(p[0], p[1], p[2]));
 
 const canvas = document.getElementById("journey-gl");
@@ -278,13 +292,41 @@ const treePanel = makePanel({
 scene.add(treePanel.group);
 
 const portal = new THREE.Group();
-portal.position.copy(b2t(0, 48, 0));
+portal.position.copy(b2t(0, 112, 0));
 const ring = limeMesh(new THREE.TorusGeometry(1.6, 0.018, 12, 64), 1.5);
 portal.add(ring);
 const glassRing = new THREE.Mesh(new THREE.TorusGeometry(1.88, 0.09, 16, 48), glassMaterial(0.08, 0xe9fff4, true));
 portal.add(glassRing);
 portal.visible = false;
 scene.add(portal);
+
+const demoSpecs = [
+  { key: "chrome", y: 54, src: "/assets/demos-v2/1-chrome-node.mp4", poster: "/assets/demos-v2/1-chrome-node.poster.jpg" },
+  { key: "growth", y: 63, src: "/assets/demos-v2/2-crystal-growth.mp4", poster: "/assets/demos-v2/2-crystal-growth.poster.jpg" },
+  { key: "tube", y: 72, src: "/assets/demos-v2/3-holo-crt.mp4", poster: "/assets/demos-v2/3-holo-crt.poster.jpg" },
+  { key: "logo", y: 81, src: "/assets/demos-v2/4-glass-logo.mp4", poster: "/assets/demos-v2/4-glass-logo.poster.jpg" },
+  { key: "sakura", y: 90, src: "/assets/demos-v2/5-sakura-portal.mp4", poster: "/assets/demos-v2/5-sakura-portal.poster.jpg" },
+  { key: "island", y: 99, src: "/assets/demos-v2/6-floating-island.mp4", poster: "/assets/demos-v2/6-floating-island.poster.jpg" }
+];
+const demoH = 2.42;
+const demoW = demoH * (16 / 9);
+const demoPanels = demoSpecs.map((spec) => makePanel({
+  key: spec.key,
+  poster: spec.poster,
+  src: spec.src,
+  w: demoW,
+  h: demoH,
+  position: b2t(0, spec.y, 0.15),
+  allowVideo: !low,
+  glass: false
+}));
+demoPanels.forEach((panel) => scene.add(panel.group));
+const demoCams = demoSpecs.map((spec) => b2t(0.12, spec.y - 5.15, 0.08));
+const demoTargets = demoSpecs.map((spec) => b2t(0, spec.y, 0.15));
+const demoApproachCam = camCurve.getPointAt(0.47);
+const demoApproachLook = lookCurve.getPointAt(0.47);
+const demoLight = new THREE.PointLight(0xd2ff00, 0, 16, 1.5);
+scene.add(demoLight);
 
 const cubes = [];
 for (let i = 0; i < (low ? 8 : 16); i += 1) {
@@ -384,7 +426,8 @@ function clearsHeroSphere(pos) {
   return cx * cx + cy * cy + cz * cz > 8.4;
 }
 for (let i = 0; i < rockCount; i += 1) {
-  const u = Math.min(0.985, (i + rockRand() * 0.65) / rockCount);
+  const roll = (i + rockRand() * 0.65) / rockCount;
+  const u = Math.min(0.985, roll < 0.78 ? (roll / 0.78) * 0.44 : 0.46 + ((roll - 0.78) / 0.22) * 0.5);
   const p = camCurve.getPointAt(u);
   rockLook.copy(lookCurve.getPointAt(u));
   rockForward.copy(rockLook).sub(p);
@@ -402,7 +445,7 @@ for (let i = 0; i < rockCount; i += 1) {
     .addScaledVector(rockRight, side)
     .addScaledVector(upAxis, lift)
     .addScaledVector(rockForward, along);
-  if (u < 0.16) {
+  if (u < 0.07) {
     let guard = 0;
     while (guard < 6 && !clearsHeroSphere(base)) {
       base.addScaledVector(rockRight, sideSign * 0.7);
@@ -481,6 +524,7 @@ let rockU = 0;
 let rockVel = 0;
 const rockDummy = new THREE.Object3D();
 const rockNdc = new THREE.Vector3();
+let clearDemo = false;
 
 function rockTextFade(world, travel) {
   rockNdc.copy(world).project(camera);
@@ -489,7 +533,12 @@ function rockTextFade(world, travel) {
   if (rockNdc.x < 0.08 && rockNdc.y < 0.22) {
     zone = Math.max(zone, smoothstep((0.08 - rockNdc.x) / 0.6) * smoothstep((0.22 - rockNdc.y) / 0.75));
   }
-  if (travel > 0.82 && Math.abs(rockNdc.x) < 0.52 && rockNdc.y > -0.4 && rockNdc.y < 0.62) {
+  if (clearDemo && rockNdc.z < 1) {
+    const ax = smoothstep((0.62 - Math.abs(rockNdc.x)) / 0.28);
+    const ay = smoothstep((0.62 - Math.abs(rockNdc.y - 0.02)) / 0.34);
+    zone = Math.max(zone, ax * ay);
+  }
+  if (travel > 0.9 && Math.abs(rockNdc.x) < 0.52 && rockNdc.y > -0.4 && rockNdc.y < 0.62) {
     const dx = 1 - smoothstep((Math.abs(rockNdc.x) - 0.16) / 0.36);
     const dy = 1 - smoothstep((Math.abs(rockNdc.y - 0.08) - 0.18) / 0.32);
     zone = Math.max(zone, dx * dy);
@@ -519,12 +568,14 @@ function makePanel(opts) {
   );
   screen.position.z = 0.03;
   group.add(screen);
-  const glass = new THREE.Mesh(
-    new THREE.BoxGeometry(opts.w + 0.05, opts.h + 0.05, 0.04),
-    glassMaterial(0.08, 0xf4fbff, false)
-  );
-  glass.position.z = 0.05;
-  group.add(glass);
+  if (opts.glass !== false) {
+    const glass = new THREE.Mesh(
+      new THREE.BoxGeometry(opts.w + 0.05, opts.h + 0.05, 0.04),
+      glassMaterial(0.08, 0xf4fbff, false)
+    );
+    glass.position.z = 0.05;
+    group.add(glass);
+  }
   if (opts.parent) opts.parent.add(group);
   return {
     key: opts.key,
@@ -617,7 +668,7 @@ function setStage(index) {
 
 function sectionStarts() {
   const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-  const ids = ["hero", "krystall", "prosjekter", "om-meg", "kontakt"];
+  const ids = ["hero", "krystall", "prosjekter", "om-meg", "demo", "kontakt"];
   const starts = ids.map((id) => {
     const el = document.getElementById(id);
     if (!el) return 0;
@@ -627,11 +678,12 @@ function sectionStarts() {
 }
 
 const curveSpan = [
-  [0.02, 0.2],
-  [0.26, 0.5],
-  [0.5, 0.64],
-  [0.64, 0.86],
-  [0.86, 1]
+  [0.012, 0.09],
+  [0.09, 0.175],
+  [0.175, 0.3],
+  [0.3, 0.47],
+  [0.47, 0.9],
+  [0.9, 1]
 ];
 
 function heroEase(t) {
@@ -649,6 +701,20 @@ function travel(t) {
   return smoothstep(t);
 }
 
+function forestEase(t) {
+  if (t < 0.62) return 0.1 + smoothstep(t / 0.62) * 0.1;
+  return 0.2 + smoothstep((t - 0.62) / 0.38) * 0.8;
+}
+
+function demoEase(t) {
+  const n = 6;
+  const x = Math.min(0.999, Math.max(0, t)) * n;
+  const i = Math.min(n - 1, Math.floor(x));
+  const f = x - i;
+  const arrive = f < 0.36 ? smoothstep(f / 0.36) : 1;
+  return (i + arrive) / n;
+}
+
 function portalEase(t) {
   if (t < 0.2) return smoothstep(t / 0.2) * 0.78;
   return 0.78 + ((t - 0.2) / 0.8) * 0.22;
@@ -664,7 +730,12 @@ function pageMap(p) {
   while (i < starts.length - 2 && p >= starts[i + 1] - 0.001) i += 1;
   const span = Math.max(0.0001, starts[i + 1] - starts[i]);
   const local = Math.min(1, Math.max(0, (p - starts[i]) / span));
-  const eased = i === 0 ? heroEase(local) : i === 2 ? travel(local) : i === 4 ? portalEase(local) : showpiece(local);
+  const eased = i === 0 ? heroEase(local)
+    : i === 2 ? travel(local)
+    : i === 3 ? forestEase(local)
+    : i === 4 ? demoEase(local)
+    : i === 5 ? portalEase(local)
+    : showpiece(local);
   const a = curveSpan[i][0];
   const b = curveSpan[i][1];
   return { u: a + (b - a) * eased, i, local };
@@ -763,8 +834,9 @@ const copyNodes = {
   0: document.querySelector("#hero .hero-sticky"),
   1: document.querySelector("#krystall .beat-copy"),
   3: document.querySelector("#skog .beat-copy"),
-  4: document.querySelector("#kontakt .wrap")
+  5: document.querySelector("#kontakt .wrap")
 };
+const demoCopies = [...document.querySelectorAll("#demo .beat-copy")];
 window.addEventListener("pointermove", (event) => {
   pointer.x = (event.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
   pointer.y = (event.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
@@ -790,14 +862,32 @@ function frame() {
   root.style.setProperty("--page", page.toFixed(4));
   const pos = camCurve.getPointAt(u);
   const look = lookCurve.getPointAt(u);
-  const showFish = u > 0.28 && u < 0.52;
-  const showForest = u > 0.66 && u < 0.84;
+  const showFish = u > 0.11 && u < 0.21;
+  const showForest = u > 0.3 && u < 0.4;
   if (showFish || showForest) {
     const dir = look.clone().sub(pos);
     if (dir.length() > 0.5) {
       dir.normalize();
       pos.addScaledVector(dir, showFish ? 0.85 : 0.5);
     }
+  }
+  let demoIndex = -1;
+  let demoArrive = 0;
+  if (mapped.i === 4) {
+    const n = demoPanels.length;
+    const x = Math.min(0.999, mapped.local) * n;
+    demoIndex = Math.min(n - 1, Math.floor(x));
+    const f = x - demoIndex;
+    demoArrive = f < 0.36 ? smoothstep(f / 0.36) : 1;
+    const fromCam = demoIndex === 0 ? demoApproachCam : demoCams[demoIndex - 1];
+    const fromLook = demoIndex === 0 ? demoApproachLook : demoTargets[demoIndex - 1];
+    pos.copy(fromCam).lerp(demoCams[demoIndex], demoArrive);
+    look.copy(fromLook).lerp(demoTargets[demoIndex], demoArrive);
+  } else if (mapped.i === 5) {
+    const k = smoothstep(Math.min(1, mapped.local / 0.2));
+    const last = demoCams.length - 1;
+    pos.lerpVectors(demoCams[last], pos, k);
+    look.lerpVectors(demoTargets[last], look, k);
   }
   camera.position.copy(pos);
   camera.lookAt(look);
@@ -808,7 +898,7 @@ function frame() {
     camera.position.y += -sway.y * 0.07;
   }
   let fade = 0;
-  if (mapped.i !== 2) {
+  if (mapped.i !== 2 && mapped.i !== 4) {
     const enter = mapped.i === 0 ? 0 : 1 - smoothstep(mapped.local / 0.14);
     const exit = smoothstep((mapped.local - 0.82) / 0.18);
     fade = Math.max(enter, exit);
@@ -821,10 +911,32 @@ function frame() {
     node.style.opacity = on ? String(copyFade(mapped.i, mapped.local)) : "0";
     node.classList.toggle("is-on", on && mapped.local > 0.04 && mapped.local < 0.8);
   });
-  const stage = u < 0.24 ? 0 : u < 0.56 ? 1 : u < 0.86 ? 2 : 3;
-  fishGroup.visible = u > 0.22 && u < 0.62;
-  room.visible = u > 0.48;
-  portal.visible = u > 0.7;
+  demoCopies.forEach((node, index) => {
+    const on = mapped.i === 4 && index === demoIndex;
+    node.style.opacity = on ? "1" : "0";
+    node.classList.toggle("is-on", on);
+  });
+  const stage = u < 0.095 ? 0 : u < 0.22 ? 1 : u < 0.44 ? 2 : 3;
+  fishGroup.visible = u > 0.11 && u < 0.24;
+  room.visible = u > 0.27 && u < 0.48;
+  portal.visible = u > 0.9;
+  clearDemo = mapped.i === 4;
+  const narrowDemo = mobileQuery.matches;
+  const visH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 5.15;
+  const demoFit = Math.min(1, (visH * Math.max(0.5, camera.aspect) * 0.9) / demoW);
+  demoPanels.forEach((panel, index) => {
+    panel.group.visible = !narrowDemo;
+    panel.group.scale.setScalar(demoFit);
+    const showClip = !narrowDemo && index === demoIndex && panel.allowVideo && demoArrive > 0.45;
+    if (showClip && (!panel.video || panel.video.paused)) playPanel(panel);
+    else if (!showClip && panel.video) releasePanel(panel);
+  });
+  if (demoIndex >= 0 && demoArrive > 0.35 && !narrowDemo) {
+    demoLight.intensity = low ? 2.2 : 4.5;
+    demoLight.position.copy(demoTargets[demoIndex]).lerp(demoCams[demoIndex], 0.35);
+  } else {
+    demoLight.intensity = 0;
+  }
   if (performance.now() < paletteFollowUntil) applySceneColors();
   sidePanels.forEach((panel) => {
     const want = (panel.key === "sakura" && stage === 1) || (panel.key === "tree" && stage === 2);
@@ -872,7 +984,7 @@ function frame() {
   rocks.instanceMatrix.needsUpdate = true;
   rockGeo.attributes.aFade.needsUpdate = true;
   heroRocks.forEach((mesh) => {
-    mesh.visible = u < 0.2;
+    mesh.visible = u < 0.085;
     if (!mesh.visible) return;
     const fade = rockTextFade(mesh.userData.base, u);
     const live = Math.max(0.001, fade);
@@ -889,17 +1001,23 @@ function frame() {
   dust.position.y = Math.sin(t * 0.15) * 0.15;
   dust.position.z = Math.sin(t * 0.08) * 0.2 - fade * 2.4;
   dustMat.size = (low ? 0.035 : 0.028) * (1 + fade * 2.4);
-  const lift = smoothstep((u - 0.845) / 0.06);
+  const lift = smoothstep((u - 0.4) / 0.06);
   forestPanel.group.position.y = 0.35 + lift * 3.15;
   setStage(stage);
   const label = document.getElementById("progress-label");
   if (label) {
     const names = root.lang === "en"
-      ? ["01 NETWORK", "02 CRYSTAL", "02 PROJECTS", "03 FOREST", "04 CONTACT"]
-      : ["01 NETTVERK", "02 KRYSTALL", "02 PROSJEKTER", "03 SKOG", "04 KONTAKT"];
-    label.textContent = names[mapped.i] || names[0];
+      ? ["01 NETWORK", "02 CRYSTAL", "02 PROJECTS", "03 FOREST", "04 STUDIO", "05 CONTACT"]
+      : ["01 NETTVERK", "02 KRYSTALL", "02 PROSJEKTER", "03 SKOG", "04 STUDIO", "05 KONTAKT"];
+    const demoNames = root.lang === "en"
+      ? ["04 CHROME", "04 GROWTH", "04 TUBE", "04 LOGO", "04 PORTAL", "04 ISLAND"]
+      : ["04 KROM", "04 VEKST", "04 RØR", "04 LOGO", "04 PORTAL", "04 ØY"];
+    label.textContent = mapped.i === 4 ? (demoNames[demoIndex] || names[4]) : (names[mapped.i] || names[0]);
   }
   panels.forEach((panel) => {
+    if (panel.texture) panel.texture.needsUpdate = true;
+  });
+  demoPanels.forEach((panel) => {
     if (panel.texture) panel.texture.needsUpdate = true;
   });
   renderer.setRenderTarget(beauty);
@@ -961,6 +1079,7 @@ function applySceneColors() {
   fishLight.color.copy(signalColor);
   forestLight.color.copy(packetColor);
   rockLight.color.copy(signalColor);
+  demoLight.color.copy(signalColor);
   rockMat.color.copy(packetColor).multiplyScalar(0.2);
   rockMat.emissive.copy(signalColor);
   rockMat.emissiveIntensity = 0.012;

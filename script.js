@@ -594,11 +594,18 @@
     return "full";
   }
 
-  function stageName(p) {
+  function stageName() {
+    var ids = ["hero", "krystall", "prosjekter", "om-meg", "demo", "kontakt"];
     var names = root.lang === "en"
-      ? ["01 NETWORK", "02 CRYSTAL", "03 FOREST", "04 CONTACT"]
-      : ["01 NETTVERK", "02 KRYSTALL", "03 SKOG", "04 KONTAKT"];
-    return names[Math.min(names.length - 1, Math.floor(Math.min(0.999, Math.max(0, p)) * names.length))];
+      ? ["01 NETWORK", "02 CRYSTAL", "02 PROJECTS", "03 FOREST", "04 STUDIO", "05 CONTACT"]
+      : ["01 NETTVERK", "02 KRYSTALL", "02 PROSJEKTER", "03 SKOG", "04 STUDIO", "05 KONTAKT"];
+    var y = window.scrollY + 8;
+    var i = 0;
+    ids.forEach(function (id, idx) {
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= y) i = idx;
+    });
+    return names[i];
   }
 
   function bootScrubVideo() {
@@ -624,7 +631,7 @@
       var p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       root.style.setProperty("--page", p.toFixed(4));
       var label = document.getElementById("progress-label");
-      if (label) label.textContent = stageName(p);
+      if (label) label.textContent = stageName();
       if (video.readyState >= 1) {
         var target = Math.min(Math.max(0, duration - 0.04), p * duration);
         if (Math.abs((video.currentTime || 0) - target) > 0.04) {

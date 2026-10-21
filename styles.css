@@ -2202,6 +2202,88 @@ html[data-journey] .scroll-ind {
   html[data-journey][data-motion="on"] .in-packet { offset-path: circle(86px at 68px 68px); }
 }
 
+.demo-hall {
+  position: relative;
+  z-index: 4;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.demo-beat { padding: 8vh 6vw 9vh; }
+
+.demo-frame { margin: 0 0 1.1rem; }
+
+.demo-frame img {
+  display: block;
+  width: min(1100px, 100%);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #000;
+}
+
+.demo-hall .beat-index {
+  margin: 0 0 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--signal);
+}
+
+.demo-hall .beat-title {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+
+.demo-hall .beat-line {
+  margin: 0.45rem 0 0;
+  max-width: 24rem;
+  color: var(--text);
+}
+
+html[data-journey="3d"] .demo-hall {
+  background: transparent;
+  z-index: 1;
+}
+
+html[data-journey="3d"] .demo-beat {
+  height: 150vh;
+  padding: 0;
+}
+
+html[data-journey="3d"] .demo-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 12vh 6vw;
+  pointer-events: none;
+}
+
+html[data-journey="3d"] .demo-frame { display: none; }
+
+@media (max-width: 720px) {
+  .demo-beat { padding: 5vh 0 6vh; }
+  .demo-frame { margin: 0 0 0.9rem; }
+  .demo-frame img { width: 100%; border-radius: 0; border-left: 0; border-right: 0; }
+  .demo-hall .beat-copy,
+  .demo-hall .beat-line { margin-left: 4vw; margin-right: 4vw; }
+  html[data-journey="3d"] .demo-frame { display: block; width: 100%; }
+  html[data-journey="3d"] .demo-sticky {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    gap: 0.85rem;
+    padding: 0 0 7vh;
+  }
+}
+
 .beat { display: none; }
 
 html[data-journey] .beat {
