@@ -391,48 +391,6 @@ var PACKET_MOTION = (function () {
     clearReelInline();
     var gsap = window.gsap;
     gsap.registerPlugin(window.ScrollTrigger);
-    var fish = document.querySelector(".reel-fish");
-    var media = fish && fish.querySelector(".reel-media");
-    if (fish && media) {
-      fish.classList.add("is-gsap");
-      gsap.fromTo(media, {
-        scale: 1.15,
-        clipPath: "polygon(14% 36%, 32% 36%, 32% 18%, 68% 18%, 68% 36%, 86% 36%, 86% 78%, 14% 78%)"
-      }, {
-        scale: 1,
-        clipPath: "polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        ease: "none",
-        scrollTrigger: {
-          trigger: fish,
-          start: "top 88%",
-          end: "center 58%",
-          scrub: 0.45,
-          onEnter: function () {
-            fish.classList.add("is-glitch");
-            setTimeout(function () { fish.classList.remove("is-glitch"); }, 480);
-          }
-        }
-      });
-    }
-    var forest = document.querySelector(".reel-forest");
-    if (forest) {
-      forest.classList.add("is-gsap");
-      var back = forest.querySelector(".layer-back");
-      var mid = forest.querySelector(".layer-mid");
-      var duo = forest.querySelector(".duotone");
-      if (back) gsap.fromTo(back, { yPercent: 16, scale: 1.2 }, {
-        yPercent: -16, scale: 1.06, ease: "none",
-        scrollTrigger: { trigger: forest, start: "top bottom", end: "bottom top", scrub: true }
-      });
-      if (mid) gsap.fromTo(mid, { yPercent: 8, scale: 1.1 }, {
-        yPercent: -6, scale: 1, ease: "none",
-        scrollTrigger: { trigger: forest, start: "top bottom", end: "bottom top", scrub: true }
-      });
-      if (duo) gsap.fromTo(duo, { opacity: 0.92 }, {
-        opacity: 0, ease: "none",
-        scrollTrigger: { trigger: forest, start: "top 75%", end: "center center", scrub: true }
-      });
-    }
     var slit = document.querySelector(".slit");
     var slitSlot = slit && slit.querySelector(".clip-slot");
     if (slit && slitSlot) {
@@ -489,6 +447,7 @@ var PACKET_MOTION = (function () {
   var reelsArmed = false;
 
   function armReels() {
+    return;
     if (document.getElementById("journey-gl")) return;
     if (reduced) return;
     if (window.gsap && window.ScrollTrigger) { initReels(); return; }
@@ -508,6 +467,7 @@ var PACKET_MOTION = (function () {
   }
 
   function loadGL() {
+    if (!document.getElementById("net")) return;
     if (document.getElementById("journey-gl")) return;
     if (reduced) return;
     if (!matchMedia("(min-width: 900px)").matches) return;
@@ -556,12 +516,6 @@ var PACKET_MOTION = (function () {
       armClips();
       armPetals();
       armReels();
-      document.addEventListener("packet-fish", function () {
-        var video = document.querySelector("#fish-egg video.clip");
-        if (!video) return;
-        watchClip(video);
-        startClip(video);
-      });
       cursor();
       magnetic();
       tilt();

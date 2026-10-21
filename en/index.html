@@ -67,11 +67,7 @@
       ? motionSaved
       : (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
     document.documentElement.setAttribute("data-motion", motion);
-    if (motion === "on") {
-      var cores = navigator.hardwareConcurrency || 8;
-      var mem = navigator.deviceMemory || 8;
-      document.documentElement.setAttribute("data-journey", (cores <= 2 || mem <= 2) ? "video" : "3d");
-    }
+    document.documentElement.setAttribute("data-bg", "clips");
     var darkBg = {
       signal: "#07090a", aurora: "#090712", kobber: "#110c09",
       dracula: "#282a36", nord: "#2e3440", catppuccin: "#1e1e2e",
@@ -122,12 +118,27 @@
 <script src="/script.js" defer></script>
 </head>
 <body id="topp">
-<canvas id="journey-gl" aria-hidden="true"></canvas>
-<div id="journey-veil" aria-hidden="true"></div>
-<video id="journey-scrub" class="journey-scrub" muted playsinline preload="none"></video>
+<div class="clip-bg" aria-hidden="true">
+  <div class="clip-slot is-show" data-slot="0">
+    <img class="clip-poster" alt="" width="1280" height="720" src="/assets/demos-v2/1-chrome-node.poster.jpg" decoding="async">
+    <video muted playsinline loop preload="none"></video>
+  </div>
+  <div class="clip-slot" data-slot="1">
+    <img class="clip-poster" alt="" width="1280" height="720" decoding="async">
+    <video muted playsinline loop preload="none"></video>
+  </div>
+</div>
+<div class="clip-vignette" aria-hidden="true"></div>
 <a class="skip" href="#innhold">Skip to content</a>
 <div class="hud-progress" aria-hidden="true"><i></i></div>
-<p class="progress-label" id="progress-label" aria-hidden="true">01 NETWORK</p>
+  <nav class="chapter-nav" aria-label="Chapters">
+    <a href="#hero" aria-current="true"><span class="ch-num">01</span><span class="ch-name">Chrome</span></a>
+    <a href="#ferdigheter"><span class="ch-num">02</span><span class="ch-name">Crystal</span></a>
+    <a href="#prosjekter"><span class="ch-num">03</span><span class="ch-name">Projects</span></a>
+    <a href="#om-meg"><span class="ch-num">04</span><span class="ch-name">About</span></a>
+    <a href="#na"><span class="ch-num">05</span><span class="ch-name">Now</span></a>
+    <a href="#kontakt"><span class="ch-num">06</span><span class="ch-name">Contact</span></a>
+  </nav>
 <header class="nav">
   <a class="logo" href="#topp">xdkurbie<span>.</span></a>
   <nav class="nav-links" aria-label="Main menu">
@@ -177,48 +188,11 @@
   </div>
 </header>
 <main id="innhold">
-  <section class="hero-pin" id="hero" data-scrub aria-labelledby="hero-title">
-    <div class="hero-sticky">
-      <div class="hero-stage">
-        <div class="orb orb-a" aria-hidden="true"></div>
-        <div class="orb orb-b" aria-hidden="true"></div>
-        <span class="static-rock r1" aria-hidden="true"></span>
-        <span class="static-rock r2" aria-hidden="true"></span>
-        <span class="static-rock r3" aria-hidden="true"></span>
-        <canvas id="net" aria-hidden="true"></canvas>
-        <svg class="fallback-net" viewBox="0 0 1000 640" aria-hidden="true">
-          <g fill="none" stroke="currentColor" stroke-width="1.25">
-            <path d="M500 330 L230 150"/>
-            <path d="M500 330 L790 170"/>
-            <path d="M500 330 L540 530"/>
-            <path d="M230 150 L170 430"/>
-            <path d="M790 170 L840 460"/>
-            <path d="M540 530 L280 560"/>
-            <path d="M170 430 L280 560"/>
-            <path d="M840 460 L540 530"/>
-          </g>
-          <g fill="currentColor">
-            <circle cx="500" cy="330" r="8"/>
-            <circle cx="230" cy="150" r="5"/>
-            <circle cx="790" cy="170" r="5"/>
-            <circle cx="540" cy="530" r="5"/>
-            <circle cx="170" cy="430" r="4"/>
-            <circle cx="840" cy="460" r="4"/>
-            <circle cx="280" cy="560" r="4"/>
-          </g>
-          <circle class="fb-packet p1" r="4"/>
-          <circle class="fb-packet p2" r="3.5"/>
-          <circle class="fb-packet p3" r="3.5"/>
-          <circle class="fb-packet p4" r="3"/>
-        </svg>
-        <p id="node-label" class="node-label" hidden></p>
-        <span class="hud hud-tl" aria-hidden="true"></span>
-        <span class="hud hud-tr" aria-hidden="true"></span>
-        <span class="hud hud-bl" aria-hidden="true"></span>
-        <span class="hud hud-br" aria-hidden="true"></span>
-      </div>
-      <div class="hero-copy">
-        <figure class="node-portrait">
+  <section class="chapter" id="hero" data-chapter="0" data-side="end" aria-labelledby="hero-title">
+    <div class="chapter-pin">
+      <div class="glass-panel panel-end">
+        <div class="hero-copy stagger">
+          <figure class="node-portrait">
           <svg class="ring ring-a" viewBox="0 0 200 200" aria-hidden="true">
             <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="10 8"/>
             <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 6"/>
@@ -233,98 +207,89 @@
           <span class="node-glare" aria-hidden="true"></span>
           <span class="node-scan" aria-hidden="true"></span>
         </figure>
-        <p class="sr-only">A network of nodes for the projects. Packets travel the links between Topologi Studio, CS2 Clips, TinkerLARS and the rest.</p>
-        <p class="kicker">
+          <p class="sr-only">A network of nodes for the projects. Packets travel the links between Topologi Studio, CS2 Clips, TinkerLARS and the rest.</p>
+          <p class="kicker">01 · Chrome</p>
+          <p class="kicker">
           <span class="sr-only">Port 01 · Vg3 information technology · Østfold</span>
           <span aria-hidden="true" data-scramble data-text="PORT 01 · VG3 INFORMATION TECHNOLOGY · ØSTFOLD">PORT 01 · VG3 INFORMATION TECHNOLOGY · ØSTFOLD</span>
         </p>
-        <h1 class="hero-title" id="hero-title">Lars</h1>
-        <p class="hero-quiet">Vg3 information technology in Østfold.</p>
-        <p class="signal-line">
+          <h1 class="hero-title" id="hero-title">Lars</h1>
+          <p class="hero-quiet">Vg3 information technology in Østfold.</p>
+          <p class="signal-line">
           <span class="sr-only">Rust · Networks · CS2 · Electronics</span>
           <span aria-hidden="true" data-scramble data-text="Rust · Networks · CS2 · Electronics">Rust · Networks · CS2 · Electronics</span>
         </p>
-        <p class="lede">Hi, I'm Lars. I study Vg3 Datateknologi in Østfold, and I build Rust programs, network diagrams and tools for the games I play.</p>
-        <nav class="route" aria-label="Stations">
+          <p class="lede">Hi, I'm Lars. I study Vg3 Datateknologi in Østfold, and I build Rust programs, network diagrams and tools for the games I play.</p>
+          <nav class="route" aria-label="Stations">
           <a href="#topologi-studio">01 Topologi</a>
           <a href="#cs2-clips">02 CS2</a>
           <a href="#tinkerlars">03 Tinker</a>
         </nav>
-        <div class="hero-cta hero-end">
-          <div class="actions">
+          <div class="hero-cta hero-end">
+            <div class="actions">
             <a class="btn primary" href="#prosjekter">See projects <span class="arrow" aria-hidden="true">→</span></a>
             <a class="btn" href="https://github.com/xdkurbie">GitHub <span class="arrow" aria-hidden="true">→</span></a>
             <a class="btn" href="mailto:xkurbie@gmail.com">Email <span class="arrow" aria-hidden="true">→</span></a>
           </div>
-          <a class="scroll-ind" href="#topologi-studio">
-            <span class="scroll-box" aria-hidden="true"></span>
-            Scroll
-          </a>
+            <a class="scroll-ind" href="#ferdigheter">
+              <span class="scroll-box" aria-hidden="true"></span>
+              Scroll
+            </a>
+          </div>
+          <p class="coord" id="coord">10.0.20.48</p>
         </div>
-        <p class="coord" id="coord">10.0.20.48</p>
       </div>
     </div>
   </section>
 
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-track">
-      <span>Rust · Networks · CS2 · Electronics · UniFi · KiCad · VLAN · Tauri · </span>
-      <span>Rust · Networks · CS2 · Electronics · UniFi · KiCad · VLAN · Tauri · </span>
-    </div>
-  </div>
-  <div class="rail-wrap">
-    <div class="rail" tabindex="0" aria-label="Project strip">
-      <a class="rail-card" href="#topologi-studio"><span>01</span><strong>Topologi Studio</strong></a>
-      <a class="rail-card" href="#cs2-clips"><span>02</span><strong>CS2 Clips</strong></a>
-      <a class="rail-card" href="#tinkerlars"><span>03</span><strong>TinkerLARS</strong></a>
-      <a class="rail-card" href="#dune-overlay"><span>04</span><strong>Dune Overlay</strong></a>
-      <a class="rail-card" href="#gaming-companion"><span>05</span><strong>Gaming Companion</strong></a>
-      <a class="rail-card" href="#snake-game"><span>06</span><strong>Snake</strong></a>
-      <a class="rail-card" href="#om-meg"><span>07</span><strong>About</strong></a>
-    </div>
-  </div>
-
-  <section class="reel reel-forest" data-scrub data-reel="forest" aria-hidden="true">
-    <div class="reel-depth">
-      <div class="layer layer-back">
-        <img class="clip-still" src="/img/clips/forest-poster.webp" srcset="/img/clips/forest-poster-sm.webp 960w, /img/clips/forest-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="436" loading="lazy" decoding="async">
-      </div>
-      <div class="layer layer-mid clip-slot">
-        <img class="clip-still" src="/img/clips/forest-poster.webp" srcset="/img/clips/forest-poster-sm.webp 960w, /img/clips/forest-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="436" loading="lazy" decoding="async">
-        <video class="clip" data-src="/img/clips/forest.mp4" data-src-sm="/img/clips/forest-sm.mp4" muted loop playsinline preload="none"></video>
-      </div>
-      <span class="duotone"></span>
-      <span class="reel-shade"></span>
-    </div>
-  </section>
-
-  <div class="slit" data-scrub data-reel="eye" aria-hidden="true">
-    <div class="clip-slot">
-      <img class="clip-still" src="/img/clips/eye-poster.webp" srcset="/img/clips/eye-poster-sm.webp 960w, /img/clips/eye-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="592" loading="lazy" decoding="async">
-      <video class="clip" data-src="/img/clips/eye.mp4" data-src-sm="/img/clips/eye-sm.mp4" muted loop playsinline preload="none"></video>
-    </div>
-  </div>
-
-  <section class="beat" id="krystall" aria-labelledby="krystall-tittel">
-    <div class="beat-sticky">
-      <div class="beat-copy">
-        <p class="beat-index">02</p>
-        <h2 class="beat-title" id="krystall-tittel"><span>Crystal</span></h2>
-        <p class="beat-line"><span>A loop, sealed in glass.</span></p>
+  <section class="chapter" id="ferdigheter" data-chapter="1" data-side="start" aria-labelledby="skills-title">
+    <div class="chapter-pin">
+      <div class="glass-panel panel-start">
+        <div class="stagger">
+          <p class="kicker">02 · Crystal</p>
+          <h2 class="chapter-title" id="skills-title">Skills</h2>
+          <p class="lede">The stack behind the projects. Ports, not a real switch.</p>
+          <table class="ports">
+            <caption class="sr-only">Skills, shown as ports on the network. This is not a real switch configuration.</caption>
+            <thead>
+              <tr><th scope="col">Port</th><th scope="col">Layer</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">01</th><td>Rust</td></tr>
+              <tr><th scope="row">02</th><td>TypeScript</td></tr>
+              <tr><th scope="row">03</th><td>JavaScript</td></tr>
+              <tr><th scope="row">04</th><td>Python</td></tr>
+              <tr><th scope="row">05</th><td>HTML and CSS</td></tr>
+              <tr><th scope="row">06</th><td>Tauri</td></tr>
+              <tr><th scope="row">07</th><td>KiCad</td></tr>
+              <tr><th scope="row">08</th><td>Git</td></tr>
+              <tr><th scope="row">09</th><td>UniFi</td></tr>
+              <tr><th scope="row">10</th><td>RouterOS</td></tr>
+            </tbody>
+          </table>
+          <ul class="interests" aria-label="Interests">
+            <li>Programming in Rust</li>
+            <li>Networks, UniFi and VLAN</li>
+            <li>Electronics and KiCad</li>
+            <li>CS2 and gaming</li>
+          </ul>
+          <span id="krystall" class="sr-only">Crystal</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section readout" id="prosjekter" aria-labelledby="prosjekter-tittel">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="section-index">Node 02–04</p>
+  <section class="chapter chapter-flow" id="prosjekter" data-chapter="2" data-side="end" aria-labelledby="prosjekter-tittel">
+    <div class="chapter-pin">
+      <div class="glass-panel panel-end">
+        <div class="stagger">
+          <p class="kicker">03 · Projects</p>
+          <div class="section-head">
         <h2 id="prosjekter-tittel">Selected projects</h2>
         <p>The text below is what the repositories actually say. Versions and downloads update from GitHub when the browser gets a response. Without JavaScript, this is what was current on 20 October 2026.</p>
       </div>
-    </div>
-
-    <article class="station" data-tone="signal" id="topologi-studio" data-scrub data-repo="topologi-studio" data-version="v0.1.1">
+        </div>
+<article class="station" data-tone="signal" id="topologi-studio" data-repo="topologi-studio" data-version="v0.1.1">
       <div class="station-sticky">
         <div class="visual">
           <svg class="schematic" viewBox="0 0 360 240" aria-hidden="true">
@@ -340,7 +305,7 @@
           </svg>
           <div class="shot-frame">
             <img
-              class="shot"
+              class="shot" loading="lazy"
               src="/img/projects/topologi-redigering.webp"
               srcset="/img/projects/topologi-redigering-800.webp 800w, /img/projects/topologi-redigering.webp 1280w"
               sizes="(min-width: 980px) 560px, 100vw"
@@ -398,7 +363,7 @@
       </div>
     </article>
 
-    <article class="station" data-tone="packet" id="cs2-clips" data-scrub data-repo="cs2-clips" data-version="v0.2.0">
+    <article class="station" data-tone="packet" id="cs2-clips" data-repo="cs2-clips" data-version="v0.2.0">
       <div class="station-sticky">
         <div class="visual">
           <div class="killfeed" aria-hidden="true">
@@ -406,7 +371,7 @@
           </div>
           <div class="shot-frame">
             <img
-              class="shot"
+              class="shot" loading="lazy"
               src="/img/projects/cs2-highlights.webp"
               srcset="/img/projects/cs2-highlights-800.webp 800w, /img/projects/cs2-highlights.webp 1280w"
               sizes="(min-width: 980px) 560px, 100vw"
@@ -461,7 +426,7 @@
       </div>
     </article>
 
-    <article class="station" data-tone="flare" id="tinkerlars" data-scrub data-repo="tinkerlars" data-version="v0.1.0">
+    <article class="station" data-tone="flare" id="tinkerlars" data-repo="tinkerlars" data-version="v0.1.0">
       <div class="station-sticky">
         <div class="visual">
           <svg class="pcb" viewBox="0 0 360 220" aria-hidden="true">
@@ -503,26 +468,9 @@
         </div>
       </div>
     </article>
-  </section>
 
-  <div class="sakura-break" data-scrub data-reel="sakura" aria-hidden="true">
-    <div class="sakura-frame clip-slot">
-      <img class="clip-still" src="/img/clips/sakura-poster.webp" srcset="/img/clips/sakura-poster-sm.webp 960w, /img/clips/sakura-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="534" loading="lazy" decoding="async">
-      <video class="clip" data-src="/img/clips/sakura.mp4" data-src-sm="/img/clips/sakura-sm.mp4" muted loop playsinline preload="none"></video>
-    </div>
-    <div class="petal-field"></div>
-  </div>
-
-  <div class="reel reel-tree" data-scrub data-reel="tree" aria-hidden="true">
-    <div class="clip-slot">
-      <img class="clip-still" src="/img/clips/tree-poster.webp" srcset="/img/clips/tree-poster-sm.webp 960w, /img/clips/tree-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="634" loading="lazy" decoding="async">
-      <video class="clip" data-src="/img/clips/tree.mp4" data-src-sm="/img/clips/tree-sm.mp4" muted loop playsinline preload="none"></video>
-    </div>
-  </div>
-
-  <section class="section readout" id="flere" data-scrub aria-labelledby="flere-tittel">
-    <div class="wrap">
-      <div class="section-head">
+        <div class="more-projects" id="flere">
+<div class="section-head">
         <p class="section-index">Node 05+</p>
         <h2 id="flere-tittel">More projects</h2>
         <p>New public repositories that are not listed here are added at the bottom when GitHub responds.</p>
@@ -647,42 +595,19 @@
         </article>
       </div>
       <p class="empty" id="filter-empty" hidden>No projects in this category.</p>
-    </div>
-  </section>
-
-  <section class="reel reel-fish" data-scrub data-reel="fish" aria-hidden="true">
-    <div class="reel-stage">
-      <div class="reel-media clip-slot">
-        <img class="clip-still" src="/img/clips/fish-poster.webp" srcset="/img/clips/fish-poster-sm.webp 960w, /img/clips/fish-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="408" loading="lazy" decoding="async">
-        <video class="clip" data-src="/img/clips/fish.mp4" data-src-sm="/img/clips/fish-sm.mp4" muted loop playsinline preload="none"></video>
-      </div>
-    </div>
-  </section>
-
-  <section class="section corridor-section" id="om-meg" data-scrub aria-labelledby="om-tittel">
-    <div class="beat" id="skog">
-      <div class="beat-sticky">
-        <div class="beat-copy">
-          <p class="beat-index">03</p>
-          <p class="beat-title"><span>Forest</span></p>
-          <p class="beat-line"><span>A corridor of frosted glass.</span></p>
         </div>
       </div>
     </div>
-    <div class="corridor" aria-hidden="true">
-      <div class="clip-slot">
-        <img class="clip-still" src="/img/clips/walk-poster.webp" srcset="/img/clips/walk-poster-sm.webp 960w, /img/clips/walk-poster.webp 1280w" sizes="100vw" alt="" width="1280" height="720" loading="lazy" decoding="async">
-        <video class="clip" data-src="/img/clips/walk.mp4" data-src-sm="/img/clips/walk-sm.mp4" muted loop playsinline preload="none"></video>
-      </div>
-      <span class="duotone"></span>
-    </div>
-    <div class="wrap about-panel readout">
-      <div class="section-head">
-        <p class="section-index">Traceroute</p>
+  </section>
+
+  <section class="chapter" id="om-meg" data-chapter="3" data-side="start" aria-labelledby="om-tittel">
+    <div class="chapter-pin">
+      <div class="glass-panel panel-start">
+        <div class="stagger">
+          <p class="kicker">04 · Logo</p>
+          <div class="section-head">
         <h2 id="om-tittel">About</h2>
       </div>
-      <div class="about-grid">
-        <div>
           <img class="portrait" src="/img/avatar.webp" width="96" height="96" alt="Profile photo of Lars (xdkurbie)" loading="lazy" decoding="async">
           <p>I am a Vg3 Datateknologi student in Østfold. At school and in my spare time I work on programming, networks and electronics.</p>
           <p>I learn most by building things and trying them out. That turns into desktop apps, network diagrams and small tools for games.</p>
@@ -691,120 +616,52 @@
             <li><span>2</span> <code>vg2.datateknologi</code> <em>next</em></li>
             <li><span>3</span> <code>vg3.datateknologi.ostfold</code> <em>now · VGMALA</em></li>
           </ol>
+          <span id="skog" class="sr-only">About</span>
         </div>
-        <div>
-          <table class="ports">
-            <caption class="sr-only">Skills, shown as ports on the network. This is not a real switch configuration.</caption>
-            <thead>
-              <tr><th scope="col">Port</th><th scope="col">Layer</th></tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row">01</th><td>Rust</td></tr>
-              <tr><th scope="row">02</th><td>TypeScript</td></tr>
-              <tr><th scope="row">03</th><td>JavaScript</td></tr>
-              <tr><th scope="row">04</th><td>Python</td></tr>
-              <tr><th scope="row">05</th><td>HTML and CSS</td></tr>
-              <tr><th scope="row">06</th><td>Tauri</td></tr>
-              <tr><th scope="row">07</th><td>KiCad</td></tr>
-              <tr><th scope="row">08</th><td>Git</td></tr>
-              <tr><th scope="row">09</th><td>UniFi</td></tr>
-              <tr><th scope="row">10</th><td>RouterOS</td></tr>
-            </tbody>
-          </table>
-          <ul class="interests" aria-label="Interests">
-            <li>Programming in Rust</li>
-            <li>Networks, UniFi and VLAN</li>
-            <li>Electronics and KiCad</li>
-            <li>CS2 and gaming</li>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="na" data-chapter="4" data-side="end" aria-labelledby="now-title">
+    <div class="chapter-pin">
+      <div class="glass-panel panel-end">
+        <div class="stagger">
+          <p class="kicker">05 · Portal</p>
+          <h2 class="chapter-title" id="now-title">Now</h2>
+          <p class="lede">I learn most by building things and trying them out. This is what that turns into right now.</p>
+          <p class="now-status"><code>vg3.datateknologi.ostfold · now · VGMALA</code></p>
+          <ul class="now-list">
+          <li><a href="#topologi-studio"><span class="meta">v0.1.1</span><strong>Topologi Studio</strong><span>A macOS and Windows app for drawing network topology.</span></a></li>
+          <li><a href="#cs2-clips"><span class="meta">v0.2.0</span><strong>CS2 Clips</strong><span>Finds highlights in Counter-Strike 2 demos and runs locally.</span></a></li>
+          <li><a href="#tinkerlars"><span class="meta">v0.1.0</span><strong>TinkerLARS</strong><span>A browser app for 3D design, simple circuits and code blocks.</span></a></li>
+          </ul>
+          <ul class="now-links">
+          <li><a href="#dune-overlay">Dune Overlay</a></li>
+          <li><a href="#gaming-companion">Gaming Companion</a></li>
+          <li><a href="#norsk-stream-hub">Norsk Stream Hub</a></li>
+          <li><a href="#bookmarked">Bookmarked</a></li>
+          <li><a href="#snake-game">Snake</a></li>
+          <li><a href="#flappy-student">Flappy Student</a></li>
+          <li><a href="#cs2-config-manager">CS2 Config Manager</a></li>
+          <li><a href="#cs2-config-webapp">CS2 Settings Manager</a></li>
+          <li><a href="#imgui-csco-chair">imgui-csco-chair</a></li>
+          <li><a href="#denne-siden">This website</a></li>
+          <li><a href="#om-meg">About</a></li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="demo-hall" id="demo" aria-labelledby="demo-tittel">
-    <h2 id="demo-tittel" class="sr-only">Studio</h2>
-    <article class="demo-beat" aria-labelledby="demo-chrome">
-      <div class="demo-sticky">
-        <figure class="demo-frame">
-          <img src="/assets/demos-v2/1-chrome-node.poster.jpg" width="1280" height="720" alt="" loading="lazy" decoding="async">
-        </figure>
-        <div class="beat-copy">
-          <p class="beat-index">04 · 01</p>
-          <h3 class="beat-title" id="demo-chrome"><span>Chrome</span></h3>
-          <p class="beat-line"><span>Liquid chrome with a green glow.</span></p>
-        </div>
-      </div>
-    </article>
-    <article class="demo-beat" aria-labelledby="demo-growth">
-      <div class="demo-sticky">
-        <figure class="demo-frame">
-          <img src="/assets/demos-v2/2-crystal-growth.poster.jpg" width="1280" height="720" alt="" loading="lazy" decoding="async">
-        </figure>
-        <div class="beat-copy">
-          <p class="beat-index">04 · 02</p>
-          <h3 class="beat-title" id="demo-growth"><span>Growth</span></h3>
-          <p class="beat-line"><span>Glass crystals growing out of the ground.</span></p>
-        </div>
-      </div>
-    </article>
-    <article class="demo-beat" aria-labelledby="demo-tube">
-      <div class="demo-sticky">
-        <figure class="demo-frame">
-          <img src="/assets/demos-v2/3-holo-crt.poster.jpg" width="1280" height="720" alt="" loading="lazy" decoding="async">
-        </figure>
-        <div class="beat-copy">
-          <p class="beat-index">04 · 03</p>
-          <h3 class="beat-title" id="demo-tube"><span>Tube</span></h3>
-          <p class="beat-line"><span>A retro CRT on a server rack, playing the clip.</span></p>
-        </div>
-      </div>
-    </article>
-    <article class="demo-beat" aria-labelledby="demo-logo-en">
-      <div class="demo-sticky">
-        <figure class="demo-frame">
-          <img src="/assets/demos-v2/4-glass-logo.poster.jpg" width="1280" height="720" alt="" loading="lazy" decoding="async">
-        </figure>
-        <div class="beat-copy">
-          <p class="beat-index">04 · 04</p>
-          <h3 class="beat-title" id="demo-logo-en"><span>Logo</span></h3>
-          <p class="beat-line"><span>xdkurbie in glass, against a network of nodes.</span></p>
-        </div>
-      </div>
-    </article>
-    <article class="demo-beat" aria-labelledby="demo-portal-en">
-      <div class="demo-sticky">
-        <figure class="demo-frame">
-          <img src="/assets/demos-v2/5-sakura-portal.poster.jpg" width="1280" height="720" alt="" loading="lazy" decoding="async">
-        </figure>
-        <div class="beat-copy">
-          <p class="beat-index">04 · 05</p>
-          <h3 class="beat-title" id="demo-portal-en"><span>Portal</span></h3>
-          <p class="beat-line"><span>A neon ring, sakura petals, and a synthwave grid.</span></p>
-        </div>
-      </div>
-    </article>
-    <article class="demo-beat" aria-labelledby="demo-island">
-      <div class="demo-sticky">
-        <figure class="demo-frame">
-          <img src="/assets/demos-v2/6-floating-island.poster.jpg" width="1280" height="720" alt="" loading="lazy" decoding="async">
-        </figure>
-        <div class="beat-copy">
-          <p class="beat-index">04 · 06</p>
-          <h3 class="beat-title" id="demo-island"><span>Island</span></h3>
-          <p class="beat-line"><span>A floating forest island with a screen and fireflies.</span></p>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <section class="section contact" id="kontakt" data-scrub aria-labelledby="kontakt-tittel">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="section-index">Port 443</p>
-        <h2 id="kontakt-tittel">Contact</h2>
-      </div>
-      <p class="intro">Questions about the projects? Send an email. On Steam my name is rasu420.</p>
+  <section class="chapter chapter-contact" id="kontakt" data-chapter="5" data-side="start" aria-labelledby="kontakt-tittel">
+    <div class="chapter-pin">
+      <div class="glass-panel panel-start">
+        <div class="stagger">
+          <p class="kicker">06 · Contact</p>
+          <div class="section-head">
+            <h2 id="kontakt-tittel">Contact</h2>
+          </div>
+          <p class="intro">Questions about the projects? Send an email. On Steam my name is rasu420.</p>
       <p class="portal-mark">SAY HI</p>
       <a class="giant" href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a>
       <a class="ping" href="mailto:xkurbie@gmail.com"><span aria-hidden="true">&gt; </span>ping xkurbie@gmail.com</a>
@@ -812,18 +669,27 @@
         <a class="btn" href="https://github.com/xdkurbie" rel="me">GitHub <span class="arrow" aria-hidden="true">→</span></a>
         <a class="btn" href="https://steamcommunity.com/id/rasu420" rel="me">Steam <span class="arrow" aria-hidden="true">→</span></a>
       </div>
-      <figure class="thanks">
-        <div class="clip-frame">
-          <div class="clip-slot">
-            <img class="clip-still" src="/img/clips/smile-poster.webp" srcset="/img/clips/smile-poster-sm.webp 960w, /img/clips/smile-poster.webp 1280w" sizes="(max-width: 720px) 100vw, 58vw" alt="Lars smiling with closed eyes, as a thank-you for the visit." width="1280" height="720" loading="lazy" decoding="async">
-            <video class="clip" data-src="/img/clips/smile.mp4" data-src-sm="/img/clips/smile-sm.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
-          </div>
+          <p class="thanks-line">Thanks for stopping by.</p>
         </div>
-        <figcaption>Thanks for stopping by.</figcaption>
-      </figure>
+        <footer class="footer">
+  <div class="wrap">
+    <p>© <span id="year">2026</span> Lars (xdkurbie)</p>
+    <p>Built from scratch, no templates.</p>
+    <p>Last updated <time id="updated" datetime="2026-10-20">20 October 2026</time></p>
+    <p>Commit <a id="commit" href="https://github.com/xdkurbie/xdkurbie.github.io/commits/main">main</a></p>
+    <p><a href="mailto:xkurbie@gmail.com">xkurbie@gmail.com</a> · <a href="https://github.com/xdkurbie">GitHub</a></p>
+    <button type="button" class="hud-btn" id="sound-toggle" aria-pressed="false">
+      <span class="when-sound-off">Sound off</span>
+      <span class="when-sound-on">Sound on</span>
+    </button>
+    <p id="live-status" class="sr-only" aria-live="polite"></p>
+  </div>
+</footer>
+      </div>
     </div>
   </section>
 </main>
+
 <footer class="footer">
   <div class="wrap">
     <p>© <span id="year">2026</span> Lars (xdkurbie)</p>
@@ -838,18 +704,5 @@
     <p id="live-status" class="sr-only" aria-live="polite"></p>
   </div>
 </footer>
-<div id="fish-egg" class="fish-egg" hidden>
-  <div class="fish-card" role="dialog" aria-modal="true" aria-labelledby="fish-title">
-    <p class="kicker" id="fish-title">NODE · FISH</p>
-    <div class="clip-frame">
-      <div class="clip-slot">
-        <img class="clip-still" alt="The character holding a fish in her mouth." data-src="/img/clips/fish-poster.webp" width="1280" height="408" decoding="async">
-        <video class="clip" data-src="/img/clips/fish.mp4" data-src-sm="/img/clips/fish-sm.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
-      </div>
-    </div>
-    <p>You found a hidden clip.</p>
-    <button type="button" class="hud-btn" id="fish-close">Close</button>
-  </div>
-</div>
 </body>
 </html>

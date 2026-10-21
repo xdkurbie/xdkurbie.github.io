@@ -2448,3 +2448,429 @@ html[data-journey="video"] .section-head {
   text-shadow: 0 1px 0 var(--bg);
 }
 
+/* Six-clip chapters. The background is fixed; short chapters stick while the scroll crossfades. */
+html[data-bg="clips"] {
+  scroll-padding-top: calc(var(--nav) + 0.6rem);
+  background: var(--bg);
+}
+
+html[data-bg="clips"] body {
+  background: transparent;
+}
+
+html[data-bg="clips"] body::before { display: none; }
+
+.clip-bg,
+.clip-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.clip-bg {
+  z-index: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.clip-slot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform-origin: center center;
+}
+
+.clip-slot.is-show { opacity: 1; }
+
+.clip-poster,
+.clip-bg video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clip-poster:not([src]) { display: none; }
+
+.clip-bg video { opacity: 0; }
+
+.clip-slot.is-playing video { opacity: 1; }
+
+.clip-vignette {
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, color-mix(in srgb, var(--bg) 62%, transparent), transparent 18%),
+    linear-gradient(to top, color-mix(in srgb, var(--bg) 50%, transparent), transparent 26%),
+    radial-gradient(ellipse at center, transparent 28%, color-mix(in srgb, var(--bg) 55%, transparent) 100%),
+    radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--signal) 14%, transparent), transparent 46%);
+}
+
+html[data-side="end"] .clip-vignette {
+  background:
+    linear-gradient(to left, color-mix(in srgb, var(--bg) 58%, transparent), transparent 62%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent), transparent 16%),
+    radial-gradient(ellipse at center, transparent 30%, color-mix(in srgb, var(--bg) 42%, transparent) 100%),
+    radial-gradient(ellipse at 80% 80%, color-mix(in srgb, var(--signal) 16%, transparent), transparent 42%);
+}
+
+html[data-side="start"] .clip-vignette {
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--bg) 58%, transparent), transparent 62%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent), transparent 16%),
+    radial-gradient(ellipse at center, transparent 30%, color-mix(in srgb, var(--bg) 42%, transparent) 100%),
+    radial-gradient(ellipse at 18% 80%, color-mix(in srgb, var(--signal) 16%, transparent), transparent 42%);
+}
+
+html[data-bg="clips"] main {
+  position: relative;
+  z-index: 2;
+}
+
+html[data-bg="clips"] .chapter {
+  position: relative;
+  min-height: calc(100dvh + 22vh);
+}
+
+html[data-bg="clips"] .chapter-pin {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: calc(var(--nav) + 1.15rem) 7.2rem calc(var(--nav) + 0.4rem) 5vw;
+}
+
+html[data-bg="clips"] .chapter-flow,
+html[data-bg="clips"] .chapter-contact {
+  min-height: 100dvh;
+}
+
+html[data-bg="clips"] .chapter-flow .chapter-pin,
+html[data-bg="clips"] .chapter-contact .chapter-pin {
+  position: relative;
+  top: auto;
+  align-items: flex-start;
+  padding-top: calc(var(--nav) + 8vh);
+  padding-bottom: 12vh;
+}
+
+.glass-panel {
+  width: min(34rem, 42vw);
+  padding: 1.35rem 1.4rem 1.15rem;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--signal) 32%, var(--line));
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.panel-end { margin-left: auto; }
+
+html[data-bg="clips"] .chapter-flow .glass-panel {
+  width: min(32rem, 42vw);
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html[data-bg="clips"] .hero-copy {
+  min-height: 0;
+  padding: 0;
+  background: none;
+  pointer-events: auto;
+  justify-content: flex-start;
+}
+
+html[data-bg="clips"] .node-portrait {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 108px;
+  height: 108px;
+  margin: 0 0 0.85rem;
+  transform: rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg));
+}
+
+html[data-bg="clips"] .hero-title,
+html[data-bg="clips"] .chapter-title,
+html[data-bg="clips"] .section-head h2,
+html[data-bg="clips"] .feature-copy h3 {
+  font-size: clamp(2.15rem, 4vw, 3.4rem);
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+  margin: 0.1rem 0 0.45rem;
+}
+
+html[data-bg="clips"] .hero-title {
+  font-size: clamp(3.1rem, 6vw, 4.8rem);
+}
+
+html[data-bg="clips"] .glass-panel p { margin: 0.4rem 0; }
+
+html[data-bg="clips"] .lede,
+html[data-bg="clips"] .intro { font-size: 1.05rem; }
+
+html[data-bg="clips"] .portal-mark {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: 0.14em;
+}
+
+html[data-bg="clips"] .giant {
+  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  overflow-wrap: anywhere;
+}
+
+html[data-bg="clips"] .station,
+html[data-bg="clips"][data-motion="on"] .station {
+  min-height: 0;
+  height: auto;
+  border-top: 1px solid var(--line);
+  margin-top: 0.4rem;
+}
+
+html[data-bg="clips"] .station::before { display: none; }
+
+html[data-bg="clips"] .station-sticky,
+html[data-bg="clips"][data-motion="on"] .station-sticky {
+  position: relative;
+  top: auto;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  grid-template-columns: 1fr;
+  padding: 1.15rem 0 1.35rem;
+}
+
+html[data-bg="clips"] .shot-frame,
+html[data-bg="clips"][data-motion="on"] .shot-frame { clip-path: none; }
+
+html[data-bg="clips"] .shot { max-height: 32vh; }
+
+html[data-bg="clips"] .cards { grid-template-columns: 1fr; }
+
+html[data-bg="clips"] .section-head { margin-bottom: 0.8rem; }
+
+html[data-bg="clips"] .more-projects { margin-top: 0.6rem; }
+
+html[data-bg="clips"] .portrait {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 0.6rem;
+}
+
+html[data-bg="clips"] .footer {
+  margin-top: 1rem;
+  padding: 0.85rem 0 0;
+  background: transparent;
+  border-top: 1px solid var(--line);
+}
+
+html[data-bg="clips"] .footer .wrap {
+  width: 100%;
+  margin: 0;
+}
+
+html[data-bg="clips"] .hud-progress {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  width: auto;
+  height: 3px;
+  z-index: 40;
+}
+
+html[data-bg="clips"] .hud-progress i {
+  width: calc(var(--page, 0) * 100%);
+  height: 100%;
+}
+
+.chapter-nav {
+  position: fixed;
+  z-index: 26;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+}
+
+.chapter-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 1.7rem;
+  text-decoration: none;
+  color: var(--text);
+  opacity: 0.62;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chapter-nav a[aria-current="true"] {
+  opacity: 1;
+  color: var(--signal);
+}
+
+.ch-num {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
+}
+
+.chapter-nav a[aria-current="true"] .ch-num {
+  background: var(--signal);
+  color: var(--signal-ink);
+  border-color: var(--signal);
+}
+
+.now-list,
+.now-links {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+}
+
+.now-list { display: grid; gap: 0.5rem; }
+
+.now-list a {
+  display: grid;
+  gap: 0.12rem;
+  text-decoration: none;
+  padding: 0.7rem 0.8rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+}
+
+.now-list strong {
+  font-size: 1.12rem;
+  letter-spacing: -0.03em;
+}
+
+.now-list a span:last-child { color: var(--muted); }
+
+.now-status {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--packet);
+}
+
+.now-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.now-links a {
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.32rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.thanks-line {
+  margin: 0.8rem 0 0;
+  font-family: var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--signal);
+  font-size: 0.75rem;
+}
+
+html[data-motion="on"] .chapter.is-in .stagger > * {
+  animation: chapter-in 0.72s cubic-bezier(.16, .84, .32, 1) both;
+}
+
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(2) { animation-delay: 60ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(3) { animation-delay: 110ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(4) { animation-delay: 160ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(5) { animation-delay: 210ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(6) { animation-delay: 260ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(7) { animation-delay: 310ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(8) { animation-delay: 360ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(9) { animation-delay: 410ms; }
+html[data-motion="on"] .chapter.is-in .stagger > *:nth-child(10) { animation-delay: 460ms; }
+
+@keyframes chapter-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 720px) {
+  html[data-bg="clips"] .chapter,
+  html[data-bg="clips"] .chapter-flow,
+  html[data-bg="clips"] .chapter-contact {
+    min-height: 100dvh;
+  }
+
+  html[data-bg="clips"] .chapter-pin,
+  html[data-bg="clips"] .chapter-flow .chapter-pin,
+  html[data-bg="clips"] .chapter-contact .chapter-pin {
+    position: relative;
+    align-items: flex-end;
+    padding: calc(var(--nav) + 0.75rem) 0.8rem 5.4rem;
+  }
+
+  html[data-bg="clips"] .chapter:not(.chapter-flow) .glass-panel {
+    margin-top: 14vh;
+  }
+
+  html[data-bg="clips"] .chapter-flow .chapter-pin {
+    align-items: stretch;
+    padding-top: 18vh;
+  }
+
+  html[data-bg="clips"] .glass-panel,
+  html[data-bg="clips"] .chapter-flow .glass-panel {
+    width: 100%;
+    background: color-mix(in srgb, var(--bg) 84%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .clip-vignette,
+  html[data-side="end"] .clip-vignette,
+  html[data-side="start"] .clip-vignette {
+    background:
+      linear-gradient(to top, color-mix(in srgb, var(--bg) 90%, transparent) 0%, color-mix(in srgb, var(--bg) 72%, transparent) 46%, color-mix(in srgb, var(--bg) 28%, transparent) 100%),
+      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--signal) 12%, transparent), transparent 50%);
+  }
+
+  .chapter-nav {
+    top: auto;
+    right: 0.55rem;
+    left: 0.55rem;
+    bottom: max(0.45rem, env(safe-area-inset-bottom));
+    transform: none;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.3rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    border: 1px solid var(--line);
+  }
+
+  .chapter-nav .ch-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="on"] .chapter.is-in .stagger > * { animation: none; }
+}
+
