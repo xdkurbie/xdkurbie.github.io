@@ -190,7 +190,7 @@
     if (n.endsWith(".blockmap") || n.endsWith(".sig")) return null;
     if (n.indexOf("cli") !== -1 && (n.endsWith(".tar.gz") || n.endsWith(".zip"))) return null;
     if (n.endsWith(".dmg")) {
-      return { order: 1, label: n.indexOf("universal") !== -1 ? "macOS universal" : "macOS", ext: ".dmg" };
+      return { order: 1, label: n.indexOf("universal") !== -1 ? "Mac" : "macOS", ext: ".dmg" };
     }
     if ((n.indexOf("macos") !== -1 || n.indexOf("darwin") !== -1) && n.endsWith(".zip")) {
       return { order: 2, label: "macOS", ext: ".zip" };
@@ -347,10 +347,31 @@
         size: asset.size
       };
     }).filter(Boolean);
-    if (items.some(function (item) { return item.ext === ".exe"; })) {
-      items = items.filter(function (item) { return item.ext !== ".msi"; });
+    if (repoName === "topologi-studio") {
+      items = items.filter(function (item) {
+        var href = item.href.toLowerCase();
+        if (item.ext === ".dmg") return true;
+        if (item.ext === ".exe") return true;
+        if (item.ext === ".msi") return href.indexOf("x64") !== -1 && href.indexOf("arm64") === -1;
+        return false;
+      });
+      items.sort(function (a, b) {
+        function rank(item) {
+          var href = item.href.toLowerCase();
+          if (item.ext === ".dmg") return 1;
+          if (item.ext === ".exe" && href.indexOf("arm64") === -1) return 2;
+          if (item.ext === ".msi") return 3;
+          if (item.ext === ".exe") return 4;
+          return 5;
+        }
+        return rank(a) - rank(b);
+      });
+    } else {
+      if (items.some(function (item) { return item.ext === ".exe"; })) {
+        items = items.filter(function (item) { return item.ext !== ".msi"; });
+      }
+      items.sort(function (a, b) { return a.order - b.order; });
     }
-    items.sort(function (a, b) { return a.order - b.order; });
     if (!items.length) return false;
     var outsidePrimary = false;
     article.querySelectorAll(".btn.primary").forEach(function (button) {
@@ -366,7 +387,11 @@
       page.className = "btn ghost";
       page.setAttribute("data-release-page", "true");
       page.href = pageHref;
-      page.textContent = copy && copy.allFiles ? copy.allFiles : (lang === "en" ? "All files" : "Alle filer");
+      var releaseLabel = copy && copy.allFiles ? copy.allFiles : (lang === "en" ? "All files" : "Alle filer");
+      if (repoName === "topologi-studio" && release.tag_name) {
+        releaseLabel = (lang === "en" ? "Release " : "Utgivelse ") + String(release.tag_name).replace(/^v/, "");
+      }
+      page.textContent = releaseLabel;
       box.appendChild(page);
     }
     var changed = false;
