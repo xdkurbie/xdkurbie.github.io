@@ -131,22 +131,25 @@ var PACKET_GL = (function () {
       { name: "KONTAKT", p: [0.05, -1.35, -0.15] }
     ];
     var edges = [[0, 1], [0, 2], [0, 3], [1, 4], [1, 6], [2, 5], [2, 7], [3, 8], [4, 8], [5, 7], [6, 3], [4, 6]];
-    var packets = edges.map(function (edge, i) {
-      return { edge: edge, t: (i * 0.17) % 1, speed: 0.12 + (i % 5) * 0.035 };
+    var packets = [];
+    edges.forEach(function (edge, i) {
+      packets.push({ edge: edge, t: (i * 0.13) % 1, speed: 0.18 + (i % 5) * 0.028 });
+      packets.push({ edge: edge, t: (i * 0.13 + 0.47) % 1, speed: 0.11 + (i % 4) * 0.022 });
     });
     var quality = 1;
     var slowFrames = 0;
     var mouse = [0, 0];
     var route = 0;
+    var routeTarget = 0;
     var running = true;
     var visible = true;
     var raf = 0;
     var last = performance.now();
-    var colors = { node: [0.82, 1, 0], packet: [0.36, 0.95, 1] };
+    var colors = { node: [0.82, 1, 0], packet: [0.36, 0.95, 1], flare: [1, 0.55, 0.83] };
     var lineTint = [0.82, 1, 0];
     var dprCap = 1.5;
     var lineData = new Float32Array(edges.length * 6);
-    var pointData = new Float32Array((nodes.length * 2 + packets.length) * 5);
+    var pointData = new Float32Array((nodes.length * 2 + packets.length * 2) * 5);
     var uLine = {
       vp: gl.getUniformLocation(lineProg, "uVP"),
       mouse: gl.getUniformLocation(lineProg, "uMouse"),
@@ -196,6 +199,7 @@ var PACKET_GL = (function () {
     function sampleColors() {
       colors.node = readColor("--gl-node", [0.82, 1, 0]);
       colors.packet = readColor("--gl-packet", [0.36, 0.95, 1]);
+      colors.flare = readColor("--flare", [1, 0.55, 0.83]);
     }
     function readColors() {
       colorFollowUntil = performance.now() + 700;
@@ -215,9 +219,11 @@ var PACKET_GL = (function () {
 
       resize();
       var aspect = canvas.width / Math.max(1, canvas.height);
-      var ang = route * 1.15 + now * 0.00008;
-      var eye = [Math.sin(ang) * 4.4, 0.35 + Math.sin(route * Math.PI) * 0.45, Math.cos(ang) * 4.4];
-      var view = lookAt(eye, [route * 0.2, 0, 0]);
+      route += (routeTarget - route) * Math.min(1, dt * 2.2);
+      var ang = route * 2.05 + now * 0.000045;
+      var radius = 4.7 - route * 1.35;
+      var eye = [Math.sin(ang) * radius, 0.18 + route * 1.15, Math.cos(ang) * radius * 0.82];
+      var view = lookAt(eye, [Math.sin(route * Math.PI) * 0.45, route * 0.12, 0]);
       var proj = perspective(0.82, aspect, 0.1, 30);
       var vp = multiply(proj, view);
 
@@ -247,15 +253,21 @@ var PACKET_GL = (function () {
       });
       for (var ip = 0; ip < packetCount; ip++) {
         var packet = packets[ip];
-        packet.t = (packet.t + packet.speed * dt) % 1;
+        packet.t = (packet.t + packet.speed * dt * (1 + route * 0.35)) % 1;
         var a = nodes[packet.edge[0]].p;
         var b = nodes[packet.edge[1]].p;
         var t = packet.t;
-        var wobble = Math.sin(t * Math.PI) * 0.05;
+        var wobble = Math.sin(t * Math.PI) * 0.06;
         pointData[pi++] = a[0] + (b[0] - a[0]) * t;
         pointData[pi++] = a[1] + (b[1] - a[1]) * t + wobble;
         pointData[pi++] = a[2] + (b[2] - a[2]) * t;
-        pointData[pi++] = 9;
+        pointData[pi++] = 8;
+        pointData[pi++] = 1;
+        var trail = (t - 0.07 + 1) % 1;
+        pointData[pi++] = a[0] + (b[0] - a[0]) * trail;
+        pointData[pi++] = a[1] + (b[1] - a[1]) * trail;
+        pointData[pi++] = a[2] + (b[2] - a[2]) * trail;
+        pointData[pi++] = 4.5;
         pointData[pi++] = 1;
       }
 
@@ -267,9 +279,10 @@ var PACKET_GL = (function () {
       gl.useProgram(lineProg);
       gl.uniformMatrix4fv(uLine.vp, false, vp);
       gl.uniform2f(uLine.mouse, mouse[0], mouse[1]);
-      lineTint[0] = colors.node[0] + (colors.packet[0] - colors.node[0]) * route;
-      lineTint[1] = colors.node[1] + (colors.packet[1] - colors.node[1]) * route;
-      lineTint[2] = colors.node[2] + (colors.packet[2] - colors.node[2]) * route;
+      var grade = route * 0.72;
+      lineTint[0] = colors.node[0] + (colors.packet[0] - colors.node[0]) * grade + colors.flare[0] * route * 0.18;
+      lineTint[1] = colors.node[1] + (colors.packet[1] - colors.node[1]) * grade + colors.flare[1] * route * 0.18;
+      lineTint[2] = colors.node[2] + (colors.packet[2] - colors.node[2]) * grade + colors.flare[2] * route * 0.18;
       gl.uniform3fv(uLine.color, lineTint);
       gl.bindVertexArray(lineVao);
       gl.bindBuffer(gl.ARRAY_BUFFER, lineBuf);
@@ -286,7 +299,7 @@ var PACKET_GL = (function () {
       gl.bindVertexArray(pointVao);
       gl.bindBuffer(gl.ARRAY_BUFFER, pointBuf);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, pointData.subarray(0, pi));
-      gl.drawArrays(gl.POINTS, 0, nodes.length * 2 + packetCount);
+      gl.drawArrays(gl.POINTS, 0, nodes.length * 2 + packetCount * 2);
 
       if (label) {
         var rect = canvas.getBoundingClientRect();
@@ -334,7 +347,7 @@ var PACKET_GL = (function () {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-palette"] });
 
     return {
-      setRoute: function (value) { route = value; },
+      setRoute: function (value) { routeTarget = value; },
       stop: function () {
         running = false;
         cancelAnimationFrame(raf);

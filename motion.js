@@ -77,7 +77,7 @@ var PACKET_MOTION = (function () {
     if (hero) {
       var heroP = progress(hero);
       hero.style.setProperty("--py", heroP.toFixed(3));
-      if (window.__packetGL) window.__packetGL.setRoute(heroP);
+      if (window.__packetGL) window.__packetGL.setRoute(page);
     }
     var cs2 = document.getElementById("cs2-clips");
     if (cs2 && !cs2.dataset.glitched && progress(cs2) > 0.28) {
@@ -110,7 +110,10 @@ var PACKET_MOTION = (function () {
       document.body.appendChild(dot);
       trails.push({ el: dot, x: 0, y: 0 });
     }
-    var x = 0, y = 0, cx = 0, cy = 0;
+    var x = 0, y = 0, cx = 0, cy = 0, down = false;
+    window.addEventListener("pointerdown", function () { down = true; }, { passive: true });
+    window.addEventListener("pointerup", function () { down = false; }, { passive: true });
+    window.addEventListener("pointercancel", function () { down = false; }, { passive: true });
     window.addEventListener("pointermove", function (event) {
       x = event.clientX;
       y = event.clientY;
@@ -129,7 +132,7 @@ var PACKET_MOTION = (function () {
       if (!reduced && ring.isConnected) {
         cx += (x - cx) * 0.22;
         cy += (y - cy) * 0.22;
-        ring.style.transform = "translate(" + cx + "px," + cy + "px)";
+        ring.style.transform = "translate(" + cx + "px," + cy + "px) scale(" + (down ? 0.82 : 1) + ")";
         var px = cx, py = cy;
         for (var n = 0; n < trails.length; n++) {
           var dot = trails[n];
@@ -373,7 +376,7 @@ var PACKET_MOTION = (function () {
   }
 
   function clearReelInline() {
-    document.querySelectorAll(".reel-media, .layer, .reel-forest .duotone, .slit .clip-slot, .corridor .clip-slot, .corridor .duotone, .sakura-frame, .reel-tree .clip-slot, .thanks .clip-frame").forEach(function (el) {
+    document.querySelectorAll(".reel-media, .layer, .reel-forest .duotone, .slit .clip-slot, .corridor .clip-slot, .corridor .duotone, .sakura-frame, .reel-tree .clip-slot, .thanks .clip-frame, .shot-frame, .node-portrait, #hero .hero-copy > *, #prosjekter .card, #prosjekter .feature-copy > *").forEach(function (el) {
       el.style.clipPath = "";
       el.style.transform = "";
       el.style.opacity = "";
@@ -444,26 +447,93 @@ var PACKET_MOTION = (function () {
     window.ScrollTrigger.refresh();
   }
 
-  var reelsArmed = false;
+  var STORY = "power3.out";
+
+  function initStory() {
+    if (reduced || !window.gsap || !window.ScrollTrigger) return;
+    if (matchMedia("(max-width: 720px)").matches) return;
+    var gsap = window.gsap;
+    gsap.registerPlugin(window.ScrollTrigger);
+    window.ScrollTrigger.getAll().forEach(function (trigger) { trigger.kill(); });
+    initReels();
+    var hero = document.getElementById("hero");
+    if (hero) {
+      var bits = hero.querySelectorAll(".hero-copy > *:not(.node-portrait)");
+      if (bits.length) {
+        gsap.from(bits, {
+          y: 16,
+          duration: 0.9,
+          stagger: 0.055,
+          ease: STORY,
+          immediateRender: false,
+          scrollTrigger: { trigger: hero, start: "top 92%", toggleActions: "play none none none" }
+        });
+      }
+      var portrait = hero.querySelector(".node-portrait");
+      if (portrait) {
+        gsap.to(portrait, {
+          y: -22,
+          ease: "none",
+          scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.65 }
+        });
+      }
+    }
+    gsap.utils.toArray("#prosjekter .station .feature-copy > *").forEach(function (el) {
+      gsap.from(el, {
+        y: 22,
+        opacity: 0,
+        duration: 0.75,
+        ease: STORY,
+        scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "play none none none" }
+      });
+    });
+    gsap.utils.toArray("#prosjekter .card").forEach(function (card) {
+      gsap.from(card, {
+        y: 28,
+        opacity: 0,
+        duration: 0.8,
+        ease: STORY,
+        scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none none" }
+      });
+    });
+    var frame = document.querySelector("#topologi-studio .shot-frame");
+    if (frame && matchMedia("(min-width: 980px)").matches) {
+      gsap.fromTo(frame, { clipPath: "inset(18% 14% 18% 14% round 22px)" }, {
+        clipPath: "inset(0% 0% 0% 0% round 18px)",
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#topologi-studio",
+          start: "top 72%",
+          end: "center 55%",
+          scrub: 0.45
+        }
+      });
+    }
+    window.ScrollTrigger.refresh();
+  }
 
   function armReels() {
-    return;
-    if (document.getElementById("journey-gl")) return;
     if (reduced) return;
-    if (window.gsap && window.ScrollTrigger) { initReels(); return; }
-    if (reelsArmed) return;
-    reelsArmed = true;
+    if (matchMedia("(max-width: 720px)").matches) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    if (window.gsap && window.ScrollTrigger) { initStory(); return; }
+    if (armReels.started) return;
+    armReels.started = true;
     function kick() {
+      if (armReels.loading || reduced) return;
+      if (matchMedia("(max-width: 720px)").matches) return;
+      armReels.loading = true;
       window.removeEventListener("scroll", kick);
-      if (reduced) return;
       loadScript("/vendor/gsap.min.js").then(function () {
         return loadScript("/vendor/ScrollTrigger.min.js");
       }).then(function () {
-        if (!reduced) initReels();
+        if (!reduced) initStory();
       }).catch(function () {});
     }
     window.addEventListener("scroll", kick, { passive: true });
-    if (window.scrollY > 24) kick();
+    if (window.scrollY > 8) kick();
+    else if ("requestIdleCallback" in window) requestIdleCallback(kick, { timeout: 2400 });
+    else setTimeout(kick, 1700);
   }
 
   function loadGL() {
