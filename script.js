@@ -29,7 +29,7 @@
   var themeBtn = document.getElementById("theme-toggle");
   var year = document.getElementById("year");
   var status = document.getElementById("live-status");
-  var CACHE = "xdkurbie-gh-cache-v1";
+  var CACHE = "xdkurbie-gh-cache-v2";
   var BASELINE = Date.parse("2026-10-20T10:48:03Z");
 
   if (year) year.textContent = String(new Date().getFullYear());
@@ -245,12 +245,33 @@
 
   function getJson(url) {
     return fetch(url, {
-      headers: { Accept: "application/vnd.github+json" },
+      headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(8000)
     }).then(function (res) {
       if (!res.ok) throw new Error(String(res.status));
       return res.json();
     });
+  }
+
+  function setPoster(img, base) {
+    if (!img || !base) return;
+    var pic = img.parentElement;
+    if (pic && pic.tagName === "PICTURE") {
+      var avif = pic.querySelector('source[type="image/avif"]');
+      if (avif) avif.srcset = base + ".poster.avif";
+    } else {
+      // Ensure later slots can also pick AVIF without rewriting markup.
+      pic = document.createElement("picture");
+      avif = document.createElement("source");
+      avif.type = "image/avif";
+      avif.srcset = base + ".poster.avif";
+      img.replaceWith(pic);
+      pic.appendChild(avif);
+      pic.appendChild(img);
+    }
+    img.srcset = base + ".poster-640.webp 640w, " + base + ".poster.webp 1280w";
+    img.sizes = "100vw";
+    img.src = base + ".poster.webp";
   }
 
   function knownRepos() {
@@ -427,23 +448,7 @@
         if (name) wanted.push(name);
       });
       Promise.all(wanted.map(function (name) {
-        if (releases[name]) return Promise.resolve(releases[name]);
-        return getJson("https://api.github.com/repos/xdkurbie/" + encodeURIComponent(name) + "/releases/latest")
-          .then(function (data) {
-            releases[name] = {
-              tag_name: data.tag_name,
-              html_url: data.html_url,
-              assets: (data.assets || []).map(function (asset) {
-                return {
-                  name: asset.name,
-                  browser_download_url: asset.browser_download_url,
-                  size: asset.size
-                };
-              })
-            };
-            return releases[name];
-          })
-          .catch(function () { return null; });
+        return Promise.resolve(releases[name] || null);
       })).then(function () {
         wanted.forEach(function (name) {
           if (releases[name] && applyRelease(name, releases[name])) announced = true;
@@ -455,34 +460,32 @@
       });
     }
 
+    function applyCommit(commit) {
+      var sha = commit && commit.sha;
+      var el = document.getElementById("commit");
+      if (!el || !sha) return;
+      el.textContent = sha.slice(0, 7);
+      el.setAttribute("href", commit.html_url || ("https://github.com/xdkurbie/xdkurbie.github.io/commit/" + sha));
+    }
+
     if (cached && Array.isArray(cached.repos)) {
+      if (cached.commit) applyCommit(cached.commit);
       finish(cached.repos);
       return;
     }
 
-    getJson("https://api.github.com/users/xdkurbie/repos?per_page=100&sort=pushed")
-      .then(function (repos) {
-        finish(repos.map(function (repo) {
-          return {
-            name: repo.name,
-            private: repo.private,
-            fork: repo.fork,
-            archived: repo.archived,
-            description: repo.description,
-            html_url: repo.html_url,
-            homepage: repo.homepage,
-            language: repo.language,
-            pushed_at: repo.pushed_at
-          };
-        }));
-        return getJson("https://api.github.com/repos/xdkurbie/xdkurbie.github.io/commits/main");
-      })
-      .then(function (commit) {
-        var sha = commit && commit.sha;
-        var el = document.getElementById("commit");
-        if (!el || !sha) return;
-        el.textContent = sha.slice(0, 7);
-        el.setAttribute("href", "https://github.com/xdkurbie/xdkurbie.github.io/commit/" + sha);
+    // Same-origin snapshot (avoids CORS / rate-limit noise from api.github.com).
+    getJson("/data/github.json")
+      .then(function (payload) {
+        var repos = Array.isArray(payload.repos) ? payload.repos : [];
+        if (payload.releases && typeof payload.releases === "object") {
+          Object.keys(payload.releases).forEach(function (name) {
+            releases[name] = payload.releases[name];
+          });
+        }
+        if (payload.commit) applyCommit(payload.commit);
+        writeCache({ t: Date.now(), repos: repos, releases: releases, commit: payload.commit || null });
+        finish(repos);
       })
       .catch(function () {});
   }
@@ -586,7 +589,7 @@
     function hold(slot, clipIndex, front) {
       var video = videos[slot];
       if (slotClip[slot] !== clipIndex) {
-        posters[slot].src = clips[clipIndex] + ".poster.jpg";
+        setPoster(posters[slot], clips[clipIndex]);
         slotClip[slot] = clipIndex;
         slots[slot].classList.remove("is-playing");
         if (video.getAttribute("src")) {

@@ -1,0 +1,27 @@
+name: Refresh GitHub data
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh data/github.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/refresh-github-data.sh
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/github.json; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/github.json
+          git commit -m "chore: refresh data/github.json"
+          git push

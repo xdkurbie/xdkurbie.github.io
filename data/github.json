@@ -1,0 +1,244 @@
+{
+  "generated_at": "2026-10-23T02:07:04Z",
+  "commit": {
+    "sha": "cefd3db76191201b075c4276063b585b8fcf08c2",
+    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/cefd3db76191201b075c4276063b585b8fcf08c2"
+  },
+  "repos": [
+    {
+      "name": "xdkurbie.github.io",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": null,
+      "html_url": "https://github.com/xdkurbie/xdkurbie.github.io",
+      "homepage": "",
+      "language": "HTML",
+      "pushed_at": "2026-10-22T12:14:48Z"
+    },
+    {
+      "name": "topologi-studio",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "Mac-app for å tegne nettverkstopologiskisser (Tauri + Rust)",
+      "html_url": "https://github.com/xdkurbie/topologi-studio",
+      "homepage": "",
+      "language": "TypeScript",
+      "pushed_at": "2026-10-22T12:08:28Z"
+    },
+    {
+      "name": "cs2-clips",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "Local CS2 demo highlight finder, recorder and montage builder",
+      "html_url": "https://github.com/xdkurbie/cs2-clips",
+      "homepage": "",
+      "language": "Rust",
+      "pushed_at": "2026-10-14T21:46:38Z"
+    },
+    {
+      "name": "tinkerlars",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "TinkerLARS – 3D design, circuits and code blocks in the browser",
+      "html_url": "https://github.com/xdkurbie/tinkerlars",
+      "homepage": "",
+      "language": "JavaScript",
+      "pushed_at": "2026-10-13T10:22:33Z"
+    },
+    {
+      "name": "dune-overlay",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": null,
+      "html_url": "https://github.com/xdkurbie/dune-overlay",
+      "homepage": "",
+      "language": "JavaScript",
+      "pushed_at": "2026-10-12T20:39:30Z"
+    },
+    {
+      "name": "gaming-companion",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "AI gaming companion with screen reading, mouse/keyboard control, skills and MCP addons (Elden Ring, Dune Awakening, Rocket League)",
+      "html_url": "https://github.com/xdkurbie/gaming-companion",
+      "homepage": "",
+      "language": "Python",
+      "pushed_at": "2026-10-12T12:14:16Z"
+    },
+    {
+      "name": "bookmarked",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "Personal bookmark manager with VG3 datateknology resources",
+      "html_url": "https://github.com/xdkurbie/bookmarked",
+      "homepage": "",
+      "language": "HTML",
+      "pushed_at": "2026-09-23T09:25:57Z"
+    },
+    {
+      "name": "norsk-stream-hub",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "Norsk Stream Hub",
+      "html_url": "https://github.com/xdkurbie/norsk-stream-hub",
+      "homepage": "https://norsk-stream-hub.vercel.app",
+      "language": "JavaScript",
+      "pushed_at": "2026-05-08T11:02:39Z"
+    },
+    {
+      "name": "snake-game",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "Classic Snake game with online leaderboard",
+      "html_url": "https://github.com/xdkurbie/snake-game",
+      "homepage": "",
+      "language": "HTML",
+      "pushed_at": "2026-01-16T09:58:37Z"
+    },
+    {
+      "name": "cs2-config-manager",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "CS2 Config Manager - Full config management with pro presets and case opening simulator",
+      "html_url": "https://github.com/xdkurbie/cs2-config-manager",
+      "homepage": "",
+      "language": "TypeScript",
+      "pushed_at": "2026-01-12T01:50:07Z"
+    },
+    {
+      "name": "cs2-config-manager-webapp-",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "whipped this shiz up in no time ngl",
+      "html_url": "https://github.com/xdkurbie/cs2-config-manager-webapp-",
+      "homepage": "",
+      "language": "HTML",
+      "pushed_at": "2026-01-10T20:39:52Z"
+    },
+    {
+      "name": "imgui-csco-chair",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "very comfy chair for csco",
+      "html_url": "https://github.com/xdkurbie/imgui-csco-chair",
+      "homepage": "",
+      "language": null,
+      "pushed_at": "2025-06-14T14:06:28Z"
+    },
+    {
+      "name": "xdkurbie",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "none",
+      "html_url": "https://github.com/xdkurbie/xdkurbie",
+      "homepage": "",
+      "language": null,
+      "pushed_at": "2020-01-31T01:24:04Z"
+    }
+  ],
+  "releases": {
+    "cs2-clips": {
+      "tag_name": "v0.2.0",
+      "html_url": "https://github.com/xdkurbie/cs2-clips/releases/tag/v0.2.0",
+      "assets": [
+        {
+          "name": "cs2clips-cli-macos-universal.tar.gz",
+          "browser_download_url": "https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/cs2clips-cli-macos-universal.tar.gz",
+          "size": 9569043
+        },
+        {
+          "name": "CS2Clips-macos-universal.zip",
+          "browser_download_url": "https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-macos-universal.zip",
+          "size": 9680608
+        },
+        {
+          "name": "CS2Clips-windows-x64.exe",
+          "browser_download_url": "https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-windows-x64.exe",
+          "size": 10949120
+        },
+        {
+          "name": "CS2Clips-windows-x64.zip",
+          "browser_download_url": "https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-windows-x64.zip",
+          "size": 5094399
+        }
+      ]
+    },
+    "dune-overlay": {
+      "tag_name": "v0.1.0",
+      "html_url": "https://github.com/xdkurbie/dune-overlay/releases/tag/v0.1.0",
+      "assets": [
+        {
+          "name": "DuneOverlay-0.1.0-portable.exe",
+          "browser_download_url": "https://github.com/xdkurbie/dune-overlay/releases/download/v0.1.0/DuneOverlay-0.1.0-portable.exe",
+          "size": 76430561
+        }
+      ]
+    },
+    "gaming-companion": {
+      "tag_name": "v1.0.0",
+      "html_url": "https://github.com/xdkurbie/gaming-companion/releases/tag/v1.0.0",
+      "assets": [
+        {
+          "name": "GamingCompanion.exe",
+          "browser_download_url": "https://github.com/xdkurbie/gaming-companion/releases/download/v1.0.0/GamingCompanion.exe",
+          "size": 33955393
+        }
+      ]
+    },
+    "tinkerlars": {
+      "tag_name": "v0.1.0",
+      "html_url": "https://github.com/xdkurbie/tinkerlars/releases/tag/v0.1.0",
+      "assets": [
+        {
+          "name": "tinkerlars-0.1.0-web.zip",
+          "browser_download_url": "https://github.com/xdkurbie/tinkerlars/releases/download/v0.1.0/tinkerlars-0.1.0-web.zip",
+          "size": 377283
+        }
+      ]
+    },
+    "topologi-studio": {
+      "tag_name": "v0.1.5",
+      "html_url": "https://github.com/xdkurbie/topologi-studio/releases/tag/v0.1.5",
+      "assets": [
+        {
+          "name": "Topologi.Studio_0.1.5_arm64-setup.exe",
+          "browser_download_url": "https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.5/Topologi.Studio_0.1.5_arm64-setup.exe",
+          "size": 3667517
+        },
+        {
+          "name": "Topologi.Studio_0.1.5_arm64_en-US.msi",
+          "browser_download_url": "https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.5/Topologi.Studio_0.1.5_arm64_en-US.msi",
+          "size": 4370432
+        },
+        {
+          "name": "Topologi.Studio_0.1.5_universal.dmg",
+          "browser_download_url": "https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.5/Topologi.Studio_0.1.5_universal.dmg",
+          "size": 4726055
+        },
+        {
+          "name": "Topologi.Studio_0.1.5_x64-setup.exe",
+          "browser_download_url": "https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.5/Topologi.Studio_0.1.5_x64-setup.exe",
+          "size": 3773655
+        },
+        {
+          "name": "Topologi.Studio_0.1.5_x64_en-US.msi",
+          "browser_download_url": "https://github.com/xdkurbie/topologi-studio/releases/download/v0.1.5/Topologi.Studio_0.1.5_x64_en-US.msi",
+          "size": 4423680
+        }
+      ]
+    }
+  }
+}
