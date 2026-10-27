@@ -269,7 +269,7 @@
       pic.appendChild(avif);
       pic.appendChild(img);
     }
-    img.srcset = base + ".poster-640.webp 640w, " + base + ".poster.webp 1280w";
+    img.srcset = base + ".poster-640.webp 640w, " + base + ".poster.webp 2560w";
     img.sizes = "100vw";
     img.src = base + ".poster.webp";
   }
