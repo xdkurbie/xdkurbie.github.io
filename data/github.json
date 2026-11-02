@@ -1,10 +1,21 @@
 {
-  "generated_at": "2026-11-01T12:13:17Z",
+  "generated_at": "2026-11-02T14:02:53Z",
   "commit": {
-    "sha": "8bc3cf85455036229718ecd6986c758a8d883a77",
-    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/8bc3cf85455036229718ecd6986c758a8d883a77"
+    "sha": "1930c5123bf48d7dd4085ed769b1d2be8f2cbc94",
+    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/1930c5123bf48d7dd4085ed769b1d2be8f2cbc94"
   },
   "repos": [
+    {
+      "name": "cs2-clips",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "Local CS2 demo highlight finder, recorder and montage builder",
+      "html_url": "https://github.com/xdkurbie/cs2-clips",
+      "homepage": "",
+      "language": "JavaScript",
+      "pushed_at": "2026-11-02T11:56:55Z"
+    },
     {
       "name": "xdkurbie.github.io",
       "private": false,
@@ -14,7 +25,7 @@
       "html_url": "https://github.com/xdkurbie/xdkurbie.github.io",
       "homepage": "",
       "language": "HTML",
-      "pushed_at": "2026-10-31T11:22:41Z"
+      "pushed_at": "2026-11-01T12:13:18Z"
     },
     {
       "name": "tinkerlars",
@@ -37,17 +48,6 @@
       "homepage": "",
       "language": "TypeScript",
       "pushed_at": "2026-10-22T12:08:28Z"
-    },
-    {
-      "name": "cs2-clips",
-      "private": false,
-      "fork": false,
-      "archived": false,
-      "description": "Local CS2 demo highlight finder, recorder and montage builder",
-      "html_url": "https://github.com/xdkurbie/cs2-clips",
-      "homepage": "",
-      "language": "Rust",
-      "pushed_at": "2026-10-14T21:46:38Z"
     },
     {
       "name": "dune-overlay",
