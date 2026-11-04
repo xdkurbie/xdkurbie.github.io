@@ -193,13 +193,13 @@
       "assets": [
         {
           "name": "CS2Settings-macos-intel.dmg",
-          "browser_download_url": "https://github.com/xdkurbie/cs2-settings/releases/download/v1.0.0/CS2Settings-macos-intel.dmg",
-          "size": 3830766
+          "browser_download_url": "https://github.com/xdkurbie/cs2-settings/releases/download/v1.1.0/CS2Settings-macos-intel.dmg",
+          "size": 3902939
         },
         {
           "name": "CS2Settings-macos-intel.zip",
-          "browser_download_url": "https://github.com/xdkurbie/cs2-settings/releases/download/v1.0.0/CS2Settings-macos-intel.zip",
-          "size": 3425052
+          "browser_download_url": "https://github.com/xdkurbie/cs2-settings/releases/download/v1.1.0/CS2Settings-macos-intel.zip",
+          "size": 3494265
         },
         {
           "name": "CS2Settings.exe",
