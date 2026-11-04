@@ -1,10 +1,21 @@
 {
-  "generated_at": "2026-11-04T13:26:12Z",
+  "generated_at": "2026-11-04T14:15:52Z",
   "commit": {
-    "sha": "622881ad018ecb9e83a38e23f5755fd35fe068c0",
-    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/622881ad018ecb9e83a38e23f5755fd35fe068c0"
+    "sha": "1a0951e9fca254092b1a487d3fcb3d73b2c9d70c",
+    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/1a0951e9fca254092b1a487d3fcb3d73b2c9d70c"
   },
   "repos": [
+    {
+      "name": "cs2-settings",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "CS2 Settings — Rust/egui settings app with pro presets and config export",
+      "html_url": "https://github.com/xdkurbie/cs2-settings",
+      "homepage": "",
+      "language": "Rust",
+      "pushed_at": "2026-11-04T14:13:42Z"
+    },
     {
       "name": "xdkurbie.github.io",
       "private": false,
@@ -14,7 +25,7 @@
       "html_url": "https://github.com/xdkurbie/xdkurbie.github.io",
       "homepage": "",
       "language": "HTML",
-      "pushed_at": "2026-11-03T13:11:00Z"
+      "pushed_at": "2026-11-04T13:26:13Z"
     },
     {
       "name": "cs2-clips",
@@ -173,6 +184,17 @@
           "name": "CS2Clips-windows-x64.zip",
           "browser_download_url": "https://github.com/xdkurbie/cs2-clips/releases/download/v0.2.0/CS2Clips-windows-x64.zip",
           "size": 5094399
+        }
+      ]
+    },
+    "cs2-settings": {
+      "tag_name": "v1.0.0",
+      "html_url": "https://github.com/xdkurbie/cs2-settings/releases/tag/v1.0.0",
+      "assets": [
+        {
+          "name": "CS2Settings.exe",
+          "browser_download_url": "https://github.com/xdkurbie/cs2-settings/releases/download/v1.0.0/CS2Settings.exe",
+          "size": 5636096
         }
       ]
     },
