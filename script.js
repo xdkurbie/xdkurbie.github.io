@@ -190,10 +190,11 @@
     if (n.endsWith(".blockmap") || n.endsWith(".sig")) return null;
     if (n.indexOf("cli") !== -1 && (n.endsWith(".tar.gz") || n.endsWith(".zip"))) return null;
     if (n.endsWith(".dmg")) {
-      return { order: 1, label: n.indexOf("universal") !== -1 ? "Mac" : "macOS", ext: ".dmg" };
+      var macLabel = n.indexOf("universal") !== -1 ? "Mac" : (n.indexOf("intel") !== -1 ? "Mac Intel" : "macOS");
+      return { order: 1, label: macLabel, ext: ".dmg" };
     }
     if ((n.indexOf("macos") !== -1 || n.indexOf("darwin") !== -1) && n.endsWith(".zip")) {
-      return { order: 2, label: "macOS", ext: ".zip" };
+      return { order: 2, label: n.indexOf("intel") !== -1 ? "Mac Intel" : "macOS", ext: ".zip" };
     }
     if (n.indexOf("arm64") !== -1 && n.endsWith(".exe")) return { order: 4, label: "Windows ARM64", ext: ".exe" };
     if (n.endsWith(".exe") && (n.indexOf("x64") !== -1 || n.indexOf("win") !== -1)) {
