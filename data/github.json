@@ -1,21 +1,10 @@
 {
-  "generated_at": "2026-11-04T14:15:52Z",
+  "generated_at": "2026-11-05T13:39:28Z",
   "commit": {
-    "sha": "1a0951e9fca254092b1a487d3fcb3d73b2c9d70c",
-    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/1a0951e9fca254092b1a487d3fcb3d73b2c9d70c"
+    "sha": "a15f170d19f2344d5fed413c5b2e78c3dbeb579f",
+    "html_url": "https://github.com/xdkurbie/xdkurbie.github.io/commit/a15f170d19f2344d5fed413c5b2e78c3dbeb579f"
   },
   "repos": [
-    {
-      "name": "cs2-settings",
-      "private": false,
-      "fork": false,
-      "archived": false,
-      "description": "CS2 Settings — Rust/egui settings app with pro presets and config export",
-      "html_url": "https://github.com/xdkurbie/cs2-settings",
-      "homepage": "",
-      "language": "Rust",
-      "pushed_at": "2026-11-04T14:13:42Z"
-    },
     {
       "name": "xdkurbie.github.io",
       "private": false,
@@ -25,7 +14,18 @@
       "html_url": "https://github.com/xdkurbie/xdkurbie.github.io",
       "homepage": "",
       "language": "HTML",
-      "pushed_at": "2026-11-04T13:26:13Z"
+      "pushed_at": "2026-11-04T16:17:31Z"
+    },
+    {
+      "name": "cs2-settings",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "description": "CS2 Settings — Rust/egui settings app with pro presets and config export",
+      "html_url": "https://github.com/xdkurbie/cs2-settings",
+      "homepage": "",
+      "language": "Rust",
+      "pushed_at": "2026-11-04T15:46:02Z"
     },
     {
       "name": "cs2-clips",
